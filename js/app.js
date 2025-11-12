@@ -5,8 +5,14 @@ let currentUser = {};
 
 // Espera a que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar el usuario actual
-    currentUser = { ...mockDB.user };
+    // Cargar el usuario autenticado
+    currentUser = getCurrentUser();
+
+    if (!currentUser) {
+        // Si no hay usuario, redirigir a login (por seguridad adicional)
+        window.location.href = 'login.html';
+        return;
+    }
 
     // Inicializar la aplicación
     initializeApp();
@@ -48,16 +54,24 @@ function getElements() {
         faqList: document.getElementById('faq-list'),
 
         searchBar: document.getElementById('search-bar'),
+        searchBtn: document.getElementById('search-btn'),
+        clearSearchBtn: document.getElementById('clear-search'),
 
         profileForm: document.getElementById('profile-edit-form'),
         profileNameInput: document.getElementById('profile-name'),
         profileEmailInput: document.getElementById('profile-email'),
+        profileDniInput: document.getElementById('profile-dni'),
+        profilePhoneInput: document.getElementById('profile-phone'),
+        profileDateOfBirthInput: document.getElementById('profile-dateOfBirth'),
+        profileAddressInput: document.getElementById('profile-address'),
+        profileCityInput: document.getElementById('profile-city'),
+        profilePostalCodeInput: document.getElementById('profile-postalCode'),
+        profileProvinceInput: document.getElementById('profile-province'),
         profileRelevantDataInput: document.getElementById('profile-relevant-data'),
-        saveSuccessMessage: document.getElementById('save-success-message')
+        saveSuccessMessage: document.getElementById('save-success-message'),
+        logoutBtn: document.getElementById('logout-btn')
     };
-}
-
-// ===== CONFIGURAR EVENT LISTENERS =====
+}// ===== CONFIGURAR EVENT LISTENERS =====
 function setupEventListeners(elements) {
     // Control de la Sidebar Móvil
     elements.openSidebarBtn.addEventListener('click', () => {
@@ -89,11 +103,58 @@ function setupEventListeners(elements) {
         });
     });
 
-    // Lógica de Búsqueda
-    elements.searchBar.addEventListener('input', handleSearch);
+    // Lógica de Búsqueda - Solo al presionar Enter o hacer clic en botón
+    // Mostrar/ocultar botón de limpiar mientras se escribe
+    elements.searchBar.addEventListener('input', (e) => {
+        const clearSearchBtn = elements.clearSearchBtn;
+        const searchTerm = e.target.value.trim();
+
+        // Mostrar/ocultar botón de limpiar inmediatamente
+        if (clearSearchBtn) {
+            if (searchTerm !== '') {
+                clearSearchBtn.classList.remove('hidden');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+            }
+        }
+    });
+
+    // Buscar al presionar Enter
+    elements.searchBar.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSearch({ target: elements.searchBar });
+        }
+    });
+
+    // Buscar al hacer clic en el botón
+    if (elements.searchBtn) {
+        elements.searchBtn.addEventListener('click', () => {
+            handleSearch({ target: elements.searchBar });
+        });
+    }
+
+    // Botón para limpiar búsqueda
+    if (elements.clearSearchBtn) {
+        elements.clearSearchBtn.addEventListener('click', () => {
+            elements.searchBar.value = '';
+            elements.clearSearchBtn.classList.add('hidden');
+            handleSearch({ target: { value: '' } });
+        });
+    }
 
     // Lógica de Editar Perfil
     elements.profileForm.addEventListener('submit', handleProfileSubmit);
+
+    // Botón de cerrar sesión
+    if (elements.logoutBtn) {
+        elements.logoutBtn.addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                logoutUser();
+                window.location.href = 'login.html';
+            }
+        });
+    }
 }
 
 // ===== FUNCIONES DE RENDERIZADO =====
@@ -269,14 +330,29 @@ function showPage(pageId) {
         renderCalendarPage();
     } else if (pageId === 'faq') {
         renderFaqPage();
+    } else if (pageId === 'profile') {
+        loadProfileData();
     }
+}
+
+// Carga los datos del perfil en el formulario
+function loadProfileData() {
+    document.getElementById('profile-name').value = currentUser.name || '';
+    document.getElementById('profile-email').value = currentUser.email || '';
+    document.getElementById('profile-dni').value = currentUser.dni || '';
+    document.getElementById('profile-phone').value = currentUser.phone || '';
+    document.getElementById('profile-dateOfBirth').value = currentUser.dateOfBirth || '';
+    document.getElementById('profile-address').value = currentUser.address || '';
+    document.getElementById('profile-city').value = currentUser.city || '';
+    document.getElementById('profile-postalCode').value = currentUser.postalCode || '';
+    document.getElementById('profile-province').value = currentUser.province || '';
+    document.getElementById('profile-relevant-data').value = currentUser.relevantData || '';
 }
 
 // ===== HANDLERS DE EVENTOS =====
 
 // Manejador de búsqueda
 function handleSearch(e) {
-    const searchBar = document.getElementById('search-bar');
     const feedTitle = document.getElementById('feed-title');
     const searchTerm = e.target.value.toLowerCase().trim();
 
@@ -285,42 +361,83 @@ function handleSearch(e) {
 
     if (searchTerm === '') {
         feedTitle.textContent = 'Videoteca de Trámites';
+        feedTitle.classList.remove('text-blue-600', 'text-red-600');
         renderFeed(mockDB.videos);
         return;
     }
 
-    const filteredVideos = mockDB.videos.filter(video =>
-        video.title.toLowerCase().includes(searchTerm) ||
-        video.description.toLowerCase().includes(searchTerm) ||
-        video.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-    );
+    // Búsqueda mejorada
+    const filteredVideos = mockDB.videos.filter(video => {
+        const titleMatch = video.title.toLowerCase().includes(searchTerm);
+        const descMatch = video.description.toLowerCase().includes(searchTerm);
+        const tagsMatch = video.tags.some(tag => tag.toLowerCase().includes(searchTerm));
 
-    feedTitle.textContent = `Resultados para "${searchTerm}"`;
+        return titleMatch || descMatch || tagsMatch;
+    });
+
+    // Actualizar título con contador de resultados
+    const resultCount = filteredVideos.length;
+    feedTitle.classList.remove('text-blue-600', 'text-red-600');
+
+    if (resultCount === 0) {
+        feedTitle.textContent = `No se encontraron resultados para "${searchTerm}"`;
+        feedTitle.classList.add('text-red-600');
+    } else if (resultCount === 1) {
+        feedTitle.textContent = `1 resultado para "${searchTerm}"`;
+        feedTitle.classList.add('text-blue-600');
+    } else {
+        feedTitle.textContent = `${resultCount} resultados para "${searchTerm}"`;
+        feedTitle.classList.add('text-blue-600');
+    }
+
     renderFeed(filteredVideos);
+
+    // Hacer scroll al inicio de los resultados
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Manejador de envío de formulario de perfil
 function handleProfileSubmit(e) {
     e.preventDefault();
 
-    const profileNameInput = document.getElementById('profile-name');
-    const profileEmailInput = document.getElementById('profile-email');
-    const profileRelevantDataInput = document.getElementById('profile-relevant-data');
     const saveSuccessMessage = document.getElementById('save-success-message');
 
-    // Actualizar el objeto currentUser simulado
-    currentUser.name = profileNameInput.value;
-    currentUser.email = profileEmailInput.value;
-    currentUser.relevantData = profileRelevantDataInput.value;
+    // Recoger todos los datos del formulario
+    const updates = {
+        name: document.getElementById('profile-name').value,
+        email: document.getElementById('profile-email').value,
+        dni: document.getElementById('profile-dni').value,
+        phone: document.getElementById('profile-phone').value,
+        dateOfBirth: document.getElementById('profile-dateOfBirth').value,
+        address: document.getElementById('profile-address').value,
+        city: document.getElementById('profile-city').value,
+        postalCode: document.getElementById('profile-postalCode').value,
+        province: document.getElementById('profile-province').value,
+        relevantData: document.getElementById('profile-relevant-data').value
+    };
 
-    // Volver a renderizar el perfil en la sidebar
-    renderUserProfile();
+    // Actualizar el usuario usando el sistema de autenticación
+    const result = updateCurrentUser(updates);
 
-    // Mostrar mensaje de éxito
-    saveSuccessMessage.classList.remove('hidden');
-    setTimeout(() => {
-        saveSuccessMessage.classList.add('hidden');
-        // Volver al feed después de guardar
-        showPage('feed');
-    }, 2000);
+    if (result.success) {
+        // Actualizar la variable global
+        currentUser = result.user;
+
+        // Volver a renderizar el perfil en la sidebar
+        renderUserProfile();
+
+        // Mostrar mensaje de éxito
+        saveSuccessMessage.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200');
+        saveSuccessMessage.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+        saveSuccessMessage.textContent = result.message;
+
+        setTimeout(() => {
+            saveSuccessMessage.classList.add('hidden');
+        }, 3000);
+    } else {
+        // Mostrar mensaje de error
+        saveSuccessMessage.classList.remove('hidden', 'bg-green-50', 'text-green-700', 'border-green-200');
+        saveSuccessMessage.classList.add('bg-red-50', 'text-red-700', 'border', 'border-red-200');
+        saveSuccessMessage.textContent = result.message;
+    }
 }
