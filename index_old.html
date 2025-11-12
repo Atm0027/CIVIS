@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civis - Tu Asistente Burocrático</title>
+
+    <!-- Importamos Tailwind CSS para un diseño rápido y moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Importamos la fuente Inter (limpia y moderna) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Aplicamos la fuente Inter a todo el documento */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Pequeño truco para que los scrollbars sean más finos */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Estilos para los enlaces de navegación */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:not(.bg-slate-700) {
+            color: rgb(203, 213, 225);
+        }
+
+        .nav-link:not(.bg-slate-700):hover {
+            background-color: rgb(51, 65, 85);
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+
+    <div class="flex h-screen bg-gray-100">
+
+        <!-- ===== BARRA LATERAL (Sidebar) ===== -->
+        <!-- Oculta en móvil (se muestra con botón), fija en desktop -->
+        <aside id="sidebar"
+            class="fixed inset-y-0 left-0 z-30 flex flex-col h-screen w-64 transform bg-slate-900 text-white shadow-lg transition-transform duration-300 ease-in-out md:relative md:translate-x-0 -translate-x-full">
+
+            <!-- Logo / Título -->
+            <div class="flex items-center justify-center px-6 h-20 border-b border-slate-700">
+                <h1 class="text-2xl font-bold text-white">Civis</h1>
+                <span class="ml-2 rounded-full bg-blue-500 px-2 py-0.5 text-xs font-semibold">MVP</span>
+            </div>
+
+            <!-- Perfil de Usuario -->
+            <div id="user-profile-sidebar" class="p-6 border-b border-slate-700">
+                <!-- El contenido se rellenará con JS -->
+            </div>
+
+            <!-- Navegación Principal -->
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                <a href="#" data-page="feed" class="nav-link bg-slate-700 text-white">
+                    <!-- Icono: Feed/Inicio -->
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                    <span>Inicio / Feed</span>
+                </a>
+                <a href="#" data-page="calendar" class="nav-link">
+                    <!-- Icono: Calendario -->
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                    <span>Calendario de Plazos</span>
+                </a>
+                <a href="#" data-page="faq" class="nav-link">
+                    <!-- Icono: FAQs -->
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                    </svg>
+                    <span>Preguntas Frecuentes</span>
+                </a>
+            </nav>
+
+            <!-- Plazos Cercanos -->
+            <div class="p-6 border-t border-slate-700">
+                <h3 class="text-xs font-semibold uppercase text-slate-400 tracking-wider mb-3">Plazos Cercanos</h3>
+                <div id="upcoming-deadlines" class="space-y-3">
+                    <!-- Rellenado con JS -->
+                </div>
+            </div>
+
+            <!-- Botón de Cierre (para móvil) -->
+            <button id="close-sidebar-btn" class="md:hidden absolute top-4 right-4 text-slate-300 hover:text-white">
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </aside>
+
+        <!-- Overlay para cerrar sidebar en móvil -->
+        <div id="sidebar-overlay" class="md:hidden fixed inset-0 bg-black opacity-50 z-20 hidden"></div>
+
+        <!-- ===== CONTENIDO PRINCIPAL ===== -->
+        <div class="flex-1 flex flex-col h-screen overflow-y-auto">
+
+            <!-- Barra Superior (con buscador y botón de menú móvil) -->
+            <header class="sticky top-0 z-10 flex items-center justify-between h-20 bg-white shadow-md px-6">
+                <!-- Botón de Menú (sólo móvil) -->
+                <button id="open-sidebar-btn" class="md:hidden text-gray-600 hover:text-gray-900">
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+
+                <!-- Barra de Búsqueda -->
+                <div class="relative flex-1 max-w-xl">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </span>
+                    <input id="search-bar" type="text"
+                        class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Buscar trámite (ej: 'Renovar DNI', 'Beca')">
+                </div>
+
+                <!-- Icono de Notificaciones (ejemplo) -->
+                <div class="ml-4">
+                    <button class="relative p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-gray-100">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                        </svg>
+                        <span class="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Contenedor de Páginas (se muestra una a la vez) -->
+            <main class="flex-1 p-6 md:p-10">
+
+                <!-- ===== PÁGINA 1: FEED DE VIDEOTECA (Default) ===== -->
+                <div id="page-feed" class="page-content">
+                    <h2 id="feed-title" class="text-3xl font-bold text-gray-900 mb-6">Videoteca de Trámites</h2>
+                    <div id="video-feed-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Las tarjetas de vídeo se insertarán aquí con JS -->
+                    </div>
+                    <div id="no-results" class="hidden text-center text-gray-500 mt-10">
+                        <p class="text-lg">No se encontraron resultados para tu búsqueda.</p>
+                    </div>
+                </div>
+
+                <!-- ===== PÁGINA 2: CALENDARIO DE PLAZOS ===== -->
+                <div id="page-calendar" class="page-content hidden">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Calendario de Plazos</h2>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-gray-700 mb-4">Aquí se mostraría un calendario interactivo. Por ahora, aquí
+                            tienes una lista de todos los plazos del sistema:</p>
+                        <ul id="calendar-full-list" class="divide-y divide-gray-200">
+                            <!-- Lista de plazos rellenada con JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ===== PÁGINA 3: PREGUNTAS FRECUENTES (FAQ) ===== -->
+                <div id="page-faq" class="page-content hidden">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Preguntas Frecuentes</h2>
+                    <div class="space-y-4" id="faq-list">
+                        <!-- Las FAQs se insertarán aquí con JS -->
+                    </div>
+                </div>
+
+                <!-- ===== PÁGINA 4: EDITAR PERFIL ===== -->
+                <div id="page-profile" class="page-content hidden">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Editar Perfil</h2>
+                    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
+                        <form id="profile-edit-form" class="space-y-6">
+                            <div>
+                                <label for="profile-name" class="block text-sm font-medium text-gray-700">Nombre
+                                    Completo</label>
+                                <input type="text" id="profile-name"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border">
+                            </div>
+                            <div>
+                                <label for="profile-email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" id="profile-email"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border">
+                            </div>
+                            <div>
+                                <label for="profile-relevant-data" class="block text-sm font-medium text-gray-700">Datos
+                                    Relevantes</label>
+                                <textarea id="profile-relevant-data" rows="4"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border"
+                                    placeholder="Ej: Estudiante en Madrid, preparando oposición, autónomo..."></textarea>
+                                <p class="mt-2 text-xs text-gray-500">Esta información nos ayudará a mostrarte trámites
+                                    relevantes.</p>
+                            </div>
+                            <div class="text-right">
+                                <button type="submit"
+                                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                        <div id="save-success-message"
+                            class="hidden mt-4 p-3 rounded-md bg-green-50 text-green-700 border border-green-200">
+                            ¡Perfil actualizado correctamente!
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // ===== BASE DE DATOS SIMULADA (Mock Data) =====
+
+        const mockDB = {
+            // Perfil de usuario inicial
+            user: {
+                name: "Juan Pérez",
+                email: "juan.perez@email.com",
+                avatarUrl: "https://placehold.co/100x100/E0E7FF/4F46E5?text=JP",
+                relevantData: "Estudiante de primer año de universidad en Madrid."
+            },
+
+            // Contenido de la videoteca
+            videos: [
+                {
+                    id: 1,
+                    title: "Cómo solicitar la Beca MEC 2025-2026",
+                    description: "Guía paso a paso para estudiantes universitarios y no universitarios. No te dejes ningún documento.",
+                    thumbnail: "https://placehold.co/600x400/D1FAE5/10B981?text=Beca+MEC",
+                    tags: ["estudiantes", "becas", "universidad", "ayudas"]
+                },
+                {
+                    id: 2,
+                    title: "Renovar el DNI: Cita previa y documentación",
+                    description: "Qué necesitas para renovar tu Documento Nacional de Identidad. Tasas, fotos y plazos.",
+                    thumbnail: "https://placehold.co/600x400/E0E7FF/4F46E5?text=Renovar+DNI",
+                    tags: ["dni", "identificación", "cita previa", "general"]
+                },
+                {
+                    id: 3,
+                    title: "Guía para Empadronarse por primera vez",
+                    description: "El certificado de empadronamiento es clave para muchos trámites. Te explicamos cómo obtenerlo.",
+                    thumbnail: "https://placehold.co/600x400/FEF3C7/F59E0B?text=Empadronarse",
+                    tags: ["padrón", "vivienda", "ayuntamiento", "general"]
+                },
+                {
+                    id: 4,
+                    title: "Obtener el Certificado Digital (FNMT)",
+                    description: "La llave maestra para toda la burocracia online. Te guiamos en el proceso de solicitud e instalación.",
+                    thumbnail: "https://placehold.co/600x400/F3E8FF/A855F7?text=Certificado+Digital",
+                    tags: ["digital", "certificado", "fnmt", "general"]
+                },
+                {
+                    id: 5,
+                    title: "Declaración de la RENTA para principiantes",
+                    description: "¿Tu primera declaración? Te explicamos los conceptos básicos, borradores y cómo presentarla.",
+                    thumbnail: "https://placehold.co/600x400/FEE2E2/EF4444?text=RENTA",
+                    tags: ["impuestos", "renta", "hacienda", "autónomos"]
+                },
+                {
+                    id: 6,
+                    title: "Solicitar el NIE: Guía para extranjeros",
+                    description: "Todo lo que necesitas saber para obtener tu Número de Identificación de Extranjero en España.",
+                    thumbnail: "https://placehold.co/600x400/DBEAFE/3B82F6?text=NIE",
+                    tags: ["extranjeros", "nie", "inmigración", "identificación"]
+                }
+            ],
+
+            // Plazos del calendario
+            calendar: [
+                { date: "2025-11-20", title: "Fin Plazo Matrícula Universidad" },
+                { date: "2025-12-01", title: "Inicio Solicitud Beca MEC" },
+                { date: "2025-12-15", title: "Último día pago impuestos (Autónomos)" },
+                { date: "2026-01-31", title: "Fin Plazo Presentación Modelo 347" },
+                { date: "2026-02-15", title: "Renovación DNI (vencimientos Q1)" },
+                { date: "2026-03-31", title: "Declaración Trimestral IVA" }
+            ],
+
+            // Preguntas Frecuentes
+            faqs: [
+                {
+                    q: "¿Qué es el 'empadronamiento' y por qué lo necesito?",
+                    a: "El Padrón municipal es el registro que acredita tu residencia y domicilio habitual en un municipio. Lo necesitas para trámites como renovar el DNI, matricular un coche, acceder a ayudas sociales o inscribir a tus hijos en el colegio."
+                },
+                {
+                    q: "¿Qué diferencia hay entre el Certificado Digital y el sistema Cl@ve?",
+                    a: "Ambos son sistemas de identificación digital. El Certificado Digital es un archivo que instalas en tu navegador (más potente, pero más complejo). Cl@ve es un sistema más sencillo, a menudo basado en un PIN temporal que recibes en tu móvil, ideal para trámites comunes."
+                },
+                {
+                    q: "¿Qué es el 'NIE' y quién lo necesita?",
+                    a: "El NIE (Número de Identificación de Extranjero) es el número de identificación para personas no españolas. Es esencial para cualquier trámite legal o económico en España, como abrir una cuenta bancaria, firmar un contrato de trabajo o comprar una propiedad."
+                },
+                {
+                    q: "¿Cómo puedo saber si tengo que hacer la declaración de la RENTA?",
+                    a: "En general, debes hacer la declaración si has ganado más de 22.000€ anuales de un pagador, o más de 15.000€ si tienes más de un pagador. También si eres autónomo o has tenido ganancias patrimoniales. La Agencia Tributaria te enviará un borrador si estás obligado."
+                },
+                {
+                    q: "¿Cuánto tarda en renovarse el DNI?",
+                    a: "Una vez que acudes a tu cita en la Policía Nacional con toda la documentación, el DNI suele estar listo en aproximadamente 7-10 días hábiles. Te lo enviarán a tu domicilio o podrás recogerlo en la comisaría, según elijas."
+                }
+            ]
+        };
+
+        // ===== LÓGICA DE LA APLICACIÓN (JavaScript) =====
+
+        // Espera a que el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Selectores de Elementos ---
+            const sidebar = document.getElementById('sidebar');
+            const openSidebarBtn = document.getElementById('open-sidebar-btn');
+            const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page-content');
+
+            const userProfileSidebar = document.getElementById('user-profile-sidebar');
+            const upcomingDeadlinesEl = document.getElementById('upcoming-deadlines');
+
+            const videoFeedGrid = document.getElementById('video-feed-grid');
+            const feedTitle = document.getElementById('feed-title');
+            const noResultsEl = document.getElementById('no-results');
+
+            const calendarFullList = document.getElementById('calendar-full-list');
+            const faqList = document.getElementById('faq-list');
+
+            const searchBar = document.getElementById('search-bar');
+
+            const profileForm = document.getElementById('profile-edit-form');
+            const profileNameInput = document.getElementById('profile-name');
+            const profileEmailInput = document.getElementById('profile-email');
+            const profileRelevantDataInput = document.getElementById('profile-relevant-data');
+            const saveSuccessMessage = document.getElementById('save-success-message');
+
+            let currentUser = { ...mockDB.user };
+
+            // --- Funciones de Renderizado ---
+
+            // Renderiza el perfil en la barra lateral
+            function renderUserProfile() {
+                userProfileSidebar.innerHTML = `
+                    <div class="flex flex-col items-center text-center">
+                        <img class="h-20 w-20 rounded-full object-cover" src="${currentUser.avatarUrl}" alt="Avatar de usuario">
+                        <h4 class="mt-3 text-lg font-semibold text-white">${currentUser.name}</h4>
+                        <p class="text-sm text-slate-400">${currentUser.email}</p>
+                        <button class="nav-link-profile mt-4 text-xs bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors" data-page="profile">
+                            Editar Perfil
+                        </button>
+                    </div>
+                `;
+                // Añadir event listener al botón de editar perfil recién creado
+                document.querySelector('.nav-link-profile').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showPage('profile');
+                    // Rellenar el formulario de perfil
+                    profileNameInput.value = currentUser.name;
+                    profileEmailInput.value = currentUser.email;
+                    profileRelevantDataInput.value = currentUser.relevantData;
+                });
+            }
+
+            // Renderiza los plazos cercanos en la barra lateral
+            function renderUpcomingDeadlines() {
+                upcomingDeadlinesEl.innerHTML = ''; // Limpiar
+                const now = new Date();
+
+                // Simulación: coger los 2 plazos más cercanos
+                const upcoming = mockDB.calendar
+                    .filter(item => new Date(item.date) > now) // Solo fechas futuras
+                    .sort((a, b) => new Date(a.date) - new Date(b.date)) // Ordenar por cercanía
+                    .slice(0, 2); // Coger las 2 primeras
+
+                if (upcoming.length === 0) {
+                    upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-slate-400">No hay plazos cercanos.</p>';
+                    return;
+                }
+
+                upcoming.forEach(item => {
+                    const itemDate = new Date(item.date);
+                    const formattedDate = itemDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+
+                    upcomingDeadlinesEl.innerHTML += `
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0 p-2 bg-slate-700 rounded-full">
+                                <!-- Icono: Reloj -->
+                                <svg class="w-4 h-4 text-slate-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-white">${item.title}</p>
+                                <p class="text-xs text-slate-400">${formattedDate}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Renderiza el feed de vídeos
+            function renderFeed(videosToRender) {
+                videoFeedGrid.innerHTML = ''; // Limpiar grid
+
+                if (videosToRender.length === 0) {
+                    noResultsEl.classList.remove('hidden');
+                } else {
+                    noResultsEl.classList.add('hidden');
+                }
+
+                videosToRender.forEach(video => {
+                    videoFeedGrid.innerHTML += `
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl cursor-pointer">
+                            <img class="w-full h-48 object-cover" src="${video.thumbnail}" alt="Miniatura de ${video.title}">
+                            <div class="p-5">
+                                <h3 class="text-lg font-bold text-gray-900 mb-2">${video.title}</h3>
+                                <p class="text-sm text-gray-600 mb-4">${video.description}</p>
+                                <div class="flex flex-wrap gap-2">
+                                    ${video.tags.map(tag => `<span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Renderiza la lista completa del calendario
+            function renderCalendarPage() {
+                calendarFullList.innerHTML = ''; // Limpiar
+                mockDB.calendar
+                    .sort((a, b) => new Date(a.date) - new Date(b.date))
+                    .forEach(item => {
+                        const itemDate = new Date(item.date);
+                        const formattedDate = itemDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+                        calendarFullList.innerHTML += `
+                            <li class="py-4 flex justify-between items-center">
+                                <div>
+                                    <p class="text-md font-medium text-gray-900">${item.title}</p>
+                                    <p class="text-sm text-gray-500">${formattedDate}</p>
+                                </div>
+                                <span class="text-sm font-semibold ${new Date(item.date) < new Date() ? 'text-red-600' : 'text-green-600'}">
+                                    ${new Date(item.date) < new Date() ? 'Plazo finalizado' : 'Plazo abierto'}
+                                </span>
+                            </li>
+                        `;
+                    });
+            }
+
+            // Renderiza la lista de FAQs
+            function renderFaqPage() {
+                faqList.innerHTML = ''; // Limpiar
+                mockDB.faqs.forEach(faq => {
+                    faqList.innerHTML += `
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">${faq.q}</h3>
+                            <p class="text-gray-700">${faq.a}</p>
+                        </div>
+                    `;
+                });
+            }
+
+
+            // --- Lógica de Navegación y Estado ---
+
+            // Función para mostrar la página correcta y ocultar las demás
+            function showPage(pageId) {
+                // Ocultar todas las páginas
+                pages.forEach(page => page.classList.add('hidden'));
+
+                // Mostrar la página solicitada
+                const activePage = document.getElementById(`page-${pageId}`);
+                if (activePage) {
+                    activePage.classList.remove('hidden');
+                }
+
+                // Actualizar el estado activo de los links de navegación
+                navLinks.forEach(link => {
+                    link.classList.remove('bg-slate-700', 'text-white');
+                    link.classList.add('text-slate-300');
+                    if (link.dataset.page === pageId) {
+                        link.classList.add('bg-slate-700', 'text-white');
+                        link.classList.remove('text-slate-300');
+                    }
+                });
+
+                // Lógica de renderizado específica de la página
+                if (pageId === 'feed') {
+                    // Al volver al feed, resetea la búsqueda y el título
+                    searchBar.value = '';
+                    feedTitle.textContent = 'Videoteca de Trámites';
+                    renderFeed(mockDB.videos);
+                } else if (pageId === 'calendar') {
+                    renderCalendarPage();
+                } else if (pageId === 'faq') {
+                    renderFaqPage();
+                }
+            }
+
+            // --- Event Listeners ---
+
+            // Control de la Sidebar Móvil
+            openSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            });
+
+            closeSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            });
+
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            });
+
+            // Navegación principal
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.dataset.page;
+                    showPage(pageId);
+                    // En móvil, cerrar la sidebar después de hacer clic
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.add('-translate-x-full');
+                        sidebarOverlay.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Lógica de Búsqueda
+            searchBar.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+
+                // Asegurarse de que estamos en la página de feed
+                showPage('feed');
+
+                if (searchTerm === '') {
+                    feedTitle.textContent = 'Videoteca de Trámites';
+                    renderFeed(mockDB.videos);
+                    return;
+                }
+
+                const filteredVideos = mockDB.videos.filter(video =>
+                    video.title.toLowerCase().includes(searchTerm) ||
+                    video.description.toLowerCase().includes(searchTerm) ||
+                    video.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+                );
+
+                feedTitle.textContent = `Resultados para "${searchTerm}"`;
+                renderFeed(filteredVideos);
+            });
+
+            // Lógica de Editar Perfil
+            profileForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // Actualizar el objeto currentUser simulado
+                currentUser.name = profileNameInput.value;
+                currentUser.email = profileEmailInput.value;
+                currentUser.relevantData = profileRelevantDataInput.value;
+
+                // Volver a renderizar el perfil en la sidebar
+                renderUserProfile();
+
+                // Mostrar mensaje de éxito
+                saveSuccessMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    saveSuccessMessage.classList.add('hidden');
+                    // Volver al feed después de guardar
+                    showPage('feed');
+                }, 2000);
+            });
+
+            // --- Carga Inicial ---
+            renderUserProfile();
+            renderUpcomingDeadlines();
+            renderFeed(mockDB.videos); // Mostrar el feed por defecto
+        });
+    </script>
+</body>
+
+</html>
