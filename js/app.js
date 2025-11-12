@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!currentUser) {
         // Si no hay usuario, redirigir a login (por seguridad adicional)
-        window.location.href = 'login.html';
+        window.location.href = 'pages/login.html';
         return;
     }
 
@@ -151,7 +151,7 @@ function setupEventListeners(elements) {
         elements.logoutBtn.addEventListener('click', () => {
             if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
                 logoutUser();
-                window.location.href = 'login.html';
+                window.location.href = 'pages/login.html';
             }
         });
     }
