@@ -1,0 +1,76 @@
+# ===== CIVIS - .gitignore =====
+
+# Archivos del sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# Node modules (si se usa npm en el futuro)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+
+# Archivos de configuración local
+.env
+.env.local
+.env.*.local
+config.local.php
+
+# Carpetas de cache y temporales
+cache/
+temp/
+tmp/
+*.tmp
+
+# Archivos de backup
+*.bak
+*.backup
+*~
+
+# Archivos de base de datos locales
+*.sql
+*.sqlite
+*.db
+
+# Archivos de PHP
+vendor/
+composer.phar
+composer.lock
+
+# Archivos de distribución
+dist/
+build/
+
+# Archivos de AWS y despliegue
+.elasticbeanstalk/
+.aws-sam/
+
+# Archivos de certificados (no subir a git)
+*.pem
+*.key
+*.crt
+*.p12
+
+# Archivos de usuario
+uploads/
+user-data/

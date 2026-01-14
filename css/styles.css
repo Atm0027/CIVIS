@@ -1,0 +1,250 @@
+/* ===== ESTILOS PERSONALIZADOS CIVIS ===== */
+
+/* Aplicamos la fuente Inter a todo el documento */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Pequeño truco para que los scrollbars sean más finos */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Estilos para los enlaces de navegación */
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.nav-link:not(.bg-slate-700) {
+    color: rgb(203, 213, 225);
+}
+
+.nav-link:not(.bg-slate-700):hover {
+    background-color: rgb(51, 65, 85);
+    color: white;
+}
+
+/* Animaciones suaves para transiciones */
+.page-content {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos para las tarjetas de video */
+.video-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Estilos para los inputs del formulario */
+input[type="text"],
+input[type="email"],
+textarea {
+    border: 1px solid #d1d5db;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===== ESTILOS DE LA BARRA DE BÚSQUEDA ===== */
+
+/* Header de búsqueda */
+.search-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+    background-color: white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    padding: 1rem 2rem;
+    gap: 1.5rem;
+}
+
+/* Ajuste del contenedor principal para compensar el header */
+.main-content {
+    flex: 1;
+    padding: 2.5rem;
+}
+
+@media (min-width: 768px) {
+    .main-content {
+        padding: 2.5rem 3rem;
+    }
+}
+
+/* Contenedor de búsqueda */
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 48rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+/* Icono de búsqueda */
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 1.25rem;
+    transform: translateY(-50%);
+    width: 1.125rem;
+    height: 1.125rem;
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+/* Input de búsqueda */
+.search-input {
+    width: 100%;
+    padding: 0.875rem 3.5rem;
+    border-radius: 9999px;
+    border: 2px solid #d1d5db;
+    background-color: white;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.search-input:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Botón de limpiar búsqueda */
+.clear-search-btn {
+    position: absolute;
+    top: 50%;
+    right: 1.25rem;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0.5rem;
+}
+
+.clear-search-btn:hover {
+    color: #4b5563;
+}
+
+.clear-search-btn svg {
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+/* Botón de búsqueda */
+.search-btn {
+    padding: 0.875rem 2rem;
+    background-color: #2563eb;
+    color: white;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.search-btn:hover {
+    background-color: #1d4ed8;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.search-btn:active {
+    transform: scale(0.98);
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .search-header {
+        height: 70px;
+        padding: 0.75rem 1rem;
+        gap: 0.75rem;
+    }
+
+    .search-container {
+        max-width: 100%;
+        gap: 0.5rem;
+    }
+
+    .search-input {
+        padding: 0.75rem 3rem;
+        font-size: 0.875rem;
+    }
+
+    .search-icon {
+        left: 1rem;
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .clear-search-btn {
+        right: 1rem;
+    }
+
+    .clear-search-btn svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .search-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+    }
+}
