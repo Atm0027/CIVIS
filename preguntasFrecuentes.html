@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Civis · Videoteca de Trámites</title>
+  <title>Civis · Preguntas Frecuentes</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -24,8 +24,8 @@
         <div class="user-avatar"></div>
         <p class="user-name" id="user-name">Usuario</p>
         <p class="user-email" id="user-email">usuario@civis.com</p>
-        <button class="btn-edit-profile" id="btn-edit-profile">
-          Editar perfil
+        <button class="btn-edit-profile" onclick="window.location.href='index.html'">
+          Ver perfil
         </button>
       </div>
 
@@ -59,9 +59,9 @@
 
           <!-- Navegación -->
           <nav class="nav-links">
-            <a href="index.html" class="nav-link active">Inicio</a>
+            <a href="index.html" class="nav-link">Inicio</a>
             <a href="calendario.html" class="nav-link">Calendario</a>
-            <a href="preguntasFrecuentes.html" class="nav-link">Preguntas Frecuentes</a>
+            <a href="preguntasFrecuentes.html" class="nav-link active">Preguntas Frecuentes</a>
           </nav>
 
         </div>
@@ -70,39 +70,24 @@
       <!-- CONTENIDO -->
       <div class="content-area">
 
-        <!-- VISTA: VIDEOTECA DE TRÁMITES -->
-        <section id="view-videoteca" class="view active">
-          
-          <header class="view-header">
-            <h2 class="view-title">Videoteca de Trámites</h2>
-          </header>
+        <header class="view-header">
+          <h2 class="view-title">Preguntas Frecuentes</h2>
+        </header>
 
-          <div id="tramites-grid" class="tramites-grid">
-            <!-- Las tarjetas de trámites se cargarán aquí desde la API -->
+        <!-- Área de FAQs -->
+        <div class="faqs-container">
+          
+          <div class="faq-intro">
+            <p>Encuentra respuestas rápidas a las preguntas más comunes sobre trámites y gestiones.</p>
           </div>
 
-        </section>
-
-        <!-- VISTA: DETALLE DE TRÁMITE -->
-        <section id="view-detail" class="view">
-          
-          <button class="btn-back" id="btn-back">
-            ← Volver
-          </button>
-
-          <div class="tramite-detail">
-            
-            <div class="video-container" id="video-container">
-              <!-- El vídeo se cargará aquí desde la API -->
-            </div>
-
-            <article class="tramite-guide" id="tramite-guide">
-              <!-- La guía del trámite se cargará aquí desde la API -->
-            </article>
-
+          <div class="faqs-list" id="faqs-list">
+            <!-- Las preguntas frecuentes se cargarán aquí desde la API -->
           </div>
 
-        </section>
+        </div>
+
+      </div>
 
     </main>
 

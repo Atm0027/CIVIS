@@ -1,5 +1,5 @@
 // ===== CONFIGURACIÓN DE LA APLICACIÓN CIVIS =====
-// Este archivo contiene configuraciones básicas para la aplicación
+// ✅ Archivo actualizado para conexión con Laravel
 
 const CONFIG = {
     // Información de la aplicación
@@ -10,16 +10,36 @@ const CONFIG = {
         debug: true
     },
 
-    // Configuración de API (para futuro backend)
+    // ⚠️ IMPORTANTE: Configuración de API Laravel
+    // Ajustar según tu entorno de desarrollo
     api: {
-        baseUrl: "http://localhost:8000/api", // Cambiar en producción
+        baseUrl: "http://localhost:8000/api", // URL de tu API Laravel
         timeout: 10000, // 10 segundos
+        
+        // Endpoints de la API
+        // NOTA: Estos deben coincidir con las rutas definidas en Laravel (routes/api.php)
         endpoints: {
+            // Autenticación
+            login: "/auth/login",
+            register: "/auth/register",
+            logout: "/auth/logout",
+            
+            // Videos/Trámites
             videos: "/videos",
+            videoById: "/videos/:id",
+            searchVideos: "/videos/search",
+            
+            // Calendario
             calendar: "/calendar",
+            upcomingDeadlines: "/calendar/upcoming",
+            
+            // FAQs
             faqs: "/faqs",
-            user: "/user",
-            auth: "/auth"
+            searchFaqs: "/faqs/search",
+            
+            // Usuario
+            userProfile: "/user/profile",
+            updateProfile: "/user/profile"
         }
     },
 
@@ -30,12 +50,12 @@ const CONFIG = {
         faqsPerPage: 5
     },
 
-    // Configuración de notificaciones
+    // Configuración de notificaciones (futuro)
     notifications: {
         enabled: true,
-        daysBeforeDeadline: 7, // Notificar X días antes del plazo
-        emailEnabled: false, // Activar cuando esté el backend
-        smsEnabled: false // Activar cuando esté el backend
+        daysBeforeDeadline: 7,
+        emailEnabled: false, // Activar cuando esté implementado en backend
+        smsEnabled: false
     },
 
     // Configuración de búsqueda
@@ -47,7 +67,8 @@ const CONFIG = {
     // Configuración de localStorage
     storage: {
         keys: {
-            user: "civis_user_data",
+            token: "civis_auth_token",
+            user: "civis_current_user",
             preferences: "civis_user_preferences",
             favorites: "civis_favorites"
         }
@@ -63,12 +84,68 @@ const CONFIG = {
         }
     },
 
-    // URLs de recursos externos (para cuando tengamos hosting propio)
+    // URLs de recursos externos
     resources: {
         placeholderImages: "https://placehold.co",
-        cdnUrl: "" // Vacío por ahora
+        defaultAvatar: "https://ui-avatars.com/api/?name=Usuario&background=3b82f6&color=fff",
+        cdnUrl: "" // Vacío por ahora, configurar si se usa CDN
+    },
+
+    // Configuración de validación
+    validation: {
+        password: {
+            minLength: 6,
+            requireUppercase: false,
+            requireNumbers: false,
+            requireSpecialChars: false
+        },
+        email: {
+            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        }
     }
 };
 
-// Exportar configuración (comentado por ahora, descomentar al usar módulos ES6)
-// export default CONFIG;
+// ===== FUNCIONES DE CONFIGURACIÓN ÚTILES =====
+
+/**
+ * Obtiene la URL completa de un endpoint
+ * @param {string} endpointKey - Clave del endpoint en CONFIG.api.endpoints
+ * @param {Object} params - Parámetros para reemplazar en la URL (ej: {id: 5})
+ * @returns {string} - URL completa
+ */
+function getApiUrl(endpointKey, params = {}) {
+    let endpoint = CONFIG.api.endpoints[endpointKey];
+    
+    // Reemplazar parámetros dinámicos (ej: :id)
+    Object.keys(params).forEach(key => {
+        endpoint = endpoint.replace(`:${key}`, params[key]);
+    });
+    
+    return `${CONFIG.api.baseUrl}${endpoint}`;
+}
+
+/**
+ * Verifica si estamos en modo desarrollo
+ * @returns {boolean}
+ */
+function isDevelopment() {
+    return CONFIG.app.environment === 'development';
+}
+
+/**
+ * Verifica si estamos en modo producción
+ * @returns {boolean}
+ */
+function isProduction() {
+    return CONFIG.app.environment === 'production';
+}
+
+/**
+ * Log condicional (solo en desarrollo)
+ * @param  {...any} args - Argumentos a loguear
+ */
+function debugLog(...args) {
+    if (CONFIG.app.debug && isDevelopment()) {
+        console.log('[CIVIS DEBUG]', ...args);
+    }
+}

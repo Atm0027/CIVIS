@@ -1,22 +1,44 @@
-// ===== LÓGICA PRINCIPAL DE LA APLICACIÓN CIVIS =====
+/*
+// ===== LÓGICA PRINCIPAL DE LA APLICACIÓN CIVIS (REFACTORIZADA) =====
+// ⚠️ NOTA: Este archivo ya NO contiene datos simulados
+// ✅ Todos los datos se obtienen desde la API Laravel
 
 // Variable global para el usuario actual
 let currentUser = {};
 
 // Espera a que el DOM esté cargado
-document.addEventListener('DOMContentLoaded', () => {
-    // Cargar el usuario autenticado
-    currentUser = getCurrentUser();
+document.addEventListener('DOMContentLoaded', async () => {
+    // Verificar autenticación
+    // requireAuth(); // TODO: Descomentar cuando Laravel esté listo
 
-    if (!currentUser) {
-        // Si no hay usuario, redirigir a login (por seguridad adicional)
-        window.location.href = 'pages/login.html';
-        return;
-    }
+    // Intentar cargar usuario desde localStorage o API
+    await loadCurrentUser();
 
     // Inicializar la aplicación
     initializeApp();
 });
+
+// ===== CARGAR USUARIO ACTUAL =====
+async function loadCurrentUser() {
+    try {
+        // Primero intentar desde localStorage (más rápido)
+        currentUser = getCurrentUserFromStorage();
+
+        // Si no hay datos locales, obtener desde API
+        if (!currentUser) {
+            currentUser = await getUserProfile();
+            saveCurrentUser(currentUser);
+        }
+
+        // TODO: Opcionalmente, sincronizar con API en segundo plano
+        // para tener datos actualizados
+
+    } catch (error) {
+        console.error('Error cargando usuario:', error);
+        // Si falla, redirigir a login
+        window.location.href = 'login.html';
+    }
+}
 
 // ===== FUNCIÓN PRINCIPAL DE INICIALIZACIÓN =====
 function initializeApp() {
@@ -28,8 +50,8 @@ function initializeApp() {
 
     // Renderizar contenido inicial
     renderUserProfile();
-    renderUpcomingDeadlines();
-    renderFeed(mockDB.videos);
+    loadUpcomingDeadlines();
+    loadVideoFeed();
 }
 
 // ===== OBTENER REFERENCIAS A ELEMENTOS DEL DOM =====
@@ -71,7 +93,9 @@ function getElements() {
         saveSuccessMessage: document.getElementById('save-success-message'),
         logoutBtn: document.getElementById('logout-btn')
     };
-}// ===== CONFIGURAR EVENT LISTENERS =====
+}
+
+// ===== CONFIGURAR EVENT LISTENERS =====
 function setupEventListeners(elements) {
     // Control de la Sidebar Móvil
     elements.openSidebarBtn.addEventListener('click', () => {
@@ -103,13 +127,12 @@ function setupEventListeners(elements) {
         });
     });
 
-    // Lógica de Búsqueda - Solo al presionar Enter o hacer clic en botón
-    // Mostrar/ocultar botón de limpiar mientras se escribe
+    // Lógica de Búsqueda
     elements.searchBar.addEventListener('input', (e) => {
         const clearSearchBtn = elements.clearSearchBtn;
         const searchTerm = e.target.value.trim();
 
-        // Mostrar/ocultar botón de limpiar inmediatamente
+        // Mostrar/ocultar botón de limpiar
         if (clearSearchBtn) {
             if (searchTerm !== '') {
                 clearSearchBtn.classList.remove('hidden');
@@ -148,10 +171,9 @@ function setupEventListeners(elements) {
 
     // Botón de cerrar sesión
     if (elements.logoutBtn) {
-        elements.logoutBtn.addEventListener('click', () => {
+        elements.logoutBtn.addEventListener('click', async () => {
             if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-                logoutUser();
-                window.location.href = 'pages/login.html';
+                await logoutUser();
             }
         });
     }
@@ -162,134 +184,113 @@ function setupEventListeners(elements) {
 // Renderiza el perfil en la barra lateral
 function renderUserProfile() {
     const userProfileSidebar = document.getElementById('user-profile-sidebar');
+    userProfileSidebar.innerHTML = UserProfileSidebar(currentUser);
 
-    userProfileSidebar.innerHTML = `
-        <div class="flex flex-col items-center text-center">
-            <img class="h-20 w-20 rounded-full object-cover" src="${currentUser.avatarUrl}" alt="Avatar de usuario">
-            <h4 class="mt-3 text-lg font-semibold text-white">${currentUser.name}</h4>
-            <p class="text-sm text-slate-400">${currentUser.email}</p>
-            <button class="nav-link-profile mt-4 text-xs bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors" data-page="profile">
-                Editar Perfil
-            </button>
-        </div>
-    `;
-
-    // Añadir event listener al botón de editar perfil recién creado
+    // Añadir event listener al botón de editar perfil
     document.querySelector('.nav-link-profile').addEventListener('click', (e) => {
         e.preventDefault();
         showPage('profile');
-        // Rellenar el formulario de perfil
-        const profileNameInput = document.getElementById('profile-name');
-        const profileEmailInput = document.getElementById('profile-email');
-        const profileRelevantDataInput = document.getElementById('profile-relevant-data');
-
-        profileNameInput.value = currentUser.name;
-        profileEmailInput.value = currentUser.email;
-        profileRelevantDataInput.value = currentUser.relevantData;
     });
 }
 
-// Renderiza los plazos cercanos en la barra lateral
-function renderUpcomingDeadlines() {
+// Carga y renderiza los plazos cercanos desde API
+async function loadUpcomingDeadlines() {
     const upcomingDeadlinesEl = document.getElementById('upcoming-deadlines');
-    upcomingDeadlinesEl.innerHTML = ''; // Limpiar
-    const now = new Date();
 
-    // Simulación: coger los 2 plazos más cercanos
-    const upcoming = mockDB.calendar
-        .filter(item => new Date(item.date) > now) // Solo fechas futuras
-        .sort((a, b) => new Date(a.date) - new Date(b.date)) // Ordenar por cercanía
-        .slice(0, 2); // Coger las 2 primeras
+    try {
+        showLoader(upcomingDeadlinesEl);
+        
+        const deadlines = await getUpcomingDeadlines(2);
 
-    if (upcoming.length === 0) {
-        upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-slate-400">No hay plazos cercanos.</p>';
-        return;
+        if (deadlines.length === 0) {
+            upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-slate-400">No hay plazos cercanos.</p>';
+            return;
+        }
+
+        upcomingDeadlinesEl.innerHTML = deadlines.map(deadline => DeadlineItem(deadline)).join('');
+
+    } catch (error) {
+        console.error('Error cargando plazos:', error);
+        upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-red-400">Error al cargar plazos</p>';
     }
-
-    upcoming.forEach(item => {
-        const itemDate = new Date(item.date);
-        const formattedDate = itemDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-
-        upcomingDeadlinesEl.innerHTML += `
-            <div class="flex items-center space-x-3">
-                <div class="flex-shrink-0 p-2 bg-slate-700 rounded-full">
-                    <svg class="w-4 h-4 text-slate-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-white">${item.title}</p>
-                    <p class="text-xs text-slate-400">${formattedDate}</p>
-                </div>
-            </div>
-        `;
-    });
 }
 
-// Renderiza el feed de vídeos
-function renderFeed(videosToRender) {
+// Carga y renderiza el feed de videos desde API
+async function loadVideoFeed() {
     const videoFeedGrid = document.getElementById('video-feed-grid');
     const noResultsEl = document.getElementById('no-results');
 
-    videoFeedGrid.innerHTML = ''; // Limpiar grid
-
-    if (videosToRender.length === 0) {
-        noResultsEl.classList.remove('hidden');
-    } else {
+    try {
+        showLoader(videoFeedGrid);
         noResultsEl.classList.add('hidden');
+
+        const videos = await getVideos();
+
+        if (videos.length === 0) {
+            videoFeedGrid.innerHTML = '';
+            noResultsEl.classList.remove('hidden');
+            return;
+        }
+
+        renderVideos(videos);
+
+    } catch (error) {
+        console.error('Error cargando videos:', error);
+        videoFeedGrid.innerHTML = ErrorMessage('Error al cargar los videos. Intenta nuevamente.');
+    }
+}
+
+// Renderiza videos en el grid
+function renderVideos(videos) {
+    const videoFeedGrid = document.getElementById('video-feed-grid');
+    const noResultsEl = document.getElementById('no-results');
+
+    videoFeedGrid.innerHTML = '';
+
+    if (videos.length === 0) {
+        noResultsEl.classList.remove('hidden');
+        return;
     }
 
-    videosToRender.forEach(video => {
-        videoFeedGrid.innerHTML += `
-            <div class="video-card bg-white rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl cursor-pointer">
-                <img class="w-full h-48 object-cover" src="${video.thumbnail}" alt="Miniatura de ${video.title}">
-                <div class="p-5">
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">${video.title}</h3>
-                    <p class="text-sm text-gray-600 mb-4">${video.description}</p>
-                    <div class="flex flex-wrap gap-2">
-                        ${video.tags.map(tag => `<span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">${tag}</span>`).join('')}
-                    </div>
-                </div>
-            </div>
-        `;
-    });
+    noResultsEl.classList.add('hidden');
+    videoFeedGrid.innerHTML = videos.map(video => VideoCard(video)).join('');
 }
 
-// Renderiza la lista completa del calendario
-function renderCalendarPage() {
+// Carga y renderiza el calendario completo desde API
+async function loadCalendarPage() {
     const calendarFullList = document.getElementById('calendar-full-list');
-    calendarFullList.innerHTML = ''; // Limpiar
 
-    mockDB.calendar
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
-        .forEach(item => {
-            const itemDate = new Date(item.date);
-            const formattedDate = itemDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-            calendarFullList.innerHTML += `
-                <li class="py-4 flex justify-between items-center">
-                    <div>
-                        <p class="text-md font-medium text-gray-900">${item.title}</p>
-                        <p class="text-sm text-gray-500">${formattedDate}</p>
-                    </div>
-                    <span class="text-sm font-semibold ${new Date(item.date) < new Date() ? 'text-red-600' : 'text-green-600'}">
-                        ${new Date(item.date) < new Date() ? 'Plazo finalizado' : 'Plazo abierto'}
-                    </span>
-                </li>
-            `;
-        });
+    try {
+        showLoader(calendarFullList);
+
+        const calendar = await getCalendar();
+        
+        // Ordenar por fecha
+        const sortedCalendar = calendar.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        calendarFullList.innerHTML = sortedCalendar.map(item => CalendarListItem(item)).join('');
+
+    } catch (error) {
+        console.error('Error cargando calendario:', error);
+        calendarFullList.innerHTML = ErrorMessage('Error al cargar el calendario');
+    }
 }
 
-// Renderiza la lista de FAQs
-function renderFaqPage() {
+// Carga y renderiza las FAQs desde API
+async function loadFaqPage() {
     const faqList = document.getElementById('faq-list');
-    faqList.innerHTML = ''; // Limpiar
 
-    mockDB.faqs.forEach(faq => {
-        faqList.innerHTML += `
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">${faq.q}</h3>
-                <p class="text-gray-700">${faq.a}</p>
-            </div>
-        `;
-    });
+    try {
+        showLoader(faqList);
+
+        const faqs = await getFaqs();
+
+        faqList.innerHTML = faqs.map(faq => FaqCard(faq)).join('');
+
+    } catch (error) {
+        console.error('Error cargando FAQs:', error);
+        faqList.innerHTML = ErrorMessage('Error al cargar las preguntas frecuentes');
+    }
 }
 
 // ===== LÓGICA DE NAVEGACIÓN Y ESTADO =====
@@ -320,16 +321,17 @@ function showPage(pageId) {
 
     // Lógica de renderizado específica de la página
     if (pageId === 'feed') {
-        // Al volver al feed, resetea la búsqueda y el título
+        // Al volver al feed, resetea la búsqueda
         const searchBar = document.getElementById('search-bar');
         const feedTitle = document.getElementById('feed-title');
         searchBar.value = '';
         feedTitle.textContent = 'Videoteca de Trámites';
-        renderFeed(mockDB.videos);
+        feedTitle.classList.remove('text-blue-600', 'text-red-600');
+        loadVideoFeed();
     } else if (pageId === 'calendar') {
-        renderCalendarPage();
+        loadCalendarPage();
     } else if (pageId === 'faq') {
-        renderFaqPage();
+        loadFaqPage();
     } else if (pageId === 'profile') {
         loadProfileData();
     }
@@ -352,8 +354,9 @@ function loadProfileData() {
 // ===== HANDLERS DE EVENTOS =====
 
 // Manejador de búsqueda
-function handleSearch(e) {
+async function handleSearch(e) {
     const feedTitle = document.getElementById('feed-title');
+    const videoFeedGrid = document.getElementById('video-feed-grid');
     const searchTerm = e.target.value.toLowerCase().trim();
 
     // Asegurarse de que estamos en la página de feed
@@ -362,45 +365,53 @@ function handleSearch(e) {
     if (searchTerm === '') {
         feedTitle.textContent = 'Videoteca de Trámites';
         feedTitle.classList.remove('text-blue-600', 'text-red-600');
-        renderFeed(mockDB.videos);
+        await loadVideoFeed();
         return;
     }
 
-    // Búsqueda mejorada
-    const filteredVideos = mockDB.videos.filter(video => {
-        const titleMatch = video.title.toLowerCase().includes(searchTerm);
-        const descMatch = video.description.toLowerCase().includes(searchTerm);
-        const tagsMatch = video.tags.some(tag => tag.toLowerCase().includes(searchTerm));
-
-        return titleMatch || descMatch || tagsMatch;
-    });
-
-    // Actualizar título con contador de resultados
-    const resultCount = filteredVideos.length;
-    feedTitle.classList.remove('text-blue-600', 'text-red-600');
-
-    if (resultCount === 0) {
-        feedTitle.textContent = `No se encontraron resultados para "${searchTerm}"`;
-        feedTitle.classList.add('text-red-600');
-    } else if (resultCount === 1) {
-        feedTitle.textContent = `1 resultado para "${searchTerm}"`;
-        feedTitle.classList.add('text-blue-600');
-    } else {
-        feedTitle.textContent = `${resultCount} resultados para "${searchTerm}"`;
-        feedTitle.classList.add('text-blue-600');
+    // Validar longitud mínima
+    if (searchTerm.length < CONFIG.search.minCharacters) {
+        return;
     }
 
-    renderFeed(filteredVideos);
+    try {
+        showLoader(videoFeedGrid);
 
-    // Hacer scroll al inicio de los resultados
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Buscar en la API
+        const videos = await searchVideos(searchTerm);
+
+        // Actualizar título con contador de resultados
+        const resultCount = videos.length;
+        feedTitle.classList.remove('text-blue-600', 'text-red-600');
+
+        if (resultCount === 0) {
+            feedTitle.textContent = `No se encontraron resultados para "${searchTerm}"`;
+            feedTitle.classList.add('text-red-600');
+        } else if (resultCount === 1) {
+            feedTitle.textContent = `1 resultado para "${searchTerm}"`;
+            feedTitle.classList.add('text-blue-600');
+        } else {
+            feedTitle.textContent = `${resultCount} resultados para "${searchTerm}"`;
+            feedTitle.classList.add('text-blue-600');
+        }
+
+        renderVideos(videos);
+
+        // Hacer scroll al inicio
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (error) {
+        console.error('Error en búsqueda:', error);
+        videoFeedGrid.innerHTML = ErrorMessage('Error al buscar. Intenta nuevamente.');
+    }
 }
 
 // Manejador de envío de formulario de perfil
-function handleProfileSubmit(e) {
+async function handleProfileSubmit(e) {
     e.preventDefault();
 
     const saveSuccessMessage = document.getElementById('save-success-message');
+    const submitButton = e.target.querySelector('button[type="submit"]');
 
     // Recoger todos los datos del formulario
     const updates = {
@@ -416,12 +427,17 @@ function handleProfileSubmit(e) {
         relevantData: document.getElementById('profile-relevant-data').value
     };
 
-    // Actualizar el usuario usando el sistema de autenticación
-    const result = updateCurrentUser(updates);
+    // Deshabilitar botón
+    submitButton.disabled = true;
+    submitButton.textContent = 'Guardando...';
 
-    if (result.success) {
-        // Actualizar la variable global
-        currentUser = result.user;
+    try {
+        // Actualizar perfil en la API
+        const updatedUser = await updateUserProfile(updates);
+
+        // Actualizar variable global y localStorage
+        currentUser = updatedUser;
+        saveCurrentUser(updatedUser);
 
         // Volver a renderizar el perfil en la sidebar
         renderUserProfile();
@@ -429,15 +445,22 @@ function handleProfileSubmit(e) {
         // Mostrar mensaje de éxito
         saveSuccessMessage.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200');
         saveSuccessMessage.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
-        saveSuccessMessage.textContent = result.message;
+        saveSuccessMessage.textContent = 'Perfil actualizado correctamente';
 
         setTimeout(() => {
             saveSuccessMessage.classList.add('hidden');
         }, 3000);
-    } else {
+
+    } catch (error) {
+        console.error('Error actualizando perfil:', error);
+
         // Mostrar mensaje de error
         saveSuccessMessage.classList.remove('hidden', 'bg-green-50', 'text-green-700', 'border-green-200');
         saveSuccessMessage.classList.add('bg-red-50', 'text-red-700', 'border', 'border-red-200');
-        saveSuccessMessage.textContent = result.message;
+        saveSuccessMessage.textContent = error.message || 'Error al actualizar el perfil';
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Guardar Cambios';
     }
 }
+*/

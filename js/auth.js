@@ -1,342 +1,150 @@
-// ===== SISTEMA DE AUTENTICACIÓN CIVIS =====
+/*
+// ===== SISTEMA DE AUTENTICACIÓN - CIVIS =====
+// Este archivo maneja la lógica de autenticación en las páginas de login/register
 
-// Clave para almacenar usuarios en localStorage
-const USERS_STORAGE_KEY = 'civis_users';
-const CURRENT_USER_KEY = 'civis_current_user';
-const SESSION_TOKEN_KEY = 'civis_session_token';
-
-/**
- * Inicializa la base de datos de usuarios si no existe
- */
-function initializeUsersDB() {
-    const users = getFromLocalStorage(USERS_STORAGE_KEY);
-    if (!users) {
-        // Crear usuario por defecto para pruebas
-        const defaultUsers = [
-            {
-                id: generateId(),
-                username: 'demo',
-                email: 'demo@civis.com',
-                password: hashPassword('demo123'), // En producción usar bcrypt
-                name: 'Usuario Demo',
-                dni: '12345678A',
-                phone: '666777888',
-                address: 'Calle Principal 123',
-                city: 'Madrid',
-                postalCode: '28001',
-                province: 'Madrid',
-                country: 'España',
-                dateOfBirth: '1995-05-15',
-                avatarUrl: 'https://placehold.co/100x100/E0E7FF/4F46E5?text=UD',
-                relevantData: 'Usuario de demostración del sistema',
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                isActive: true
-            }
-        ];
-        saveToLocalStorage(USERS_STORAGE_KEY, defaultUsers);
-    }
-}
-
-/**
- * Hash simple de contraseña (EN PRODUCCIÓN USAR BCRYPT)
- * @param {string} password - Contraseña a hashear
- * @returns {string} - Hash de la contraseña
- */
-function hashPassword(password) {
-    // Esto es solo para demostración. En producción usar bcrypt o similar
-    let hash = 0;
-    for (let i = 0; i < password.length; i++) {
-        const char = password.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    return hash.toString(36);
-}
-
-/**
- * Registra un nuevo usuario
- * @param {Object} userData - Datos del usuario
- * @returns {Object} - { success: boolean, message: string, user?: Object }
- */
-function registerUser(userData) {
-    const users = getFromLocalStorage(USERS_STORAGE_KEY) || [];
-
-    // Validaciones
-    if (!userData.username || userData.username.length < 3) {
-        return { success: false, message: 'El nombre de usuario debe tener al menos 3 caracteres' };
+// ===== INICIALIZACIÓN DE PÁGINA DE LOGIN =====
+function initLoginPage() {
+    // Verificar si ya está autenticado
+    if (hasToken()) {
+        window.location.href = '../index.html';
+        return;
     }
 
-    if (!validateEmail(userData.email)) {
-        return { success: false, message: 'El email no es válido' };
-    }
+    const loginForm = document.getElementById('login-form');
+    const emailInput = document.getElementById('login-email');
+    const passwordInput = document.getElementById('login-password');
+    const submitButton = loginForm.querySelector('button[type="submit"]');
+    const errorContainer = document.getElementById('login-error');
 
-    if (!userData.password || userData.password.length < 6) {
-        return { success: false, message: 'La contraseña debe tener al menos 6 caracteres' };
-    }
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    // Verificar si el usuario ya existe
-    const existingUser = users.find(u =>
-        u.username === userData.username || u.email === userData.email
-    );
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
 
-    if (existingUser) {
-        return {
-            success: false,
-            message: 'El usuario o email ya está registrado'
-        };
-    }
-
-    // Crear nuevo usuario
-    const newUser = {
-        id: generateId(),
-        username: userData.username,
-        email: userData.email,
-        password: hashPassword(userData.password),
-        name: userData.name || userData.username,
-        dni: userData.dni || '',
-        phone: userData.phone || '',
-        address: userData.address || '',
-        city: userData.city || '',
-        postalCode: userData.postalCode || '',
-        province: userData.province || '',
-        country: userData.country || 'España',
-        dateOfBirth: userData.dateOfBirth || '',
-        avatarUrl: userData.avatarUrl || `https://placehold.co/100x100/E0E7FF/4F46E5?text=${userData.username.substring(0, 2).toUpperCase()}`,
-        relevantData: userData.relevantData || '',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isActive: true
-    };
-
-    users.push(newUser);
-    saveToLocalStorage(USERS_STORAGE_KEY, users);
-
-    return {
-        success: true,
-        message: 'Usuario registrado correctamente',
-        user: sanitizeUser(newUser)
-    };
-}
-
-/**
- * Inicia sesión de usuario
- * @param {string} usernameOrEmail - Usuario o email
- * @param {string} password - Contraseña
- * @returns {Object} - { success: boolean, message: string, user?: Object, token?: string }
- */
-function loginUser(usernameOrEmail, password) {
-    const users = getFromLocalStorage(USERS_STORAGE_KEY) || [];
-
-    // Buscar usuario
-    const user = users.find(u =>
-        (u.username === usernameOrEmail || u.email === usernameOrEmail) &&
-        u.isActive
-    );
-
-    if (!user) {
-        return {
-            success: false,
-            message: 'Usuario o contraseña incorrectos'
-        };
-    }
-
-    // Verificar contraseña
-    const hashedPassword = hashPassword(password);
-    if (user.password !== hashedPassword) {
-        return {
-            success: false,
-            message: 'Usuario o contraseña incorrectos'
-        };
-    }
-
-    // Generar token de sesión
-    const sessionToken = generateSessionToken();
-
-    // Guardar sesión
-    saveToLocalStorage(SESSION_TOKEN_KEY, {
-        token: sessionToken,
-        userId: user.id,
-        createdAt: new Date().toISOString()
-    });
-
-    saveToLocalStorage(CURRENT_USER_KEY, sanitizeUser(user));
-
-    return {
-        success: true,
-        message: 'Inicio de sesión exitoso',
-        user: sanitizeUser(user),
-        token: sessionToken
-    };
-}
-
-/**
- * Cierra la sesión del usuario actual
- */
-function logoutUser() {
-    removeFromLocalStorage(SESSION_TOKEN_KEY);
-    removeFromLocalStorage(CURRENT_USER_KEY);
-    return { success: true, message: 'Sesión cerrada correctamente' };
-}
-
-/**
- * Obtiene el usuario actualmente autenticado
- * @returns {Object|null} - Usuario actual o null
- */
-function getCurrentUser() {
-    const session = getFromLocalStorage(SESSION_TOKEN_KEY);
-    if (!session) return null;
-
-    // Verificar si la sesión es válida (menos de 24 horas)
-    const sessionAge = new Date() - new Date(session.createdAt);
-    const maxAge = 24 * 60 * 60 * 1000; // 24 horas
-
-    if (sessionAge > maxAge) {
-        logoutUser();
-        return null;
-    }
-
-    return getFromLocalStorage(CURRENT_USER_KEY);
-}
-
-/**
- * Verifica si hay un usuario autenticado
- * @returns {boolean}
- */
-function isAuthenticated() {
-    return getCurrentUser() !== null;
-}
-
-/**
- * Actualiza los datos del usuario actual
- * @param {Object} updates - Datos a actualizar
- * @returns {Object} - { success: boolean, message: string, user?: Object }
- */
-function updateCurrentUser(updates) {
-    const currentUser = getCurrentUser();
-    if (!currentUser) {
-        return { success: false, message: 'No hay usuario autenticado' };
-    }
-
-    const users = getFromLocalStorage(USERS_STORAGE_KEY) || [];
-    const userIndex = users.findIndex(u => u.id === currentUser.id);
-
-    if (userIndex === -1) {
-        return { success: false, message: 'Usuario no encontrado' };
-    }
-
-    // Validar email si se está actualizando
-    if (updates.email && !validateEmail(updates.email)) {
-        return { success: false, message: 'El email no es válido' };
-    }
-
-    // Verificar si el email ya existe en otro usuario
-    if (updates.email && updates.email !== users[userIndex].email) {
-        const emailExists = users.find(u => u.email === updates.email && u.id !== currentUser.id);
-        if (emailExists) {
-            return { success: false, message: 'El email ya está en uso' };
+        // Validación básica
+        if (!email || !password) {
+            showAuthError(errorContainer, 'Por favor, completa todos los campos');
+            return;
         }
-    }
 
-    // Actualizar usuario
-    const updatedUser = {
-        ...users[userIndex],
-        ...updates,
-        id: users[userIndex].id, // No permitir cambiar el ID
-        password: users[userIndex].password, // No permitir cambiar contraseña por aquí
-        createdAt: users[userIndex].createdAt,
-        updatedAt: new Date().toISOString()
-    };
+        if (!validateEmail(email)) {
+            showAuthError(errorContainer, 'Por favor, ingresa un email válido');
+            return;
+        }
 
-    users[userIndex] = updatedUser;
-    saveToLocalStorage(USERS_STORAGE_KEY, users);
-    saveToLocalStorage(CURRENT_USER_KEY, sanitizeUser(updatedUser));
+        // Deshabilitar botón mientras se procesa
+        submitButton.disabled = true;
+        submitButton.textContent = 'Iniciando sesión...';
+        errorContainer.classList.add('hidden');
 
-    return {
-        success: true,
-        message: 'Perfil actualizado correctamente',
-        user: sanitizeUser(updatedUser)
-    };
+        try {
+            // Llamar a la API de login
+            await login(email, password);
+
+            // Si llega aquí, el login fue exitoso
+            window.location.href = '../index.html';
+
+        } catch (error) {
+            showAuthError(errorContainer, error.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Iniciar Sesión';
+        }
+    });
 }
 
-/**
- * Cambia la contraseña del usuario actual
- * @param {string} currentPassword - Contraseña actual
- * @param {string} newPassword - Nueva contraseña
- * @returns {Object} - { success: boolean, message: string }
- */
-function changePassword(currentPassword, newPassword) {
-    const currentUser = getCurrentUser();
-    if (!currentUser) {
-        return { success: false, message: 'No hay usuario autenticado' };
+// ===== INICIALIZACIÓN DE PÁGINA DE REGISTRO =====
+function initRegisterPage() {
+    // Verificar si ya está autenticado
+    if (hasToken()) {
+        window.location.href = '../index.html';
+        return;
     }
 
-    const users = getFromLocalStorage(USERS_STORAGE_KEY) || [];
-    const user = users.find(u => u.id === currentUser.id);
+    const registerForm = document.getElementById('register-form');
+    const nameInput = document.getElementById('register-name');
+    const emailInput = document.getElementById('register-email');
+    const passwordInput = document.getElementById('register-password');
+    const confirmPasswordInput = document.getElementById('register-confirm-password');
+    const submitButton = registerForm.querySelector('button[type="submit"]');
+    const errorContainer = document.getElementById('register-error');
 
-    if (!user) {
-        return { success: false, message: 'Usuario no encontrado' };
-    }
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    // Verificar contraseña actual
-    if (user.password !== hashPassword(currentPassword)) {
-        return { success: false, message: 'La contraseña actual es incorrecta' };
-    }
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
 
-    // Validar nueva contraseña
-    if (!newPassword || newPassword.length < 6) {
-        return { success: false, message: 'La nueva contraseña debe tener al menos 6 caracteres' };
-    }
+        // Validaciones
+        if (!name || !email || !password || !confirmPassword) {
+            showAuthError(errorContainer, 'Por favor, completa todos los campos');
+            return;
+        }
 
-    // Actualizar contraseña
-    user.password = hashPassword(newPassword);
-    user.updatedAt = new Date().toISOString();
+        if (!validateEmail(email)) {
+            showAuthError(errorContainer, 'Por favor, ingresa un email válido');
+            return;
+        }
 
-    saveToLocalStorage(USERS_STORAGE_KEY, users);
+        if (password.length < 6) {
+            showAuthError(errorContainer, 'La contraseña debe tener al menos 6 caracteres');
+            return;
+        }
 
-    return { success: true, message: 'Contraseña actualizada correctamente' };
+        if (password !== confirmPassword) {
+            showAuthError(errorContainer, 'Las contraseñas no coinciden');
+            return;
+        }
+
+        // Deshabilitar botón mientras se procesa
+        submitButton.disabled = true;
+        submitButton.textContent = 'Creando cuenta...';
+        errorContainer.classList.add('hidden');
+
+        try {
+            // Llamar a la API de registro
+            await register({ name, email, password });
+
+            // Si llega aquí, el registro fue exitoso
+            // Redirigir al index (ya estará logueado)
+            window.location.href = '../index.html';
+
+        } catch (error) {
+            showAuthError(errorContainer, error.message || 'Error al crear la cuenta. Intenta nuevamente.');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Crear Cuenta';
+        }
+    });
 }
 
-/**
- * Genera un token de sesión único
- * @returns {string} - Token de sesión
- */
-function generateSessionToken() {
-    return generateId() + '-' + Date.now().toString(36);
+// ===== FUNCIÓN AUXILIAR PARA MOSTRAR ERRORES =====
+function showAuthError(container, message) {
+    container.textContent = message;
+    container.classList.remove('hidden');
 }
 
-/**
- * Elimina la contraseña del objeto usuario para enviarlo al frontend
- * @param {Object} user - Usuario con contraseña
- * @returns {Object} - Usuario sin contraseña
- */
-function sanitizeUser(user) {
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
-}
-
-/**
- * Protege una página requiriendo autenticación
- * Redirige a login si no está autenticado
- */
-function requireAuth() {
-    if (!isAuthenticated()) {
-        window.location.href = 'pages/login.html';
-        return false;
+// ===== LOGOUT DEL USUARIO =====
+async function logoutUser() {
+    try {
+        await logout(); // Llamar al endpoint de logout
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
     }
-    return true;
+    
+    // Redirigir siempre al login
+    window.location.href = 'pages/login.html';
 }
 
-/**
- * Redirige a la página principal si ya está autenticado
- */
-function redirectIfAuthenticated() {
-    if (isAuthenticated()) {
-        window.location.href = 'index.html';
-        return true;
+// ===== AUTO-INICIALIZACIÓN SEGÚN LA PÁGINA =====
+document.addEventListener('DOMContentLoaded', () => {
+    const currentPath = window.location.pathname;
+
+    if (currentPath.includes('login.html')) {
+        initLoginPage();
+    } else if (currentPath.includes('register.html')) {
+        initRegisterPage();
     }
-    return false;
-}
-
-// Inicializar la base de datos de usuarios al cargar el script
-initializeUsersDB();
+});
+*/

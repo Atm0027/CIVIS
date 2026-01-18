@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro - Civis</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="auth-body">
+
+  <div class="auth-container auth-container-large">
+    
+    <!-- Logo y Título -->
+    <div class="auth-header">
+      <h1 class="auth-logo">Civis</h1>
+      <p class="auth-subtitle">Crea tu cuenta para empezar</p>
+    </div>
+
+    <!-- Card de Registro -->
+    <div class="auth-card">
+      <h2 class="auth-card-title">Crear Cuenta</h2>
+
+      <!-- Formulario -->
+      <form id="register-form" class="auth-form">
+        
+        <!-- Fila 1: Usuario y Email -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="username" class="form-label">
+              Usuario <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="username" 
+              name="username" 
+              class="form-input" 
+              required 
+              minlength="3"
+              placeholder="tu_usuario"
+            >
+          </div>
+          <div class="form-group">
+            <label for="email" class="form-label">
+              Email <span class="required">*</span>
+            </label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-input" 
+              required
+              placeholder="email@ejemplo.com"
+            >
+          </div>
+        </div>
+
+        <!-- Fila 2: Contraseña y Confirmar -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password" class="form-label">
+              Contraseña <span class="required">*</span>
+            </label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-input" 
+              required 
+              minlength="6"
+              placeholder="••••••••"
+            >
+          </div>
+          <div class="form-group">
+            <label for="confirm-password" class="form-label">
+              Confirmar Contraseña <span class="required">*</span>
+            </label>
+            <input 
+              type="password" 
+              id="confirm-password" 
+              name="confirm-password" 
+              class="form-input" 
+              required 
+              minlength="6"
+              placeholder="••••••••"
+            >
+          </div>
+        </div>
+
+        <!-- Fila 3: Nombre completo y DNI -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name" class="form-label">
+              Nombre Completo <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              class="form-input" 
+              required
+              placeholder="Juan Pérez García"
+            >
+          </div>
+          <div class="form-group">
+            <label for="dni" class="form-label">DNI/NIE</label>
+            <input 
+              type="text" 
+              id="dni" 
+              name="dni" 
+              class="form-input" 
+              pattern="[0-9]{8}[A-Za-z]"
+              placeholder="12345678A"
+            >
+          </div>
+        </div>
+
+        <!-- Fila 4: Teléfono y Fecha de nacimiento -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone" class="form-label">Teléfono</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              name="phone" 
+              class="form-input"
+              placeholder="666 777 888"
+            >
+          </div>
+          <div class="form-group">
+            <label for="dateOfBirth" class="form-label">Fecha de Nacimiento</label>
+            <input 
+              type="date" 
+              id="dateOfBirth" 
+              name="dateOfBirth" 
+              class="form-input"
+            >
+          </div>
+        </div>
+
+        <!-- Fila 5: Dirección -->
+        <div class="form-group">
+          <label for="address" class="form-label">Dirección</label>
+          <input 
+            type="text" 
+            id="address" 
+            name="address" 
+            class="form-input"
+            placeholder="Calle Principal 123"
+          >
+        </div>
+
+        <!-- Fila 6: Ciudad, Código Postal y Provincia -->
+        <div class="form-row form-row-3">
+          <div class="form-group">
+            <label for="city" class="form-label">Localidad</label>
+            <input 
+              type="text" 
+              id="city" 
+              name="city" 
+              class="form-input"
+              placeholder="Madrid"
+            >
+          </div>
+          <div class="form-group">
+            <label for="postalCode" class="form-label">Código Postal</label>
+            <input 
+              type="text" 
+              id="postalCode" 
+              name="postalCode" 
+              class="form-input" 
+              pattern="[0-9]{5}"
+              placeholder="28001"
+            >
+          </div>
+          <div class="form-group">
+            <label for="province" class="form-label">Provincia</label>
+            <input 
+              type="text" 
+              id="province" 
+              name="province" 
+              class="form-input"
+              placeholder="Madrid"
+            >
+          </div>
+        </div>
+
+        <!-- Términos y condiciones -->
+        <div class="form-terms">
+          <label class="checkbox-label">
+            <input type="checkbox" id="terms" name="terms" class="form-checkbox" required>
+            <span>
+              Acepto los <a href="#" class="link-inline">términos y condiciones</a> y la 
+              <a href="#" class="link-inline">política de privacidad</a>
+            </span>
+          </label>
+        </div>
+
+        <!-- Mensaje de error/éxito -->
+        <div id="message" class="message hidden"></div>
+
+        <!-- Botón de Registro -->
+        <button type="submit" class="btn btn-primary btn-full">
+          Crear Cuenta
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="auth-divider">
+        <span>¿Ya tienes cuenta?</span>
+      </div>
+
+      <!-- Link a Login -->
+      <a href="login.html" class="btn btn-secondary btn-full">
+        Iniciar Sesión
+      </a>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Redirigir si ya está autenticado
+    if (redirectIfAuthenticated()) {
+      // Ya redirigido
+    }
+
+    // Manejar el formulario de registro
+    document.getElementById('register-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const messageDiv = document.getElementById('message');
+
+      // Verificar que las contraseñas coincidan
+      if (password !== confirmPassword) {
+        messageDiv.classList.remove('hidden', 'message-error', 'message-success');
+        messageDiv.classList.add('message-error');
+        messageDiv.textContent = 'Las contraseñas no coinciden';
+        return;
+      }
+
+      // Recoger datos del formulario
+      const userData = {
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value,
+        password: password,
+        name: document.getElementById('name').value,
+        dni: document.getElementById('dni').value,
+        phone: document.getElementById('phone').value,
+        dateOfBirth: document.getElementById('dateOfBirth').value,
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        postalCode: document.getElementById('postalCode').value,
+        province: document.getElementById('province').value
+      };
+
+      // Intentar registro
+      const result = registerUser(userData);
+
+      // Mostrar mensaje
+      messageDiv.classList.remove('hidden', 'message-error', 'message-success');
+
+      if (result.success) {
+        messageDiv.classList.add('message-success');
+        messageDiv.textContent = result.message + '. Redirigiendo al login...';
+
+        // Redirigir después de 2 segundos
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+      } else {
+        messageDiv.classList.add('message-error');
+        messageDiv.textContent = result.message;
+      }
+    });
+  </script>
+</body>
+</html>
