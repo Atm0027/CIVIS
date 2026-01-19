@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civis · Mi Perfil</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+    <!-- LAYOUT PRINCIPAL -->
+    <div class="layout-wrapper">
+
+        <!-- SIDEBAR IZQUIERDO -->
+        <aside class="sidebar">
+
+            <!-- Logo -->
+            <div class="sidebar-logo">
+                <h1>Civis</h1>
+            </div>
+
+            <!-- Perfil de Usuario -->
+            <div class="user-card">
+                <div class="user-avatar"></div>
+                <p class="user-name" id="user-name">Usuario</p>
+                <p class="user-email" id="user-email">usuario@civis.com</p>
+                <button class="btn-edit-profile" onclick="window.location.href='index.html'">
+                    Volver al inicio
+                </button>
+            </div>
+
+            <!-- Plazos Cercanos -->
+            <div class="deadlines-section">
+                <h3 class="deadlines-title">Plazos cercanos</h3>
+                <ul class="deadlines-list" id="deadlines-list">
+                    <!-- Los plazos se cargarán aquí desde la API -->
+                </ul>
+            </div>
+
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-wrapper">
+
+            <!-- NAVBAR SUPERIOR -->
+            <header class="navbar">
+                <div class="navbar-container">
+
+                    <!-- Buscador -->
+                    <div class="search-box">
+                        <input type="text" id="search-input" class="search-input" placeholder="Buscar trámites...">
+                        <button class="search-btn" aria-label="Buscar">🔍</button>
+                    </div>
+
+                    <!-- Navegación -->
+                    <nav class="nav-links">
+                        <a href="index.html" class="nav-link">Inicio</a>
+                        <a href="calendario.html" class="nav-link">Calendario</a>
+                        <a href="preguntasFrecuentes.html" class="nav-link">Preguntas Frecuentes</a>
+                    </nav>
+
+                </div>
+            </header>
+
+            <!-- CONTENIDO -->
+            <div class="content-area">
+
+                <header class="view-header">
+                    <h2 class="view-title">Mi Perfil</h2>
+                </header>
+
+                <!-- Área de Perfil -->
+                <div class="profile-container">
+
+                    <!-- Formulario de Edición de Perfil -->
+                    <form id="profile-form" class="auth-form">
+
+                        <!-- Fila 1: Usuario y Email -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="username" class="form-label">Usuario</label>
+                                <input type="text" id="username" name="username" class="form-input" readonly
+                                    placeholder="tu_usuario">
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" name="email" class="form-input" required
+                                    placeholder="email@ejemplo.com">
+                            </div>
+                        </div>
+
+                        <!-- Fila 2: Nombre Completo y DNI -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Nombre Completo</label>
+                                <input type="text" id="name" name="name" class="form-input" required
+                                    placeholder="Juan Pérez García">
+                            </div>
+                            <div class="form-group">
+                                <label for="dni" class="form-label">DNI/NIE</label>
+                                <input type="text" id="dni" name="dni" class="form-input" pattern="[0-9]{8}[A-Za-z]"
+                                    placeholder="12345678A">
+                            </div>
+                        </div>
+
+                        <!-- Fila 3: Teléfono y Fecha de nacimiento -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone" class="form-label">Teléfono</label>
+                                <input type="tel" id="phone" name="phone" class="form-input" placeholder="666 777 888">
+                            </div>
+                            <div class="form-group">
+                                <label for="dateOfBirth" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-input">
+                            </div>
+                        </div>
+
+                        <!-- Fila 4: Dirección -->
+                        <div class="form-group">
+                            <label for="address" class="form-label">Dirección</label>
+                            <input type="text" id="address" name="address" class="form-input"
+                                placeholder="Calle Principal 123">
+                        </div>
+
+                        <!-- Fila 5: Ciudad, Código Postal y Provincia -->
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label for="city" class="form-label">Localidad</label>
+                                <input type="text" id="city" name="city" class="form-input" placeholder="Madrid">
+                            </div>
+                            <div class="form-group">
+                                <label for="postalCode" class="form-label">Código Postal</label>
+                                <input type="text" id="postalCode" name="postalCode" class="form-input"
+                                    pattern="[0-9]{5}" placeholder="28001">
+                            </div>
+                            <div class="form-group">
+                                <label for="province" class="form-label">Provincia</label>
+                                <input type="text" id="province" name="province" class="form-input"
+                                    placeholder="Madrid">
+                            </div>
+                        </div>
+
+                        <!-- Mensaje de error/éxito -->
+                        <div id="message" class="message hidden"></div>
+
+                        <!-- Botones de acción -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                Guardar Cambios
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="btn-logout">
+                                Cerrar Sesión
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        // Verificar autenticación
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
+
+        // Cargar datos del usuario en el formulario
+        function loadUserData() {
+            if (currentUser) {
+                document.getElementById('username').value = currentUser.username || '';
+                document.getElementById('email').value = currentUser.email || '';
+                document.getElementById('name').value = currentUser.name || '';
+                document.getElementById('dni').value = currentUser.dni || '';
+                document.getElementById('phone').value = currentUser.phone || '';
+                document.getElementById('dateOfBirth').value = currentUser.dateOfBirth || '';
+                document.getElementById('address').value = currentUser.address || '';
+                document.getElementById('city').value = currentUser.city || '';
+                document.getElementById('postalCode').value = currentUser.postalCode || '';
+                document.getElementById('province').value = currentUser.province || '';
+
+                // Actualizar sidebar
+                document.getElementById('user-name').textContent = currentUser.name || currentUser.username;
+                document.getElementById('user-email').textContent = currentUser.email;
+            }
+        }
+
+        // Cargar datos al iniciar
+        loadUserData();
+
+        // Manejar el formulario de perfil
+        document.getElementById('profile-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const messageDiv = document.getElementById('message');
+
+            // Recoger datos del formulario
+            const updatedData = {
+                email: document.getElementById('email').value,
+                name: document.getElementById('name').value,
+                dni: document.getElementById('dni').value,
+                phone: document.getElementById('phone').value,
+                dateOfBirth: document.getElementById('dateOfBirth').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                postalCode: document.getElementById('postalCode').value,
+                province: document.getElementById('province').value
+            };
+
+            // Actualizar datos del usuario (fusionar con datos existentes)
+            const updatedUser = { ...currentUser, ...updatedData };
+            localStorage.setItem('civis_current_user', JSON.stringify(updatedUser));
+
+            // Mostrar mensaje de éxito
+            messageDiv.classList.remove('hidden', 'message-error', 'message-success');
+            messageDiv.classList.add('message-success');
+            messageDiv.textContent = 'Perfil actualizado correctamente';
+
+            // Actualizar sidebar
+            document.getElementById('user-name').textContent = updatedUser.name || updatedUser.username;
+            document.getElementById('user-email').textContent = updatedUser.email;
+        });
+
+        // Manejar cerrar sesión
+        document.getElementById('btn-logout').addEventListener('click', function () {
+            logoutUser();
+            window.location.href = 'login.html';
+        });
+    </script>
+
+</body>
+
+</html>

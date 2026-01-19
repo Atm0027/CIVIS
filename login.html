@@ -107,6 +107,7 @@
       if (result.success) {
         messageDiv.classList.add('message-success');
         messageDiv.textContent = result.message;
+        sesionIniciada = true;
 
         // Redirigir después de 1 segundo
         setTimeout(() => {
