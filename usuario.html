@@ -77,12 +77,11 @@
                     <!-- Formulario de Edición de Perfil -->
                     <form id="profile-form" class="auth-form">
 
-                        <!-- Fila 1: Usuario y Email -->
+                        <!-- Fila 1: DNI y Email -->
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="username" class="form-label">Usuario</label>
-                                <input type="text" id="username" name="username" class="form-input" readonly
-                                    placeholder="tu_usuario">
+                                <label for="dni" class="form-label">DNI/NIE</label>
+                                <input type="text" id="dni" name="dni" class="form-input" pattern="[0-9]{8}[A-Za-z]" placeholder="12345678A">
                             </div>
                             <div class="form-group">
                                 <label for="email" class="form-label">Email</label>
@@ -91,17 +90,16 @@
                             </div>
                         </div>
 
-                        <!-- Fila 2: Nombre Completo y DNI -->
+                        <!-- Fila 2: Nombre y Apellido -->
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="name" class="form-label">Nombre Completo</label>
+                                <label for="name" class="form-label">Nombre </label>
                                 <input type="text" id="name" name="name" class="form-input" required
                                     placeholder="Juan Pérez García">
                             </div>
                             <div class="form-group">
-                                <label for="dni" class="form-label">DNI/NIE</label>
-                                <input type="text" id="dni" name="dni" class="form-input" pattern="[0-9]{8}[A-Za-z]"
-                                    placeholder="12345678A">
+                                <label for="surname" class="form-label">Apellido</label>
+                                <input type="text" id="surname" name="surname" class="form-input" required placeholder="Lopez García">
                             </div>
                         </div>
 
