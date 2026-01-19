@@ -1,4 +1,4 @@
-/*
+
 // ===== SISTEMA DE AUTENTICACIÓN - CIVIS =====
 // Este archivo maneja la lógica de autenticación en las páginas de login/register
 
@@ -147,4 +147,3 @@ document.addEventListener('DOMContentLoaded', () => {
         initRegisterPage();
     }
 });
-*/

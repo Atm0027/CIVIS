@@ -1,4 +1,3 @@
-/*
 // ===== LÓGICA PRINCIPAL DE LA APLICACIÓN CIVIS (REFACTORIZADA) =====
 // ⚠️ NOTA: Este archivo ya NO contiene datos simulados
 // ✅ Todos los datos se obtienen desde la API Laravel
@@ -463,4 +462,3 @@ async function handleProfileSubmit(e) {
         submitButton.textContent = 'Guardar Cambios';
     }
 }
-*/

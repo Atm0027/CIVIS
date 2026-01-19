@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión - Civis</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body class="auth-body">
 
   <div class="auth-container">
-    
+
     <!-- Logo y Título -->
     <div class="auth-header">
       <h1 class="auth-logo">Civis</h1>
@@ -22,31 +24,18 @@
 
       <!-- Formulario -->
       <form id="login-form" class="auth-form">
-        
+
         <!-- Usuario o Email -->
         <div class="form-group">
           <label for="username" class="form-label">Usuario o Email</label>
-          <input 
-            type="text" 
-            id="username" 
-            name="username" 
-            class="form-input" 
-            required
-            placeholder="tu_usuario o email@ejemplo.com"
-          >
+          <input type="text" id="username" name="username" class="form-input" required
+            placeholder="tu_usuario o email@ejemplo.com">
         </div>
 
         <!-- Contraseña -->
         <div class="form-group">
           <label for="password" class="form-label">Contraseña</label>
-          <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            class="form-input" 
-            required
-            placeholder="••••••••"
-          >
+          <input type="password" id="password" name="password" class="form-input" required placeholder="••••••••">
         </div>
 
         <!-- Recordar sesión y olvido contraseña -->
@@ -120,4 +109,5 @@
     });
   </script>
 </body>
+
 </html>
