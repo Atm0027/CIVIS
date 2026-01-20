@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión - Civis</title>
+  <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+</head>
+
+<body class="auth-body">
+
+  <div class="auth-container">
+
+    <!-- Logo y Título -->
+    <div class="auth-header">
+      <h1 class="auth-logo">Civis</h1>
+      <p class="auth-subtitle">Tu Asistente Burocrático</p>
+    </div>
+
+    <!-- Card de Login -->
+    <div class="auth-card">
+      <h2 class="auth-card-title">Iniciar Sesión</h2>
+
+      <!-- Formulario -->
+      <form id="login-form" class="auth-form">
+
+        <!-- Usuario o Email -->
+        <div class="form-group">
+          <label for="username" class="form-label">Usuario o Email</label>
+          <input type="text" id="username" name="username" class="form-input" required
+            placeholder="tu_usuario o email@ejemplo.com">
+        </div>
+
+        <!-- Contraseña -->
+        <div class="form-group">
+          <label for="password" class="form-label">Contraseña</label>
+          <input type="password" id="password" name="password" class="form-input" required placeholder="••••••••">
+        </div>
+
+        <!-- Recordar sesión y olvido contraseña -->
+        <div class="form-remember">
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember" name="remember" class="form-checkbox">
+            <span>Recordarme</span>
+          </label>
+          <a href="#" class="link-forgot">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <!-- Mensaje de error/éxito -->
+        <div id="message" class="message hidden"></div>
+
+        <!-- Botón de Login -->
+        <button type="submit" class="btn btn-primary btn-full">
+          Iniciar Sesión
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="auth-divider">
+        <span>¿No tienes cuenta?</span>
+      </div>
+
+      <!-- Link a Registro -->
+      <a href="{{ route('register') }}" class="btn btn-secondary btn-full">
+        Crear una cuenta
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="{{ asset('js/config.js') }}"></script>
+  <script src="{{ asset('js/utils.js') }}"></script>
+  <script src="{{ asset('js/auth.js') }}"></script>
+  <script>
+    // Redirigir si ya está autenticado
+    if (redirectIfAuthenticated()) {
+      // Ya redirigido
+    }
+
+    // Manejar el formulario de login
+    document.getElementById('login-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const messageDiv = document.getElementById('message');
+
+      // Intentar login
+      const result = loginUser(username, password);
+
+      // Mostrar mensaje
+      messageDiv.classList.remove('hidden', 'message-error', 'message-success');
+
+      if (result.success) {
+        messageDiv.classList.add('message-success');
+        messageDiv.textContent = result.message;
+        sesionIniciada = true;
+
+        // Redirigir después de 1 segundo
+        setTimeout(() => {
+          window.location.href = '{{ route('index') }}';
+        }, 1000);
+      } else {
+        messageDiv.classList.add('message-error');
+        messageDiv.textContent = result.message;
+      }
+    });
+  </script>
+</body>
+
+</html>

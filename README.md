@@ -1,15 +1,21 @@
 # 🏛️ CIVIS - Tu Asistente Burocrático
 
+> Plataforma digital que simplifica la burocracia en España, convirtiendo trámites complejos en procesos sencillos, visuales y accesibles 24/7 desde cualquier dispositivo.
+
+---
+
 ## 📑 Tabla de Contenidos
 - [Descripción](#-descripción)
 - [Características](#-características)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Sistema de Autenticación](#-sistema-de-autenticación)
 - [Tecnologías Utilizadas](#️-tecnologías-utilizadas)
-- [Instalación y Uso](#-instalación-y-uso)
-- [Credenciales de Demo](#-credenciales-de-demo)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
+- [Instalación y Configuración](#-instalación-y-configuración)
+- [Uso](#-uso)
 - [Arquitectura](#-arquitectura)
-- [Próximos Pasos](#-próximos-pasos)
+- [API Endpoints](#-api-endpoints)
+- [Credenciales de Demo](#-credenciales-de-demo)
+- [Contribuir](#-contribuir)
+- [Licencia](#-licencia)
 
 ---
 
@@ -19,33 +25,39 @@ Civis es la plataforma digital que simplifica la burocracia en España, convirti
 
 En un entorno donde la burocracia es sinónimo de frustración, largas esperas y un lenguaje incomprensible, nuestra aplicación se erige como el asistente personal del ciudadano, ofreciendo una solución integral que mejora el acceso a la información burocrática en España.
 
+Este proyecto combina:
+- **Backend**: API RESTful construida con Laravel 11
+- **Frontend**: Interfaz de usuario moderna con HTML, CSS y JavaScript vanilla
+
 ---
 
 ## ✨ Características
 
 ### 🔐 Sistema de Autenticación
 - **Registro de usuarios** con validación completa
-- **Inicio y cierre de sesión** seguro
+- **Inicio y cierre de sesión** seguro con tokens JWT
 - **Gestión de perfiles** con datos personales completos
 - **Protección de páginas** con sistema de sesiones
-- **Persistencia local** con localStorage
+- **API de autenticación** con Laravel Sanctum
 
-### �� Videoteca de Trámites
-Guías audiovisuales paso a paso:
-- Solicitar la Beca MEC
-- Renovar el DNI
-- Empadronarse
-- Obtener el Certificado Digital
+### 📹 Videoteca de Trámites
+Guías audiovisuales paso a paso organizadas por categorías:
+- Estudios (Beca MEC, matrículas)
+- Empleo (contratos, prestaciones)
+- Ciudadanía (DNI, NIE, empadronamiento)
+- Certificados digitales
 - Declaración de la RENTA
-- Solicitar el NIE
 
 ### 📅 Calendario de Plazos
 - Vista de plazos cercanos en sidebar
 - Lista completa de todos los plazos
 - Indicadores visuales de plazos activos/finalizados
+- API para gestión de plazos
 
 ### ❓ Preguntas Frecuentes
-Respuestas claras a dudas burocráticas comunes
+- Respuestas claras a dudas burocráticas comunes
+- Sistema de búsqueda
+- Gestión desde el backend
 
 ### 👤 Perfil de Usuario Completo
 - **Información Personal**: Nombre, email, DNI/NIE, teléfono, fecha de nacimiento
@@ -56,8 +68,30 @@ Respuestas claras a dudas burocráticas comunes
 ### 🔍 Búsqueda Avanzada
 - Barra de búsqueda centrada y responsive
 - Búsqueda por palabras completas
-- Botón de limpiar búsqueda
+- Filtros por categoría
 - Contador de resultados en tiempo real
+
+---
+
+## 🛠️ Tecnologías Utilizadas
+
+### Backend
+- **Framework**: Laravel 11
+- **Base de datos**: MySQL/PostgreSQL
+- **Autenticación**: Laravel Sanctum
+- **API**: RESTful API con JSON
+- **PHP**: 8.2+
+
+### Frontend
+- **HTML5**: Semántico y accesible
+- **CSS3**: Custom properties, Flexbox, Grid
+- **JavaScript**: ES6+ Vanilla (sin frameworks)
+- **Arquitectura**: Modular y componetizada
+
+### DevOps
+- **Control de versiones**: Git
+- **Servidor local**: PHP Artisan serve / Vite
+- **Gestión de dependencias**: Composer, NPM
 
 ---
 
@@ -66,253 +100,252 @@ Respuestas claras a dudas burocráticas comunes
 ```
 CIVIS/
 │
-├── 📄 index.html                    # Página principal (protegida)
+├── 📂 app/                          # Lógica de la aplicación Laravel
+│   ├── Http/Controllers/            # Controladores de la API
+│   ├── Models/                      # Modelos Eloquent
+│   └── ...
 │
-├── 📂 pages/                        # Páginas de autenticación
-│   ├── login.html                   # Inicio de sesión
-│   └── register.html                # Registro de usuarios
+├── 📂 bootstrap/                    # Archivos de arranque de Laravel
 │
-├── 📂 css/                          # Estilos
-│   └── styles.css                   # Estilos personalizados (~270 líneas)
+├── 📂 config/                       # Configuraciones de Laravel
 │
-├── 📂 js/                           # JavaScript
-│   ├── auth.js                      # Sistema de autenticación (~340 líneas)
-│   ├── config.js                    # Configuración (~65 líneas)
-│   ├── utils.js                     # Utilidades (~200 líneas)
-│   ├── data.js                      # Base de datos mock (~115 líneas)
-│   ├── components.js                # Componentes UI (~180 líneas)
-│   └── app.js                       # Lógica principal (~440 líneas)
+├── 📂 database/                     # Migraciones y seeders
+│   ├── migrations/                  # Migraciones de BD
+│   └── seeders/                     # Datos de prueba
 │
-├── 📂 assets/                       # Recursos (imágenes, iconos)
+├── 📂 docs/                         # Documentación adicional
+│   └── index_old.html               # Versión antigua del frontend
 │
-├── 📂 docs/                         # Documentación y backups
-│   └── index_old.html               # Backup del archivo original
+├── 📂 public/                       # Archivos públicos accesibles
+│   ├── css/                         # Estilos del frontend
+│   │   └── styles.css               # Estilos personalizados
+│   ├── js/                          # Scripts del frontend
+│   │   ├── api.js                   # Funciones de API
+│   │   ├── app.js                   # Lógica principal
+│   │   ├── auth.js                  # Autenticación
+│   │   ├── components.js            # Componentes reutilizables
+│   │   ├── config.js                # Configuración
+│   │   └── utils.js                 # Utilidades
+│   └── index.php                    # Punto de entrada de Laravel
 │
-└── 📄 README.md                     # Este archivo
+├── 📂 resources/                    # Recursos sin compilar
+│   ├── views/                       # Vistas Blade
+│   │   ├── app.blade.php            # Vista principal de la API
+│   │   ├── index.blade.php          # Página principal (frontend)
+│   │   ├── login.blade.php          # Inicio de sesión
+│   │   ├── register.blade.php       # Registro
+│   │   ├── usuario.blade.php        # Perfil de usuario
+│   │   ├── calendario.blade.php     # Calendario de plazos
+│   │   └── preguntasFrecuentes.blade.php  # FAQs
+│   ├── css/                         # CSS para compilar con Vite
+│   └── js/                          # JS para compilar con Vite
+│
+├── 📂 routes/                       # Definición de rutas
+│   ├── web.php                      # Rutas web
+│   └── api.php                      # Rutas de la API
+│
+├── 📂 storage/                      # Archivos generados
+│
+├── 📂 tests/                        # Tests automatizados
+│
+├── .env.example                     # Ejemplo de configuración
+├── .gitignore                       # Archivos ignorados por Git
+├── artisan                          # CLI de Laravel
+├── composer.json                    # Dependencias PHP
+├── package.json                     # Dependencias Node.js
+├── README.md                        # Este archivo
+└── vite.config.js                   # Configuración de Vite
 ```
 
-### Métricas del Código
-
-| Archivo | Líneas | Funciones | Descripción |
-|---------|--------|-----------|-------------|
-| **pages/login.html** | ~145 | - | Página de inicio de sesión |
-| **pages/register.html** | ~255 | - | Página de registro |
-| **index.html** | ~313 | - | Página principal con perfil ampliado |
-| **css/styles.css** | ~270 | - | Estilos personalizados + barra búsqueda |
-| **js/auth.js** | ~340 | 15 | Sistema completo de autenticación |
-| **js/config.js** | ~65 | - | Configuración centralizada |
-| **js/utils.js** | ~200 | 14 | Funciones utilitarias |
-| **js/data.js** | ~115 | - | Datos mock |
-| **js/components.js** | ~180 | 11 | Componentes UI reutilizables |
-| **js/app.js** | ~440 | 12 | Lógica principal + perfil |
-| **TOTAL** | **~2,323** | **52** | **Completamente modular** |
-
 ---
 
-## 🔐 Sistema de Autenticación
+## 🚀 Instalación y Configuración
 
-### Funcionalidades
+### Requisitos Previos
+- PHP 8.2 o superior
+- Composer
+- Node.js y NPM
+- MySQL/PostgreSQL
+- Git
 
-#### Registro (`pages/register.html`)
-- Validación de usuario (mínimo 3 caracteres)
-- Validación de email
-- Contraseñas seguras (mínimo 6 caracteres)
-- Confirmación de contraseña
-- Campos completos de perfil:
-  - DNI/NIE (formato español validado)
-  - Teléfono
-  - Fecha de nacimiento
-  - Dirección completa (calle, ciudad, CP, provincia)
+### Pasos de Instalación
 
-#### Inicio de Sesión (`pages/login.html`)
-- Login con usuario o email
-- Sesión persistente (24 horas)
-- Protección contra accesos no autorizados
-- Redireccionamiento automático
-
-#### Gestión de Perfil (`index.html`)
-- Edición de todos los datos personales
-- Actualización en tiempo real
-- Validaciones de datos
-- Botón de cerrar sesión
-
-### Estructura de Usuario
-
-```javascript
-{
-    id: "único",
-    username: "usuario",
-    email: "email@ejemplo.com",
-    password: "hasheado",
-    name: "Nombre Completo",
-    dni: "12345678A",
-    phone: "666777888",
-    address: "Calle Principal 123",
-    city: "Madrid",
-    postalCode: "28001",
-    province: "Madrid",
-    country: "España",
-    dateOfBirth: "1995-05-15",
-    avatarUrl: "https://...",
-    relevantData: "Datos adicionales",
-    createdAt: "2025-11-12...",
-    updatedAt: "2025-11-12...",
-    isActive: true
-}
-```
-
-### Seguridad
-
-- ✅ Contraseñas hasheadas
-- ✅ Validación de email
-- ✅ Validación DNI formato español
-- ✅ Sesiones con expiración (24h)
-- ✅ Tokens únicos por sesión
-- ✅ Protección de páginas con `requireAuth()`
-- ✅ Sanitización de datos
-
----
-
-## 🛠️ Tecnologías Utilizadas
-
-- **HTML5**: Estructura semántica
-- **CSS3**: Estilos personalizados
-- **JavaScript ES6**: Lógica moderna
-- **Tailwind CSS**: Framework de diseño
-- **Google Fonts**: Tipografía Inter
-- **LocalStorage**: Persistencia de datos
-- **Git**: Control de versiones
-
----
-
-## 📥 Instalación y Uso
-
-### Opción 1: Abrir directamente
-1. Clona el repositorio:
+1. **Clonar el repositorio**
    ```bash
    git clone https://github.com/Atm0027/CIVIS.git
    cd CIVIS
    ```
 
-2. Abre `index.html` en tu navegador (te redirigirá a login)
+2. **Instalar dependencias PHP**
+   ```bash
+   composer install
+   ```
 
-3. Usa las credenciales de demo o crea una cuenta nueva
+3. **Instalar dependencias Node.js**
+   ```bash
+   npm install
+   ```
 
-### Opción 2: Con servidor local
-```bash
-# Con Python 3
-python -m http.server 8000
+4. **Configurar el archivo de entorno**
+   ```bash
+   cp .env.example .env
+   ```
+   Edita `.env` y configura:
+   - Conexión a base de datos
+   - APP_KEY (se genera en el siguiente paso)
+   - URL de la aplicación
 
-# Con Node.js (npx)
-npx http-server
+5. **Generar clave de aplicación**
+   ```bash
+   php artisan key:generate
+   ```
 
-# Luego abre: http://localhost:8000
-```
+6. **Ejecutar migraciones**
+   ```bash
+   php artisan migrate
+   ```
+
+7. **Sembrar datos de prueba (opcional)**
+   ```bash
+   php artisan db:seed
+   ```
+
+8. **Compilar assets del frontend (opcional)**
+   ```bash
+   npm run dev
+   # o para producción
+   npm run build
+   ```
+
+9. **Iniciar el servidor de desarrollo**
+   ```bash
+   php artisan serve
+   ```
+
+10. **Acceder a la aplicación**
+    - Backend API: `http://127.0.0.1:8000`
+    - Frontend principal: `http://127.0.0.1:8000/index`
+    - Login: `http://127.0.0.1:8000/login`
 
 ---
 
-## 🔑 Credenciales de Demo
+## 💻 Uso
 
-```
-Usuario: demo
-Contraseña: demo123
-```
+### Acceso a la Aplicación
 
-Este usuario tiene datos precargados para explorar todas las funcionalidades.
+#### Interfaz Web (Frontend)
+- **Página principal**: `/index`
+- **Login**: `/login`
+- **Registro**: `/register`
+- **Perfil de usuario**: `/usuario`
+- **Calendario**: `/calendario`
+- **Preguntas frecuentes**: `/preguntas-frecuentes`
+
+#### API (Backend)
+La API REST está disponible en `/api/*`. Ver sección de [API Endpoints](#-api-endpoints).
+
+### Credenciales de Demo
+
+Si has ejecutado los seeders, puedes usar:
+```
+Email: admin@civis.local
+Contraseña: admin1234
+```
 
 ---
 
 ## 🏗️ Arquitectura
 
-### Módulos JavaScript
+### Backend (Laravel)
 
-#### `js/auth.js` - Sistema de Autenticación
-- `registerUser()`: Registro de usuarios
-- `loginUser()`: Inicio de sesión
-- `logoutUser()`: Cierre de sesión
-- `getCurrentUser()`: Obtener usuario actual
-- `isAuthenticated()`: Verificar autenticación
-- `updateCurrentUser()`: Actualizar perfil
-- `changePassword()`: Cambiar contraseña
-- `requireAuth()`: Proteger páginas
-- `redirectIfAuthenticated()`: Redirigir si autenticado
+El backend sigue el patrón **MVC** (Model-View-Controller) de Laravel:
 
-#### `js/app.js` - Lógica Principal
-- `initializeApp()`: Inicialización
-- `renderUserProfile()`: Renderiza perfil en sidebar
-- `renderUpcomingDeadlines()`: Plazos cercanos
-- `renderFeed()`: Videoteca de trámites
-- `handleSearch()`: Búsqueda de videos
-- `handleProfileSubmit()`: Guardar perfil
-- `showPage()`: Navegación entre páginas
-- `loadProfileData()`: Carga datos de perfil
+- **Models**: Representan las entidades de la base de datos (User, Video, Category, Deadline, FAQ)
+- **Controllers**: Gestionan la lógica de negocio y responden a las peticiones HTTP
+- **Views**: Plantillas Blade que renderizan el HTML
+- **Routes**: Definen los endpoints tanto para web como para API
 
-#### `js/components.js` - Componentes UI
-11 componentes reutilizables para la interfaz
+### Frontend (JavaScript Vanilla)
 
-#### `js/utils.js` - Utilidades
-14 funciones helper (formateo, validación, localStorage, etc.)
+El frontend está modularizado en varios archivos:
 
-#### `js/data.js` - Base de Datos Mock
-Datos de ejemplo para desarrollo
+- **config.js**: Configuración global (URLs, constantes)
+- **api.js**: Funciones para comunicarse con la API
+- **auth.js**: Gestión de autenticación (login, logout, registro)
+- **components.js**: Componentes reutilizables de UI
+- **utils.js**: Funciones de utilidad
+- **app.js**: Lógica principal de la aplicación
 
-#### `js/config.js` - Configuración
-Variables de configuración centralizadas
-
-### Flujo de Usuario
+### Flujo de Datos
 
 ```
-1. Usuario accede a index.html
-   ↓
-2. requireAuth() verifica sesión
-   ↓
-3a. SI autenticado → Carga aplicación
-3b. NO autenticado → Redirige a pages/login.html
-   ↓
-4. Login exitoso → Redirige a index.html
-   ↓
-5. Usuario navega por la aplicación
-   ↓
-6. Edita perfil → Actualiza datos
-   ↓
-7. Cierra sesión → Redirige a login
+Usuario → Frontend (HTML/CSS/JS) → API (Laravel) → Base de Datos
+                                    ↓
+                               Respuesta JSON
 ```
 
 ---
 
-## 🔮 Próximos Pasos
+## 🔌 API Endpoints
 
-### Fase 1: Backend y Base de Datos
-- [ ] API REST con Node.js/Express
-- [ ] Base de datos PostgreSQL
-- [ ] Autenticación JWT
-- [ ] Integración con APIs gubernamentales
+### Autenticación
+- `POST /api/register` - Registrar nuevo usuario
+- `POST /api/login` - Iniciar sesión
+- `POST /api/logout` - Cerrar sesión
+- `GET /api/me` - Obtener usuario autenticado
 
-### Fase 2: Funcionalidades Avanzadas
-- [ ] Notificaciones push de plazos
-- [ ] Chat de asistente IA
-- [ ] Sistema de favoritos
-- [ ] Historial de trámites completados
+### Categorías
+- `GET /api/categories` - Listar todas las categorías
 
-### Fase 3: Expansión
-- [ ] App móvil nativa (React Native)
-- [ ] Integración con calendarios externos
-- [ ] Sistema de recordatorios por email/SMS
-- [ ] Multiidioma (catalán, euskera, gallego, inglés)
+### Videos
+- `GET /api/videos` - Listar todos los videos
+- `GET /api/videos?category={slug}` - Filtrar videos por categoría
+- `GET /api/videos/{id}` - Obtener detalles de un video
 
-### Fase 4: Escalabilidad
-- [ ] Cloud hosting (AWS/Azure)
-- [ ] CDN para recursos estáticos
-- [ ] Sistema de caché Redis
-- [ ] Monitorización y analytics
+### Plazos (Deadlines)
+- `GET /api/deadlines` - Listar todos los plazos
+- `GET /api/deadlines/{id}` - Obtener detalles de un plazo
+
+### Preguntas Frecuentes
+- `GET /api/faqs` - Listar todas las FAQs
+- `GET /api/faqs/{id}` - Obtener detalles de una FAQ
 
 ---
 
-## 👥 Contribución
+## 🎨 Características del Diseño
 
-¿Quieres contribuir? ¡Genial!
+### Sistema de Colores
+- **Amarillo**: `#FEC544` - Color principal
+- **Rojo**: `#CF2D33` - Acentos
+- **Azul**: `#2563EB` - Links y estados
+- **Sidebar**: `#1F2937` - Fondo oscuro
+- **Background**: `#F9FAFB` - Fondo claro
 
-1. Fork del proyecto
+### Responsive Design
+- Mobile First
+- Breakpoints optimizados
+- Sidebar colapsable en móviles
+- Grid adaptativo para tarjetas
+
+---
+
+## 🧪 Testing
+
+```bash
+# Ejecutar tests
+php artisan test
+
+# Con cobertura
+php artisan test --coverage
+```
+
+---
+
+## 🤝 Contribuir
+
+Las contribuciones son bienvenidas. Por favor:
+
+1. Fork el proyecto
 2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
 3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
 4. Push a la rama (`git push origin feature/AmazingFeature`)
@@ -322,24 +355,34 @@ Variables de configuración centralizadas
 
 ## 📄 Licencia
 
-Este proyecto es de código abierto y está disponible bajo la licencia MIT.
+Este proyecto utiliza el framework Laravel, que está licenciado bajo la [MIT license](https://opensource.org/licenses/MIT).
 
 ---
 
-## 👤 Autor
+## 📞 Contacto
 
-**Atm0027**
-- GitHub: [@Atm0027](https://github.com/Atm0027)
-- Email: atm00027@alu.medac.es
+Para más información sobre el proyecto, contacta con el equipo de desarrollo.
 
 ---
 
 ## 🙏 Agradecimientos
 
-- A todos los que sufren la burocracia española
-- A la comunidad open source
-- A los usuarios que prueban y reportan issues
+- **Laravel**: Por proporcionar un framework PHP excepcional
+- **Comunidad Open Source**: Por las herramientas y librerías utilizadas
 
 ---
 
-**¡Simplificando la burocracia, un trámite a la vez! 🎯**
+## 📚 Recursos Adicionales
+
+### Documentación de Laravel
+- [Documentación oficial](https://laravel.com/docs)
+- [Laracasts](https://laracasts.com) - Video tutoriales
+- [Laravel News](https://laravel-news.com) - Noticias y artículos
+
+### Recursos de JavaScript
+- [MDN Web Docs](https://developer.mozilla.org/) - Documentación web
+- [JavaScript.info](https://javascript.info/) - Tutorial moderno
+
+---
+
+**¡Bienvenido a CIVIS - Tu asistente burocrático digital! 🏛️**

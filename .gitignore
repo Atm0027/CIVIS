@@ -1,18 +1,39 @@
-# ===== CIVIS - .gitignore =====
-
-# Archivos del sistema operativo
+*.log
 .DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# ===== Frontend-specific rules (merged from main branch) =====
+
+# Additional OS files
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db
 desktop.ini
 
-# Editores e IDEs
-.vscode/
-.idea/
+# Additional editor files
 *.swp
 *.swo
 *~
@@ -20,57 +41,51 @@ desktop.ini
 .settings/
 .classpath
 
-# Node modules (si se usa npm en el futuro)
-node_modules/
+# npm/yarn logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Logs
+# Logs directory
 logs/
-*.log
 
-# Archivos de configuración local
-.env
+# Additional environment files
 .env.local
 .env.*.local
 config.local.php
 
-# Carpetas de cache y temporales
+# Cache and temporary folders
 cache/
 temp/
 tmp/
 *.tmp
 
-# Archivos de backup
+# Backup files
 *.bak
 *.backup
-*~
 
-# Archivos de base de datos locales
+# Database files
 *.sql
 *.sqlite
 *.db
 
-# Archivos de PHP
-vendor/
+# PHP additional
 composer.phar
-composer.lock
 
-# Archivos de distribución
+# Distribution builds
 dist/
 build/
 
-# Archivos de AWS y despliegue
+# AWS deployment
 .elasticbeanstalk/
 .aws-sam/
 
-# Archivos de certificados (no subir a git)
+# Certificates
 *.pem
 *.key
 *.crt
 *.p12
 
-# Archivos de usuario
+# User uploads
 uploads/
 user-data/
