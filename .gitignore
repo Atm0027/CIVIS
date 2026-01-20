@@ -22,3 +22,70 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# ===== Frontend-specific rules (merged from main branch) =====
+
+# Additional OS files
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
+
+# Additional editor files
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# npm/yarn logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs directory
+logs/
+
+# Additional environment files
+.env.local
+.env.*.local
+config.local.php
+
+# Cache and temporary folders
+cache/
+temp/
+tmp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+
+# Database files
+*.sql
+*.sqlite
+*.db
+
+# PHP additional
+composer.phar
+
+# Distribution builds
+dist/
+build/
+
+# AWS deployment
+.elasticbeanstalk/
+.aws-sam/
+
+# Certificates
+*.pem
+*.key
+*.crt
+*.p12
+
+# User uploads
+uploads/
+user-data/
