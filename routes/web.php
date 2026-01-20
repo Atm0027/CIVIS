@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Main application route (existing backend app)
-Route::view('/', 'app');
+// Página principal - usar el estilo del frontend estático
+Route::view('/', 'index')->name('home');
 
-// Frontend routes (migrated from main branch)
+// Frontend routes - vistas Blade con el estilo del frontend estático
 Route::view('/index', 'index')->name('index');
 Route::view('/login', 'login')->name('login');
 Route::view('/register', 'register')->name('register');

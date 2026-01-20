@@ -99,63 +99,107 @@ Guías audiovisuales paso a paso organizadas por categorías:
 
 ```
 CIVIS/
-│
 ├── 📂 app/                          # Lógica de la aplicación Laravel
-│   ├── Http/Controllers/            # Controladores de la API
-│   ├── Models/                      # Modelos Eloquent
-│   └── ...
+│   ├── Http/
+│   │   └── Controllers/Api/         # Controladores de la API REST
+│   │       ├── AuthController.php   # Login, logout, registro
+│   │       ├── VideoController.php  # CRUD de videos
+│   │       ├── CategoryController.php
+│   │       ├── DeadlineController.php
+│   │       └── FaqController.php
+│   └── Models/                      # Modelos Eloquent (User, Video, etc.)
 │
-├── 📂 bootstrap/                    # Archivos de arranque de Laravel
+├── 📂 database/
+│   ├── migrations/                  # Estructura de tablas de BD
+│   ├── seeders/                     # Datos de prueba
+│   └── database.sqlite              # Base de datos SQLite local
 │
-├── 📂 config/                       # Configuraciones de Laravel
-│
-├── 📂 database/                     # Migraciones y seeders
-│   ├── migrations/                  # Migraciones de BD
-│   └── seeders/                     # Datos de prueba
-│
-├── 📂 docs/                         # Documentación adicional
-│   └── index_old.html               # Versión antigua del frontend
-│
-├── 📂 public/                       # Archivos públicos accesibles
-│   ├── css/                         # Estilos del frontend
-│   │   └── styles.css               # Estilos personalizados
-│   ├── js/                          # Scripts del frontend
-│   │   ├── api.js                   # Funciones de API
-│   │   ├── app.js                   # Lógica principal
-│   │   ├── auth.js                  # Autenticación
-│   │   ├── components.js            # Componentes reutilizables
-│   │   ├── config.js                # Configuración
-│   │   └── utils.js                 # Utilidades
+├── 📂 public/                       # 🌐 FRONTEND ESTÁTICO (archivos públicos)
+│   ├── css/
+│   │   └── styles.css               # Estilos principales (gradiente naranja/azul)
+│   ├── js/
+│   │   ├── config.js                # Configuración de la API (URL, endpoints)
+│   │   ├── api.js                   # Funciones para llamar a la API REST
+│   │   ├── auth.js                  # Login/logout/registro en frontend
+│   │   ├── app.js                   # Lógica principal (cargar videos, plazos)
+│   │   ├── components.js            # Componentes HTML reutilizables
+│   │   └── utils.js                 # Utilidades (formatear fechas, debounce)
+│   │
+│   ├── index.html                   # 🏠 Página principal (Videoteca de Trámites)
+│   ├── login.html                   # 🔐 Formulario de inicio de sesión
+│   ├── register.html                # 📝 Formulario de registro de usuario
+│   ├── usuario.html                 # 👤 Perfil de usuario (editar datos)
+│   ├── calendario.html              # 📅 Lista de plazos burocráticos
+│   ├── preguntasFrecuentes.html     # ❓ Preguntas frecuentes
 │   └── index.php                    # Punto de entrada de Laravel
 │
-├── 📂 resources/                    # Recursos sin compilar
-│   ├── views/                       # Vistas Blade
-│   │   ├── app.blade.php            # Vista principal de la API
-│   │   ├── index.blade.php          # Página principal (frontend)
-│   │   ├── login.blade.php          # Inicio de sesión
-│   │   ├── register.blade.php       # Registro
-│   │   ├── usuario.blade.php        # Perfil de usuario
-│   │   ├── calendario.blade.php     # Calendario de plazos
-│   │   └── preguntasFrecuentes.blade.php  # FAQs
-│   ├── css/                         # CSS para compilar con Vite
-│   └── js/                          # JS para compilar con Vite
+├── 📂 resources/views/              # Vistas Blade (versión dinámica)
+│   ├── index.blade.php              # Página principal con asset()
+│   ├── login.blade.php              # Login con rutas Blade
+│   ├── register.blade.php           # Registro con validación
+│   ├── usuario.blade.php            # Perfil de usuario
+│   ├── calendario.blade.php         # Calendario de plazos
+│   └── preguntasFrecuentes.blade.php
 │
-├── 📂 routes/                       # Definición de rutas
-│   ├── web.php                      # Rutas web
-│   └── api.php                      # Rutas de la API
+├── 📂 routes/
+│   ├── web.php                      # Rutas de páginas web
+│   └── api.php                      # Rutas de la API REST (/api/*)
 │
-├── 📂 storage/                      # Archivos generados
-│
-├── 📂 tests/                        # Tests automatizados
-│
-├── .env.example                     # Ejemplo de configuración
-├── .gitignore                       # Archivos ignorados por Git
-├── artisan                          # CLI de Laravel
+├── .env                             # Variables de entorno (no subir a Git)
 ├── composer.json                    # Dependencias PHP
 ├── package.json                     # Dependencias Node.js
-├── README.md                        # Este archivo
-└── vite.config.js                   # Configuración de Vite
+└── vite.config.js                   # Configuración del bundler
 ```
+
+---
+
+## 📄 Descripción de Archivos Importantes
+
+### Frontend - Páginas HTML
+
+| Archivo | Descripción | Contenido Visual |
+|---------|-------------|------------------|
+| `public/index.html` | **Página principal** | Sidebar oscuro con perfil de usuario, buscador, grid de tarjetas "Videoteca de Trámites" |
+| `public/login.html` | **Inicio de sesión** | Gradiente naranja/azul, tarjeta blanca centrada con formulario |
+| `public/register.html` | **Registro** | Formulario completo: nombre, email, DNI, teléfono, dirección |
+| `public/usuario.html` | **Perfil de usuario** | Formulario editable con datos personales y opción de cambiar contraseña |
+| `public/calendario.html` | **Calendario de plazos** | Lista de fechas importantes con indicador abierto/cerrado |
+| `public/preguntasFrecuentes.html` | **FAQs** | Preguntas y respuestas sobre trámites comunes |
+
+### Frontend - JavaScript
+
+| Archivo | Función |
+|---------|---------|
+| `public/js/config.js` | Define `CONFIG` con URL de API (`http://localhost:8000/api`), endpoints y opciones |
+| `public/js/api.js` | Funciones `fetchAPI()`, `login()`, `getVideos()`, `getDeadlines()`, etc. |
+| `public/js/auth.js` | Gestión de sesión: `loginUser()`, `logoutUser()`, `isAuthenticated()`, `redirectIfAuthenticated()` |
+| `public/js/app.js` | Inicialización de la app, carga de datos, eventos de navegación, renderizado de tarjetas |
+| `public/js/components.js` | Componentes HTML: `VideoCard()`, `DeadlineItem()`, `FaqCard()`, `ErrorMessage()` |
+| `public/js/utils.js` | Utilidades: `formatDate()`, `debounce()`, `validateEmail()`, `sanitizeHTML()` |
+
+### Frontend - CSS
+
+| Archivo | Contenido |
+|---------|-----------|
+| `public/css/styles.css` | **Estilos completos** del frontend: variables CSS, gradientes, sidebar oscuro, tarjetas, formularios, responsive design |
+
+### Backend - Rutas
+
+| Archivo | Rutas Definidas |
+|---------|-----------------|
+| `routes/web.php` | `/`, `/index`, `/login`, `/register`, `/usuario`, `/calendario`, `/preguntas-frecuentes` |
+| `routes/api.php` | `/api/login`, `/api/videos`, `/api/categories`, `/api/faqs`, `/api/deadlines`, `/api/me` |
+
+### Backend - Controladores
+
+| Archivo | Funcionalidad |
+|---------|---------------|
+| `app/Http/Controllers/Api/AuthController.php` | Login, logout, obtener usuario actual |
+| `app/Http/Controllers/Api/VideoController.php` | Listar y filtrar videos por categoría |
+| `app/Http/Controllers/Api/CategoryController.php` | Listar categorías de trámites |
+| `app/Http/Controllers/Api/DeadlineController.php` | Listar plazos burocráticos |
+| `app/Http/Controllers/Api/FaqController.php` | Listar preguntas frecuentes |
+
 
 ---
 
