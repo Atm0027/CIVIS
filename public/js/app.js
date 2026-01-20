@@ -125,77 +125,96 @@ function getElements() {
 
 // ===== CONFIGURAR EVENT LISTENERS =====
 function setupEventListeners(elements) {
-    // Control de la Sidebar Móvil
-    elements.openSidebarBtn.addEventListener('click', () => {
-        elements.sidebar.classList.remove('-translate-x-full');
-        elements.sidebarOverlay.classList.remove('hidden');
-    });
+    // Control de la Sidebar Móvil (solo si existen los elementos)
+    if (elements.openSidebarBtn && elements.sidebar && elements.sidebarOverlay) {
+        elements.openSidebarBtn.addEventListener('click', () => {
+            elements.sidebar.classList.remove('-translate-x-full');
+            elements.sidebarOverlay.classList.remove('hidden');
+        });
+    }
 
-    elements.closeSidebarBtn.addEventListener('click', () => {
-        elements.sidebar.classList.add('-translate-x-full');
-        elements.sidebarOverlay.classList.add('hidden');
-    });
+    if (elements.closeSidebarBtn && elements.sidebar && elements.sidebarOverlay) {
+        elements.closeSidebarBtn.addEventListener('click', () => {
+            elements.sidebar.classList.add('-translate-x-full');
+            elements.sidebarOverlay.classList.add('hidden');
+        });
+    }
 
-    elements.sidebarOverlay.addEventListener('click', () => {
-        elements.sidebar.classList.add('-translate-x-full');
-        elements.sidebarOverlay.classList.add('hidden');
-    });
+    if (elements.sidebarOverlay && elements.sidebar) {
+        elements.sidebarOverlay.addEventListener('click', () => {
+            elements.sidebar.classList.add('-translate-x-full');
+            elements.sidebarOverlay.classList.add('hidden');
+        });
+    }
 
-    // Navegación principal
-    elements.navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const pageId = link.dataset.page;
-            showPage(pageId);
-            // En móvil, cerrar la sidebar después de hacer clic
-            if (window.innerWidth < 768) {
-                elements.sidebar.classList.add('-translate-x-full');
-                elements.sidebarOverlay.classList.add('hidden');
+    // Navegación principal (solo enlaces con data-page, no todos los nav-links)
+    if (elements.navLinks && elements.navLinks.length > 0) {
+        elements.navLinks.forEach(link => {
+            if (link.dataset.page) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.dataset.page;
+                    showPage(pageId);
+                    // En móvil, cerrar la sidebar después de hacer clic
+                    if (window.innerWidth < 768 && elements.sidebar && elements.sidebarOverlay) {
+                        elements.sidebar.classList.add('-translate-x-full');
+                        elements.sidebarOverlay.classList.add('hidden');
+                    }
+                });
             }
         });
-    });
+    }
 
-    // Lógica de Búsqueda
-    elements.searchBar.addEventListener('input', (e) => {
-        const clearSearchBtn = elements.clearSearchBtn;
-        const searchTerm = e.target.value.trim();
+    // Lógica de Búsqueda (solo si existe search-bar o search-input)
+    const searchInput = elements.searchBar || document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const clearSearchBtn = elements.clearSearchBtn;
+            const searchTerm = e.target.value.trim();
 
-        // Mostrar/ocultar botón de limpiar
-        if (clearSearchBtn) {
-            if (searchTerm !== '') {
-                clearSearchBtn.classList.remove('hidden');
-            } else {
-                clearSearchBtn.classList.add('hidden');
+            // Mostrar/ocultar botón de limpiar
+            if (clearSearchBtn) {
+                if (searchTerm !== '') {
+                    clearSearchBtn.classList.remove('hidden');
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                }
             }
-        }
-    });
+        });
 
-    // Buscar al presionar Enter
-    elements.searchBar.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleSearch({ target: elements.searchBar });
-        }
-    });
+        // Buscar al presionar Enter
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch({ target: searchInput });
+            }
+        });
+    }
 
     // Buscar al hacer clic en el botón
     if (elements.searchBtn) {
         elements.searchBtn.addEventListener('click', () => {
-            handleSearch({ target: elements.searchBar });
+            const searchInput = elements.searchBar || document.getElementById('search-input');
+            if (searchInput) handleSearch({ target: searchInput });
         });
     }
 
     // Botón para limpiar búsqueda
     if (elements.clearSearchBtn) {
         elements.clearSearchBtn.addEventListener('click', () => {
-            elements.searchBar.value = '';
-            elements.clearSearchBtn.classList.add('hidden');
-            handleSearch({ target: { value: '' } });
+            const searchInput = elements.searchBar || document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.value = '';
+                elements.clearSearchBtn.classList.add('hidden');
+                handleSearch({ target: { value: '' } });
+            }
         });
     }
 
     // Lógica de Editar Perfil
-    elements.profileForm.addEventListener('submit', handleProfileSubmit);
+    if (elements.profileForm) {
+        elements.profileForm.addEventListener('submit', handleProfileSubmit);
+    }
 
     // Botón de cerrar sesión
     if (elements.logoutBtn) {
