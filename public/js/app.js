@@ -2,14 +2,11 @@
 // ⚠️ NOTA: Este archivo ya NO contiene datos simulados
 // ✅ Todos los datos se obtienen desde la API Laravel
 
-// Variable global para el usuario actual
-let currentUser = {};
+// Variable global para el usuario actual (null si no está logueado)
+let currentUser = null;
 
 // Espera a que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', async () => {
-    // Verificar autenticación
-    // requireAuth(); // TODO: Descomentar cuando Laravel esté listo
-
     // Intentar cargar usuario desde localStorage o API
     await loadCurrentUser();
 
@@ -23,34 +20,66 @@ async function loadCurrentUser() {
         // Primero intentar desde localStorage (más rápido)
         currentUser = getCurrentUserFromStorage();
 
-        // Si no hay datos locales, obtener desde API
-        if (!currentUser) {
+        // Si no hay datos locales y tenemos token, obtener desde API
+        if (!currentUser && hasToken()) {
             currentUser = await getUserProfile();
             saveCurrentUser(currentUser);
         }
 
-        // TODO: Opcionalmente, sincronizar con API en segundo plano
-        // para tener datos actualizados
-
     } catch (error) {
         console.error('Error cargando usuario:', error);
-        // Si falla, redirigir a login
-        window.location.href = 'login.html';
+        // Si falla (token inválido), limpiamos sesión pero NO redirigimos aquí
+        // La redirección se manejará según la página que se intente visitar
+        removeToken();
+        removeCurrentUser();
+        currentUser = null;
     }
 }
 
 // ===== FUNCIÓN PRINCIPAL DE INICIALIZACIÓN =====
 function initializeApp() {
+    // Detectar página actual
+    const path = window.location.pathname;
+    const isProtectedPage = path.includes('calendario.html') || path.includes('usuario.html');
+
+    // Si es página protegida y no hay usuario, redirigir a login
+    if (isProtectedPage && !currentUser) {
+        window.location.href = 'login.html';
+        return;
+    }
+
     // Obtener referencias a elementos del DOM
     const elements = getElements();
 
     // Configurar event listeners
     setupEventListeners(elements);
 
-    // Renderizar contenido inicial
-    renderUserProfile();
-    loadUpcomingDeadlines();
-    loadVideoFeed();
+    // Renderizar contenido inicial según estado de sesión
+    if (currentUser) {
+        renderUserProfile();
+    } else {
+        renderAuthButtons(); // Mostrar botones Login/Registro
+    }
+
+    // Cargar contenido específico de la página
+    if (path.includes('calendario.html')) {
+        // Ya verificado arriba que está logueado
+        loadCalendarPage();
+    } else if (path.includes('preguntasFrecuentes.html')) {
+        loadFaqPage();
+    } else if (path.includes('usuario.html')) {
+        loadProfileData();
+    } else {
+        // Por defecto (index.html o raíz) cargamos deadlines (si hay usuario) y videos
+        if (currentUser) {
+            loadUpcomingDeadlines();
+        } else {
+            // Ocultar sección de plazos si es invitado
+            const deadlinesEl = document.getElementById('upcoming-deadlines');
+            if (deadlinesEl) deadlinesEl.innerHTML = '<p class="text-sm text-slate-400">Inicia sesión para ver tus plazos.</p>';
+        }
+        loadVideoFeed();
+    }
 }
 
 // ===== OBTENER REFERENCIAS A ELEMENTOS DEL DOM =====
@@ -183,13 +212,33 @@ function setupEventListeners(elements) {
 // Renderiza el perfil en la barra lateral
 function renderUserProfile() {
     const userProfileSidebar = document.getElementById('user-profile-sidebar');
-    userProfileSidebar.innerHTML = UserProfileSidebar(currentUser);
+    if (!userProfileSidebar) return;
 
-    // Añadir event listener al botón de editar perfil
-    document.querySelector('.nav-link-profile').addEventListener('click', (e) => {
-        e.preventDefault();
-        showPage('profile');
-    });
+    // Usar estructura HTML compatible con styles.css
+    userProfileSidebar.innerHTML = `
+        <div class="user-avatar"></div>
+        <p class="user-name">${currentUser.name || 'Usuario'}</p>
+        <p class="user-email">${currentUser.email || ''}</p>
+        <button class="btn-edit-profile" onclick="window.location.href='usuario.html'">
+            Ver perfil
+        </button>
+    `;
+}
+
+// Renderiza botones de login/registro para invitados
+function renderAuthButtons() {
+    const userProfileSidebar = document.getElementById('user-profile-sidebar');
+    if (!userProfileSidebar) return;
+
+    userProfileSidebar.innerHTML = `
+        <p class="user-name" style="font-size: 1rem; margin-bottom: 1rem;">Bienvenido</p>
+        <a href="login.html" class="btn-edit-profile" style="display: block; text-align: center; margin-bottom: 0.5rem;">
+            Iniciar Sesión
+        </a>
+        <a href="register.html" class="btn-edit-profile" style="display: block; text-align: center; background: transparent; border: 1px solid var(--color-primary);">
+            Registrarse
+        </a>
+    `;
 }
 
 // Carga y renderiza los plazos cercanos desde API
@@ -198,7 +247,7 @@ async function loadUpcomingDeadlines() {
 
     try {
         showLoader(upcomingDeadlinesEl);
-        
+
         const deadlines = await getUpcomingDeadlines(2);
 
         if (deadlines.length === 0) {
@@ -263,7 +312,7 @@ async function loadCalendarPage() {
         showLoader(calendarFullList);
 
         const calendar = await getCalendar();
-        
+
         // Ordenar por fecha
         const sortedCalendar = calendar.sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -296,6 +345,12 @@ async function loadFaqPage() {
 
 // Función para mostrar la página correcta y ocultar las demás
 function showPage(pageId) {
+    // Protección de rutas: Si intenta acceder a calendario o perfil sin estar logueado
+    if ((pageId === 'calendar' || pageId === 'profile') && !currentUser) {
+        window.location.href = 'login.html';
+        return;
+    }
+
     const pages = document.querySelectorAll('.page-content');
     const navLinks = document.querySelectorAll('.nav-link');
 
@@ -323,9 +378,11 @@ function showPage(pageId) {
         // Al volver al feed, resetea la búsqueda
         const searchBar = document.getElementById('search-bar');
         const feedTitle = document.getElementById('feed-title');
-        searchBar.value = '';
-        feedTitle.textContent = 'Videoteca de Trámites';
-        feedTitle.classList.remove('text-blue-600', 'text-red-600');
+        if (searchBar) searchBar.value = '';
+        if (feedTitle) {
+            feedTitle.textContent = 'Videoteca de Trámites';
+            feedTitle.classList.remove('text-blue-600', 'text-red-600');
+        }
         loadVideoFeed();
     } else if (pageId === 'calendar') {
         loadCalendarPage();

@@ -10,7 +10,7 @@
  */
 async function fetchAPI(endpoint, options = {}) {
     const token = getToken();
-    
+
     const defaultHeaders = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -31,8 +31,9 @@ async function fetchAPI(endpoint, options = {}) {
         // Manejar respuestas no autorizadas (token inválido o expirado)
         if (response.status === 401) {
             removeToken();
-            window.location.href = 'login.html';
-            throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+            // NO redirigir automáticamente aquí para permitir modo invitado.
+            // La app redirigirá si es necesario en initializeApp().
+            throw new Error('Sesión expirada o no iniciada.');
         }
 
         // Manejar errores HTTP
