@@ -62,7 +62,7 @@
       </div>
 
       <!-- Link a Registro -->
-      <a href="register.html" class="btn btn-secondary btn-full">
+      <a href="{{ route('register') }}" class="btn btn-secondary btn-full">
         Crear una cuenta
       </a>
     </div>
