@@ -72,39 +72,59 @@
   <!-- Scripts -->
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
+    // El login se maneja automáticamente por initLoginPage() en auth.js
+    // Pero login.html tiene IDs diferentes, así que manejamos aquí
+
     // Redirigir si ya está autenticado
-    if (redirectIfAuthenticated()) {
-      // Ya redirigido
+    if (hasToken()) {
+      window.location.href = 'index.html';
     }
 
     // Manejar el formulario de login
-    document.getElementById('login-form').addEventListener('submit', function (e) {
+    document.getElementById('login-form').addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      const username = document.getElementById('username').value;
+      const usernameOrEmail = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
       const messageDiv = document.getElementById('message');
+      const submitButton = this.querySelector('button[type="submit"]');
 
-      // Intentar login
-      const result = loginUser(username, password);
+      // Validación básica
+      if (!usernameOrEmail || !password) {
+        messageDiv.classList.remove('hidden', 'message-error', 'message-success');
+        messageDiv.classList.add('message-error');
+        messageDiv.textContent = 'Por favor, completa todos los campos';
+        return;
+      }
 
-      // Mostrar mensaje
-      messageDiv.classList.remove('hidden', 'message-error', 'message-success');
+      // Deshabilitar botón mientras se procesa
+      submitButton.disabled = true;
+      const originalText = submitButton.textContent;
+      submitButton.textContent = 'Iniciando sesión...';
+      messageDiv.classList.add('hidden');
 
-      if (result.success) {
+      try {
+        // Llamar a la API de login (usa email como identificador)
+        await login(usernameOrEmail, password);
+
+        // Si llega aquí, el login fue exitoso
+        messageDiv.classList.remove('hidden', 'message-error');
         messageDiv.classList.add('message-success');
-        messageDiv.textContent = result.message;
-        sesionIniciada = true;
+        messageDiv.textContent = '¡Bienvenido! Redirigiendo...';
 
         // Redirigir después de 1 segundo
         setTimeout(() => {
           window.location.href = 'index.html';
         }, 1000);
-      } else {
+      } catch (error) {
+        messageDiv.classList.remove('hidden', 'message-success');
         messageDiv.classList.add('message-error');
-        messageDiv.textContent = result.message;
+        messageDiv.textContent = error.message || 'Error al iniciar sesión. Verifica tus credenciales.';
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
       }
     });
   </script>

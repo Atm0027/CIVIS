@@ -240,8 +240,12 @@
         });
 
         // Manejar cerrar sesión
-        document.getElementById('btn-logout').addEventListener('click', function () {
-            logoutUser();
+        document.getElementById('btn-logout').addEventListener('click', async function () {
+            // Limpiar datos locales
+            localStorage.removeItem('civis_auth_token');
+            localStorage.removeItem('civis_current_user');
+
+            // Redirigir al login
             window.location.href = 'login.html';
         });
     </script>
