@@ -6,7 +6,7 @@
 function initLoginPage() {
     // Verificar si ya está autenticado
     if (hasToken()) {
-        window.location.href = '../index.html';
+        window.location.href = 'index.html';
         return;
     }
 
@@ -43,7 +43,7 @@ function initLoginPage() {
             await login(email, password);
 
             // Si llega aquí, el login fue exitoso
-            window.location.href = '../index.html';
+            window.location.href = 'index.html';
 
         } catch (error) {
             showAuthError(errorContainer, error.message || 'Error al iniciar sesión. Verifica tus credenciales.');
@@ -57,64 +57,97 @@ function initLoginPage() {
 function initRegisterPage() {
     // Verificar si ya está autenticado
     if (hasToken()) {
-        window.location.href = '../index.html';
+        window.location.href = 'index.html';
         return;
     }
 
     const registerForm = document.getElementById('register-form');
-    const nameInput = document.getElementById('register-name');
-    const emailInput = document.getElementById('register-email');
-    const passwordInput = document.getElementById('register-password');
-    const confirmPasswordInput = document.getElementById('register-confirm-password');
+    // Mapear campos según los IDs en register.html
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm-password');
+    const nameInput = document.getElementById('name');
+    const dniInput = document.getElementById('dni');
+    const phoneInput = document.getElementById('phone');
+    const dateOfBirthInput = document.getElementById('dateOfBirth');
+    const addressInput = document.getElementById('address');
+    const cityInput = document.getElementById('city');
+    const postalCodeInput = document.getElementById('postalCode');
+    const provinceInput = document.getElementById('province');
+
     const submitButton = registerForm.querySelector('button[type="submit"]');
-    const errorContainer = document.getElementById('register-error');
+    const messageContainer = document.getElementById('message');
 
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const name = nameInput.value.trim();
+        const username = usernameInput.value.trim();
         const email = emailInput.value.trim();
         const password = passwordInput.value;
         const confirmPassword = confirmPasswordInput.value;
+        const name = nameInput.value.trim();
 
-        // Validaciones
-        if (!name || !email || !password || !confirmPassword) {
-            showAuthError(errorContainer, 'Por favor, completa todos los campos');
+        // Validaciones básicas
+        if (!username || !name || !email || !password || !confirmPassword) {
+            showAuthError(messageContainer, 'Por favor, completa todos los campos obligatorios');
             return;
         }
 
         if (!validateEmail(email)) {
-            showAuthError(errorContainer, 'Por favor, ingresa un email válido');
+            showAuthError(messageContainer, 'Por favor, ingresa un email válido');
             return;
         }
 
         if (password.length < 6) {
-            showAuthError(errorContainer, 'La contraseña debe tener al menos 6 caracteres');
+            showAuthError(messageContainer, 'La contraseña debe tener al menos 6 caracteres');
             return;
         }
 
         if (password !== confirmPassword) {
-            showAuthError(errorContainer, 'Las contraseñas no coinciden');
+            showAuthError(messageContainer, 'Las contraseñas no coinciden');
             return;
         }
 
         // Deshabilitar botón mientras se procesa
         submitButton.disabled = true;
+        const originalButtonText = submitButton.textContent;
         submitButton.textContent = 'Creando cuenta...';
-        errorContainer.classList.add('hidden');
+        messageContainer.classList.add('hidden');
 
         try {
+            // Preparar datos completos para la API
+            const userData = {
+                username,
+                email,
+                password,
+                name,
+                dni: dniInput.value.trim(),
+                phone: phoneInput.value.trim(),
+                dateOfBirth: dateOfBirthInput.value,
+                address: addressInput.value.trim(),
+                city: cityInput.value.trim(),
+                postalCode: postalCodeInput.value.trim(),
+                province: provinceInput.value.trim()
+            };
+
             // Llamar a la API de registro
-            await register({ name, email, password });
+            await register(userData);
 
             // Si llega aquí, el registro fue exitoso
-            // Redirigir al index (ya estará logueado)
-            window.location.href = '../index.html';
+            messageContainer.textContent = '¡Registro exitoso! Iniciando sesión...';
+            messageContainer.classList.remove('hidden', 'message-error');
+            messageContainer.classList.add('message-success');
+
+            // Redirigir al index después de un breve delay para que vean el mensaje
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
 
         } catch (error) {
-            showAuthError(errorContainer, error.message || 'Error al crear la cuenta. Intenta nuevamente.');
+            showAuthError(messageContainer, error.message || 'Error al crear la cuenta. Intenta nuevamente.');
             submitButton.disabled = false;
-            submitButton.textContent = 'Crear Cuenta';
+            submitButton.textContent = originalButtonText;
         }
     });
 }
@@ -122,7 +155,8 @@ function initRegisterPage() {
 // ===== FUNCIÓN AUXILIAR PARA MOSTRAR ERRORES =====
 function showAuthError(container, message) {
     container.textContent = message;
-    container.classList.remove('hidden');
+    container.classList.remove('hidden', 'message-success');
+    container.classList.add('message-error');
 }
 
 // ===== LOGOUT DEL USUARIO =====
@@ -132,9 +166,9 @@ async function logoutUser() {
     } catch (error) {
         console.error('Error al cerrar sesión:', error);
     }
-    
+
     // Redirigir siempre al login
-    window.location.href = 'pages/login.html';
+    window.location.href = 'login.html';
 }
 
 // ===== AUTO-INICIALIZACIÓN SEGÚN LA PÁGINA =====

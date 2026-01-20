@@ -251,10 +251,10 @@ function renderAuthButtons() {
 
     userProfileSidebar.innerHTML = `
         <p class="user-name" style="font-size: 1rem; margin-bottom: 1rem;">Bienvenido</p>
-        <a href="login.html" class="btn-edit-profile" style="display: block; text-align: center; margin-bottom: 0.5rem;">
+        <a href="login.html" class="btn-edit-profile" style="display: block; text-align: center; margin-bottom: 0.5rem; text-decoration: none;">
             Iniciar Sesión
         </a>
-        <a href="register.html" class="btn-edit-profile" style="display: block; text-align: center; background: transparent; border: 1px solid var(--color-primary);">
+        <a href="register.html" class="btn-edit-profile" style="display: block; text-align: center; background: transparent; border: 1px solid var(--color-primary); text-decoration: none;">
             Registrarse
         </a>
     `;

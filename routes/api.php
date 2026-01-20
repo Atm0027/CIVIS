@@ -16,13 +16,14 @@ Route::get('/deadlines', [DeadlineController::class, 'index']);
 Route::get('/deadlines/{id}', [DeadlineController::class, 'show']);
 
 // auth
-Route::post('/login', [AuthController::class, 'login']);
+Route::prefix('auth')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/me', [AuthController::class, 'me']);
-    Route::post('/logout', [AuthController::class, 'logout']);
-
-    // aquí luego metemos CRUD admin (crear/editar/borrar)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/me', [AuthController::class, 'me']);
+        Route::post('/logout', [AuthController::class, 'logout']);
+    });
 });
 
 use App\Http\Controllers\Api\UploadController;

@@ -93,7 +93,11 @@ async function register(userData) {
     }
 
     if (response.user) {
-        saveCurrentUser(response.user);
+        // Combinar datos locales con los del servidor por si el servidor no devuelve todo
+        const fullUser = { ...userData, ...response.user };
+        // No guardar la contraseña en el objeto de usuario local
+        delete fullUser.password;
+        saveCurrentUser(fullUser);
     }
 
     return response;
