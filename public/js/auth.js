@@ -11,25 +11,20 @@ function initLoginPage() {
     }
 
     const loginForm = document.getElementById('login-form');
-    const emailInput = document.getElementById('login-email');
-    const passwordInput = document.getElementById('login-password');
+    const usernameOrEmailInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
     const submitButton = loginForm.querySelector('button[type="submit"]');
-    const errorContainer = document.getElementById('login-error');
+    const errorContainer = document.getElementById('message');
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const email = emailInput.value.trim();
+        const usernameOrEmail = usernameOrEmailInput.value.trim();
         const password = passwordInput.value;
 
         // Validación básica
-        if (!email || !password) {
+        if (!usernameOrEmail || !password) {
             showAuthError(errorContainer, 'Por favor, completa todos los campos');
-            return;
-        }
-
-        if (!validateEmail(email)) {
-            showAuthError(errorContainer, 'Por favor, ingresa un email válido');
             return;
         }
 
@@ -39,8 +34,8 @@ function initLoginPage() {
         errorContainer.classList.add('hidden');
 
         try {
-            // Llamar a la API de login
-            await login(email, password);
+            // Llamar a la API de login (ahora acepta usuario o email)
+            await login(usernameOrEmail, password);
 
             // Si llega aquí, el login fue exitoso
             window.location.href = 'index.html';

@@ -10,21 +10,33 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $data = $request->validate([
-            'email' => ['required','email'],
-            'password' => ['required'],
-        ]);
+        // Aceptar 'login' (usuario o email) o 'email' para compatibilidad
+        $loginField = $request->input('login') ?? $request->input('email');
+        $password = $request->input('password');
 
-        if (!Auth::attempt($data)) {
+        // Validar que tenemos los campos necesarios
+        if (empty($loginField) || empty($password)) {
+            return response()->json(['message' => 'Por favor, ingresa usuario/email y contraseña'], 422);
+        }
+
+        // Determinar si es email o nombre de usuario
+        $isEmail = filter_var($loginField, FILTER_VALIDATE_EMAIL);
+
+        // Buscar usuario por email o por nombre
+        $user = \App\Models\User::where($isEmail ? 'email' : 'name', $loginField)->first();
+
+        if (!$user || !\Illuminate\Support\Facades\Hash::check($password, $user->password)) {
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
 
-        $user = $request->user();
+        // Autenticar manualmente al usuario
+        Auth::login($user);
+
         $token = $user->createToken('web')->plainTextToken;
 
         return response()->json([
             'token' => $token,
-            'user' => ['id'=>$user->id,'name'=>$user->name,'email'=>$user->email],
+            'user' => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
         ]);
     }
 

@@ -81,14 +81,14 @@ async function fetchAPI(endpoint, options = {}) {
 
 /**
  * Login del usuario
- * @param {string} email - Email del usuario
+ * @param {string} loginOrEmail - Usuario o Email del usuario
  * @param {string} password - Contraseña
  * @returns {Promise<Object>} - Datos del usuario y token
  */
-async function login(email, password) {
+async function login(loginOrEmail, password) {
     const response = await fetchAPI('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ login: loginOrEmail, password })
     });
 
     // Guardar token en localStorage
