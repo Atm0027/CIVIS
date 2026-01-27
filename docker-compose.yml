@@ -8,24 +8,25 @@ services:
       dockerfile: Dockerfile
     container_name: civis-app
     restart: unless-stopped
-    
+
     # Volumen crítico: persiste storage sin perder datos en rebuilds
     volumes:
       - storage:/var/www/app/storage
       - vendor_cache:/var/www/app/vendor
       - app_laravel:/var/www/app
-    
+
     # Para desarrollo con live-reload (opcional, descomenta si quieres):
     # - ./storage:/var/www/app/storage
     # - ./:/var/www/app
-    
+
     networks:
       - laravel
     depends_on:
       - db
     environment:
-      # ¡Obligatorio!
-      # Base de datos (debe coincidir con servicio 'db')
+      # =========================================
+      # BASE DE DATOS
+      # =========================================
       - DB_CONNECTION=pgsql
       - DB_HOST=db
       - DB_PORT=5432
@@ -33,28 +34,36 @@ services:
       - DB_USERNAME=civis
       - DB_PASSWORD=civis_password_example
 
+      # =========================================
+      # LARAVEL CORE
+      # =========================================
       # ¡Crítico! generar con docker exec civis-app php artisan key:generate --show
       - APP_KEY=${APP_KEY:-base64:nSviGSC8VQeAsA13TSIjUQ9DszFz0IRtHGuFrDLyhVk=}
-      
-      # Laravel
-      # Modo desarrollo
       - APP_NAME=CIVIS
-      - APP_ENV=local                   # Para habilitar funciones de debug en desarrollo
-      - APP_DEBUG=true                  # Para ver errores detallados (solo dev)
-      - APP_URL=http://civis.local        # Para generar URLs correctas en emails y CORS
+      - APP_ENV=local                   # local | production
+      - APP_DEBUG=true                  # true para dev, false para prod
+      - APP_URL=http://civis.local      # URL base del backend
 
-      # Modo producción
-      # - APP_NAME=CIVIS
-      # - APP_ENV=production
-      # - APP_DEBUG=false
-      # - APP_URL=https://example.production.domain.com
+      # =========================================
+      # CORS - Orígenes permitidos (separados por coma)
+      # =========================================
+      # Cambia esto para permitir otros dominios
+      - CORS_ALLOWED_ORIGINS=http://civis.local,http://localhost,http://127.0.0.1
 
-      # Santum
-      - SANCTUM_STATEFUL_DOMAINS=http://civis.local
+      # =========================================
+      # FRONTEND - URL de la API para JavaScript
+      # =========================================
+      # Se inyecta en public/js/config.env.js al iniciar
+      - FRONTEND_API_URL=http://civis.local/api
+
+      # =========================================
+      # SANCTUM/SESSION
+      # =========================================
+      - SANCTUM_STATEFUL_DOMAINS=civis.local,localhost,127.0.0.1
       - SESSION_DRIVER=database
 
     ports:
-      - "9000:9000"
+      - "9000"
 
   # =========================================
   # Nginx (proxy y servidor estático)
@@ -63,10 +72,10 @@ services:
     image: nginx:1.29.4-alpine
     container_name: civis-nginx
     restart: unless-stopped
-    
+
     ports:
       - "80:80"  # Accede en http://civis.local
-    
+
     volumes:
       # Vincular el contenido de app
       - app_laravel:/var/www/app
@@ -75,7 +84,7 @@ services:
       # - ./:/var/www/app
       # Configuración personalizada (para desarrollo, véase abajo)
       - ./deploy/nginx/conf.d:/etc/nginx/conf.d
-    
+
     networks:
       - laravel
     depends_on:
@@ -88,15 +97,15 @@ services:
     image: postgres:15-alpine
     container_name: civis-db
     restart: unless-stopped
-    
+
     environment:
       POSTGRES_DB: civis
       POSTGRES_USER: civis
       POSTGRES_PASSWORD: civis_password_example
-    
+
     volumes:
       - db_data:/var/lib/postgresql/data
-    
+
     networks:
       - laravel
     # Descomenta para conectar con DBeaver/TablePlus:
