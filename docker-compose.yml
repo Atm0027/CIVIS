@@ -9,15 +9,10 @@ services:
     container_name: civis-app
     restart: unless-stopped
 
-    # Volumen crítico: persiste storage sin perder datos en rebuilds
+    # Volumen para desarrollo: sincroniza archivos locales automáticamente
     volumes:
-      - storage:/var/www/app/storage
-      - vendor_cache:/var/www/app/vendor
-      - app_laravel:/var/www/app
-
-    # Para desarrollo con live-reload (opcional, descomenta si quieres):
-    # - ./storage:/var/www/app/storage
-    # - ./:/var/www/app
+      - ./:/var/www/app
+      - /var/www/app/vendor  # Excluir vendor para usar el del contenedor
 
     networks:
       - laravel
@@ -77,12 +72,10 @@ services:
       - "80:80"  # Accede en http://civis.local
 
     volumes:
-      # Vincular el contenido de app
-      - app_laravel:/var/www/app
-
-      # Para desarrollo con live-reload
-      # - ./:/var/www/app
-      # Configuración personalizada (para desarrollo, véase abajo)
+      # Vincular el contenido local para desarrollo
+      - ./:/var/www/app
+      - /var/www/app/vendor  # Excluir vendor
+      # Configuración de nginx
       - ./deploy/nginx/conf.d:/etc/nginx/conf.d
 
     networks:
