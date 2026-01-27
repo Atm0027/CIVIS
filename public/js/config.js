@@ -4,23 +4,30 @@
 
 /**
  * Detecta automáticamente la URL base según el entorno
+ * Prioridad:
+ * 1. window.CIVIS_ENV.API_BASE_URL (inyectado via Docker)
+ * 2. Detección automática basada en hostname
+ *
  * @returns {string} URL base de la API
  */
 function getApiBaseUrl() {
+    // 1. Usar configuración inyectada desde Docker si existe y no está vacía
+    if (window.CIVIS_ENV && window.CIVIS_ENV.API_BASE_URL && window.CIVIS_ENV.API_BASE_URL.trim() !== '') {
+        return window.CIVIS_ENV.API_BASE_URL;
+    }
+
     const hostname = window.location.hostname;
     const protocol = window.location.protocol;
+    const port = window.location.port;
 
-    // Desarrollo local
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    // 2. Desarrollo local con php artisan serve
+    if ((hostname === 'localhost' || hostname === '127.0.0.1') && port === '8000') {
         return 'http://localhost:8000/api';
     }
 
-    // Producción: mismo dominio, ruta /api
-    // Ejemplo: https://civis.com/api
-    return `${protocol}//${hostname}/api`;
-
-    // Si el backend está en un subdominio diferente, cambiar a:
-    // return `${protocol}//api.${hostname}/api`;
+    // 3. Producción/Docker: mismo dominio, ruta /api
+    // Ejemplo: http://civis.local/api o https://civis.com/api
+    return `${protocol}//${hostname}${port ? ':' + port : ''}/api`;
 }
 
 const CONFIG = {
