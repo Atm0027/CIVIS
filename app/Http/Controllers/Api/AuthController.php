@@ -36,7 +36,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'email' => $user->email],
+            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'dni' => $user->dni, 'email' => $user->email],
         ]);
     }
 
@@ -46,6 +46,7 @@ class AuthController extends Controller
             'username' => ['required', 'string', 'max:50', 'unique:users', 'regex:/^[a-zA-Z0-9_]+$/'],
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['nullable', 'string', 'max:255'],
+            'dni' => ['nullable', 'string', 'max:20', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6'],
         ]);
@@ -54,6 +55,7 @@ class AuthController extends Controller
             'username' => $data['username'],
             'name' => $data['name'],
             'surname' => $data['surname'] ?? null,
+            'dni' => $data['dni'] ?? null,
             'email' => $data['email'],
             'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
         ]);
@@ -62,7 +64,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'email' => $user->email],
+            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'dni' => $user->dni, 'email' => $user->email],
         ], 201);
     }
 
