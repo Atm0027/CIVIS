@@ -1,6 +1,6 @@
-/*
 // ===== API SERVICE - COMUNICACIÓN CON LARAVEL =====
 // Este archivo centraliza todas las llamadas HTTP a la API backend
+// Soporta automáticamente desarrollo y producción
 
 /**
  * Función genérica para hacer peticiones fetch a la API
@@ -10,6 +10,7 @@
  */
 async function fetchAPI(endpoint, options = {}) {
     const token = getToken();
+    const fullUrl = `${CONFIG.api.baseUrl}${endpoint}`;
 
     const defaultHeaders = {
         'Content-Type': 'application/json',
@@ -25,8 +26,13 @@ async function fetchAPI(endpoint, options = {}) {
         }
     };
 
+    // Log en desarrollo
+    if (isDevelopment()) {
+        debugLog(`[FETCH] ${options.method || 'GET'} ${fullUrl}`);
+    }
+
     try {
-        const response = await fetch(`${CONFIG.api.baseUrl}${endpoint}`, config);
+        const response = await fetch(fullUrl, config);
 
         // Manejar respuestas no autorizadas (token inválido o expirado)
         if (response.status === 401) {
@@ -39,12 +45,34 @@ async function fetchAPI(endpoint, options = {}) {
         // Manejar errores HTTP
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+            const errorMsg = errorData.message || `Error ${response.status}: ${response.statusText}`;
+
+            if (isDevelopment()) {
+                console.error(`[API ERROR] ${response.status}:`, errorMsg);
+            }
+
+            throw new Error(errorMsg);
         }
 
-        return await response.json();
+        const data = await response.json();
+
+        if (isDevelopment()) {
+            debugLog(`[RESPONSE] ${response.status}`, data);
+        }
+
+        return data;
     } catch (error) {
-        console.error('Error en fetchAPI:', error);
+        // Detectar errores de conexión
+        if (error.message === 'Failed to fetch') {
+            console.error('[ERROR] No se puede conectar con el backend en:', CONFIG.api.baseUrl);
+            console.error('   Verifica que:');
+            console.error('   1. El backend está corriendo');
+            console.error('   2. La URL es correcta:', CONFIG.api.baseUrl);
+            console.error('   3. El servidor es accesible desde tu red');
+        } else {
+            console.error('[API ERROR]', error.message);
+        }
+
         throw error;
     }
 }

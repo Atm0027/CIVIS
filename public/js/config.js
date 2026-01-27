@@ -1,42 +1,64 @@
 // ===== CONFIGURACIÓN DE LA APLICACIÓN CIVIS =====
-// ✅ Archivo actualizado para conexión con Laravel
+// Archivo de configuración centralizada para conexión con Laravel
+// Soporta automáticamente desarrollo y producción
+
+/**
+ * Detecta automáticamente la URL base según el entorno
+ * @returns {string} URL base de la API
+ */
+function getApiBaseUrl() {
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+
+    // Desarrollo local
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:8000/api';
+    }
+
+    // Producción: mismo dominio, ruta /api
+    // Ejemplo: https://civis.com/api
+    return `${protocol}//${hostname}/api`;
+
+    // Si el backend está en un subdominio diferente, cambiar a:
+    // return `${protocol}//api.${hostname}/api`;
+}
 
 const CONFIG = {
     // Información de la aplicación
     app: {
         name: "Civis",
         version: "1.0.0",
-        environment: "development", // development, staging, production
-        debug: true
+        environment: window.location.hostname === 'localhost' ? "development" : "production",
+        debug: window.location.hostname === 'localhost'
     },
 
-    // ⚠️ IMPORTANTE: Configuración de API Laravel
-    // Ajustar según tu entorno de desarrollo
+    // Configuración de API Laravel
+    // La URL se detecta automáticamente según el entorno
     api: {
-        baseUrl: "http://localhost:8000/api", // URL de tu API Laravel
+        baseUrl: getApiBaseUrl(), // URL automática según entorno
         timeout: 10000, // 10 segundos
-        
+
         // Endpoints de la API
-        // NOTA: Estos deben coincidir con las rutas definidas en Laravel (routes/api.php)
+        // Deben coincidir con las rutas definidas en Laravel (routes/api.php)
         endpoints: {
             // Autenticación
             login: "/auth/login",
             register: "/auth/register",
             logout: "/auth/logout",
-            
+
             // Videos/Trámites
             videos: "/videos",
             videoById: "/videos/:id",
             searchVideos: "/videos/search",
-            
+
             // Calendario
             calendar: "/calendar",
             upcomingDeadlines: "/calendar/upcoming",
-            
+
             // FAQs
             faqs: "/faqs",
             searchFaqs: "/faqs/search",
-            
+
             // Usuario
             userProfile: "/user/profile",
             updateProfile: "/user/profile"
@@ -50,18 +72,18 @@ const CONFIG = {
         faqsPerPage: 5
     },
 
-    // Configuración de notificaciones (futuro)
+    // Configuración de notificaciones
     notifications: {
         enabled: true,
         daysBeforeDeadline: 7,
-        emailEnabled: false, // Activar cuando esté implementado en backend
+        emailEnabled: false,
         smsEnabled: false
     },
 
     // Configuración de búsqueda
     search: {
-        minCharacters: 2, // Mínimo de caracteres para buscar
-        debounceTime: 300 // Milisegundos de espera antes de buscar
+        minCharacters: 2,
+        debounceTime: 300
     },
 
     // Configuración de localStorage
@@ -88,7 +110,7 @@ const CONFIG = {
     resources: {
         placeholderImages: "https://placehold.co",
         defaultAvatar: "https://ui-avatars.com/api/?name=Usuario&background=3b82f6&color=fff",
-        cdnUrl: "" // Vacío por ahora, configurar si se usa CDN
+        cdnUrl: ""
     },
 
     // Configuración de validación
@@ -115,12 +137,12 @@ const CONFIG = {
  */
 function getApiUrl(endpointKey, params = {}) {
     let endpoint = CONFIG.api.endpoints[endpointKey];
-    
+
     // Reemplazar parámetros dinámicos (ej: :id)
     Object.keys(params).forEach(key => {
         endpoint = endpoint.replace(`:${key}`, params[key]);
     });
-    
+
     return `${CONFIG.api.baseUrl}${endpoint}`;
 }
 
@@ -148,4 +170,11 @@ function debugLog(...args) {
     if (CONFIG.app.debug && isDevelopment()) {
         console.log('[CIVIS DEBUG]', ...args);
     }
+}
+
+// Log de configuración en desarrollo
+if (isDevelopment()) {
+    console.log('[CIVIS] Modo Desarrollo - API Base URL:', CONFIG.api.baseUrl);
+} else {
+    console.log('[CIVIS] Modo Producción - API Base URL:', CONFIG.api.baseUrl);
 }
