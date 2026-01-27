@@ -187,8 +187,8 @@
         // Cargar datos del usuario en el formulario
         function loadUserData() {
             if (currentUser) {
-                // El nombre de usuario es el campo 'name' (usado para login)
-                document.getElementById('username').value = currentUser.name || '';
+                // El nombre de usuario es el campo 'username'
+                document.getElementById('username').value = currentUser.username || '';
                 document.getElementById('email').value = currentUser.email || '';
                 document.getElementById('name').value = currentUser.name || '';
                 document.getElementById('dni').value = currentUser.dni || '';
@@ -200,7 +200,7 @@
                 document.getElementById('province').value = currentUser.province || '';
 
                 // Actualizar sidebar
-                document.getElementById('user-name').textContent = currentUser.name || '';
+                document.getElementById('user-name').textContent = currentUser.username || currentUser.name || '';
                 document.getElementById('user-email').textContent = currentUser.email;
             }
         }

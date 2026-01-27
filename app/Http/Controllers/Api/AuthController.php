@@ -22,8 +22,8 @@ class AuthController extends Controller
         // Determinar si es email o nombre de usuario
         $isEmail = filter_var($loginField, FILTER_VALIDATE_EMAIL);
 
-        // Buscar usuario por email o por nombre
-        $user = \App\Models\User::where($isEmail ? 'email' : 'name', $loginField)->first();
+        // Buscar usuario por email o por username
+        $user = \App\Models\User::where($isEmail ? 'email' : 'username', $loginField)->first();
 
         if (!$user || !\Illuminate\Support\Facades\Hash::check($password, $user->password)) {
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
@@ -36,20 +36,24 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
+            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'email' => $user->email],
         ]);
     }
 
     public function register(Request $request)
     {
         $data = $request->validate([
+            'username' => ['required', 'string', 'max:50', 'unique:users', 'regex:/^[a-zA-Z0-9_]+$/'],
             'name' => ['required', 'string', 'max:255'],
+            'surname' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6'],
         ]);
 
         $user = \App\Models\User::create([
+            'username' => $data['username'],
             'name' => $data['name'],
+            'surname' => $data['surname'] ?? null,
             'email' => $data['email'],
             'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
         ]);
@@ -58,7 +62,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
+            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'email' => $user->email],
         ], 201);
     }
 

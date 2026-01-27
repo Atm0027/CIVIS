@@ -63,6 +63,7 @@ function initRegisterPage() {
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirm-password');
     const nameInput = document.getElementById('name');
+    const surnameInput = document.getElementById('surname');
     const dniInput = document.getElementById('dni');
     const phoneInput = document.getElementById('phone');
     const dateOfBirthInput = document.getElementById('dateOfBirth');
@@ -117,6 +118,7 @@ function initRegisterPage() {
                 email,
                 password,
                 name,
+                surname: surnameInput ? surnameInput.value.trim() : '',
                 dni: dniInput.value.trim(),
                 phone: phoneInput.value.trim(),
                 dateOfBirth: dateOfBirthInput.value,
