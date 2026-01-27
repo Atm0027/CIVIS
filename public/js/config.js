@@ -11,8 +11,8 @@
  * @returns {string} URL base de la API
  */
 function getApiBaseUrl() {
-    // 1. Usar configuración inyectada desde Docker si existe
-    if (window.CIVIS_ENV && window.CIVIS_ENV.API_BASE_URL) {
+    // 1. Usar configuración inyectada desde Docker si existe y no está vacía
+    if (window.CIVIS_ENV && window.CIVIS_ENV.API_BASE_URL && window.CIVIS_ENV.API_BASE_URL.trim() !== '') {
         return window.CIVIS_ENV.API_BASE_URL;
     }
 
