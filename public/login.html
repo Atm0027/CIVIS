@@ -38,13 +38,12 @@
           <input type="password" id="password" name="password" class="form-input" required placeholder="••••••••">
         </div>
 
-        <!-- Recordar sesión y olvido contraseña -->
+        <!-- Recordar sesión -->
         <div class="form-remember">
           <label class="checkbox-label">
             <input type="checkbox" id="remember" name="remember" class="form-checkbox">
             <span>Recordarme</span>
           </label>
-          <a href="#" class="link-forgot">¿Olvidaste tu contraseña?</a>
         </div>
 
         <!-- Mensaje de error/éxito -->
@@ -75,15 +74,11 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    // El login se maneja automáticamente por initLoginPage() en auth.js
-    // Pero login.html tiene IDs diferentes, así que manejamos aquí
-
-    // Redirigir si ya está autenticado
+    // Login handling
     if (hasToken()) {
       window.location.href = 'index.html';
     }
 
-    // Manejar el formulario de login
     document.getElementById('login-form').addEventListener('submit', async function (e) {
       e.preventDefault();
 
@@ -92,7 +87,6 @@
       const messageDiv = document.getElementById('message');
       const submitButton = this.querySelector('button[type="submit"]');
 
-      // Validación básica
       if (!usernameOrEmail || !password) {
         messageDiv.classList.remove('hidden', 'message-error', 'message-success');
         messageDiv.classList.add('message-error');
@@ -100,22 +94,16 @@
         return;
       }
 
-      // Deshabilitar botón mientras se procesa
       submitButton.disabled = true;
       const originalText = submitButton.textContent;
       submitButton.textContent = 'Iniciando sesión...';
       messageDiv.classList.add('hidden');
 
       try {
-        // Llamar a la API de login (usa email como identificador)
         await login(usernameOrEmail, password);
-
-        // Si llega aquí, el login fue exitoso
         messageDiv.classList.remove('hidden', 'message-error');
         messageDiv.classList.add('message-success');
         messageDiv.textContent = '¡Bienvenido! Redirigiendo...';
-
-        // Redirigir después de 1 segundo
         setTimeout(() => {
           window.location.href = 'index.html';
         }, 1000);

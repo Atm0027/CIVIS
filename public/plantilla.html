@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Civis · Detalle del Trámite</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="layout-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h1 onclick="window.location.href='index.html'">Civis</h1>
+      </div>
+
+      <div class="user-card">
+        <div class="user-avatar"></div>
+        <p class="user-name" id="user-name">Usuario</p>
+        <p class="user-email" id="user-email">usuario@civis.com</p>
+        <button class="btn-edit-profile" onclick="window.location.href='index.html'">Ver perfil</button>
+      </div>
+
+      <div class="deadlines-section">
+        <h3 class="deadlines-title">Plazos cercanos</h3>
+        <ul class="deadlines-list" id="deadlines-list"></ul>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-wrapper">
+
+      <!-- NAVBAR -->
+      <header class="navbar">
+        <div class="navbar-container">
+          <div class="search-box">
+            <input type="text" id="search-input" class="search-input" placeholder="Buscar trámites...">
+            <button class="search-btn" aria-label="Buscar">🔍</button>
+          </div>
+          <nav class="nav-links">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="calendario.html" class="nav-link">Calendario</a>
+            <a href="preguntasFrecuentes.html" class="nav-link">Preguntas Frecuentes</a>
+          </nav>
+        </div>
+      </header>
+
+      <!-- CONTENIDO CENTRADO TIPO YOUTUBE -->
+      <div class="content-area centered-content">
+
+        <button class="btn-back" onclick="window.location.href='index.html'">
+          ← Volver a la videoteca
+        </button>
+
+        <article class="video-content-layout">
+
+          <!-- VIDEO PRINCIPAL -->
+          <div class="main-video-container">
+            <div id="video-player" class="video-player">
+              <!-- Insertar aquí el iframe/video desde la BD -->
+            </div>
+          </div>
+
+          <!-- INFO Y TEXTO GUÍA -->
+          <div class="video-details">
+            <header class="video-header">
+              <h1 class="video-title" id="tramite-title"><!-- Título del trámite --></h1>
+              <div class="video-meta">
+                <span class="meta-tag" id="tramite-category"><!-- Categoría --></span>
+                <span class="meta-tag" id="tramite-duration"><!-- Duración --></span>
+              </div>
+            </header>
+
+            <!-- CONTENIDO TEXTO GUÍA -->
+            <div class="guide-content" id="guide-text">
+              <!-- Aquí se cargará todo el texto guía desde la base de datos -->
+              <p>El contenido explicativo del trámite aparecerá aquí...</p>
+            </div>
+          </div>
+
+        </article>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/plantilla.js"></script>
+
+</body>
+</html>
