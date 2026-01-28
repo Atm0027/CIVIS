@@ -36,7 +36,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'dni' => $user->dni, 'email' => $user->email],
+            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'dni' => $user->dni, 'email' => $user->email, 'role' => $user->role],
         ]);
     }
 
@@ -58,13 +58,14 @@ class AuthController extends Controller
             'dni' => $data['dni'] ?? null,
             'email' => $data['email'],
             'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+            'role' => 'user', // Todos los nuevos usuarios tienen rol 'user' por defecto
         ]);
 
         $token = $user->createToken('web')->plainTextToken;
 
         return response()->json([
             'token' => $token,
-            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'dni' => $user->dni, 'email' => $user->email],
+            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'dni' => $user->dni, 'email' => $user->email, 'role' => $user->role],
         ], 201);
     }
 
