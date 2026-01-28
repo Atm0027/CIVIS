@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Civis · Detalle del Trámite</title>
+  <title>Civis · Ver Video</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
   <div class="layout-wrapper">
 
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR DE USUARIO NORMAL -->
     <aside class="sidebar">
       <div class="sidebar-logo">
         <h1 onclick="window.location.href='index.html'">Civis</h1>
@@ -27,6 +27,8 @@
         <h3 class="deadlines-title">Plazos cercanos</h3>
         <ul class="deadlines-list" id="deadlines-list"></ul>
       </div>
+
+      <!-- NOTA: No hay sección de Admin aquí. El usuario normal solo ve su perfil y plazos -->
     </aside>
 
     <!-- MAIN -->
@@ -36,7 +38,7 @@
       <header class="navbar">
         <div class="navbar-container">
           <div class="search-box">
-            <input type="text" id="search-input" class="search-input" placeholder="Buscar trámites...">
+            <input type="text" id="search-input" class="search-input" placeholder="Buscar videos...">
             <button class="search-btn" aria-label="Buscar">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="8" cy="8" r="6"></circle>
@@ -52,7 +54,7 @@
         </div>
       </header>
 
-      <!-- CONTENIDO CENTRADO TIPO YOUTUBE -->
+      <!-- CONTENIDO DEL VIDEO -->
       <div class="content-area centered-content">
 
         <button class="btn-back" onclick="window.location.href='index.html'">
@@ -61,28 +63,48 @@
 
         <article class="video-content-layout">
 
-          <!-- VIDEO PRINCIPAL -->
+          <!-- REPRODUCTOR -->
           <div class="main-video-container">
-            <div id="video-player" class="video-player">
-              <!-- Insertar aquí el iframe/video desde la BD -->
+            <div class="video-player">
+
+              <iframe
+                width="100%"
+                height="100%"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+
+                title="Reproductor de video"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
             </div>
           </div>
 
-          <!-- INFO Y TEXTO GUÍA -->
+          <!-- INFORMACIÓN DEL VIDEO -->
           <div class="video-details">
             <header class="video-header">
-              <h1 class="video-title" id="tramite-title"><!-- Título del trámite --></h1>
+              <h1 class="video-title">
+
+                Título del Video
+              </h1>
+
               <div class="video-meta">
-                <span class="meta-tag" id="tramite-category"><!-- Categoría --></span>
-                <span class="meta-tag" id="tramite-duration"><!-- Duración --></span>
+                <span class="meta-tag badge-youtube">
+                  YouTube
+                </span>
               </div>
             </header>
 
-            <!-- CONTENIDO TEXTO GUÍA -->
-            <div class="guide-content" id="guide-text">
-              <!-- Aquí se cargará todo el texto guía desde la base de datos -->
-              <p>El contenido explicativo del trámite aparecerá aquí...</p>
+            <!-- GUÍA/DESCRIPCIÓN -->
+            <div class="guide-content">
+
+              <p>
+                Contenido de la guía...
+              </p>
             </div>
+
+            <!-- NOTA: No hay botones de editar, eliminar ni administrar. Solo visualización. -->
+
           </div>
 
         </article>
@@ -96,7 +118,6 @@
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/plantilla.js"></script>
 
 </body>
 </html>
