@@ -4,6 +4,6 @@
 // ========================================================
 window.CIVIS_ENV = {
     API_BASE_URL: "http://civis.local/api",
-    GENERATED_AT: "2026-01-28T08:41:18+00:00"
+    GENERATED_AT: "2026-01-28T09:00:38+00:00"
 };
 console.log('[CIVIS] API URL:', window.CIVIS_ENV.API_BASE_URL);
