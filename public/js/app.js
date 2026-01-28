@@ -242,6 +242,16 @@ function renderUserProfile() {
             Ver perfil
         </button>
     `;
+
+    // Mostrar sección de admin si el usuario tiene rol 'admin'
+    const adminSection = document.getElementById('admin-section');
+    if (adminSection) {
+        if (currentUser.role === 'admin') {
+            adminSection.classList.remove('hidden');
+        } else {
+            adminSection.classList.add('hidden');
+        }
+    }
 }
 
 // Renderiza botones de login/registro para invitados
@@ -258,6 +268,12 @@ function renderAuthButtons() {
             Registrarse
         </a>
     `;
+
+    // Ocultar sección de admin para invitados
+    const adminSection = document.getElementById('admin-section');
+    if (adminSection) {
+        adminSection.classList.add('hidden');
+    }
 }
 
 // Carga y renderiza los plazos cercanos desde API
