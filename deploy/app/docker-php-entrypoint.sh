@@ -41,6 +41,7 @@ chmod -R 755 /var/www/app/storage
 # ============================================================
 echo "[CIVIS] Ejecutando migraciones..."
 php artisan migrate --force --no-interaction
+php artisan db:seed --force --no-interaction
 
 # ============================================================
 # 4. Limpiar caché de configuración para aplicar CORS
