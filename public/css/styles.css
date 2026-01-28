@@ -44,23 +44,6 @@ body {
 }
 
 /* ==========================================
-   CONTROL DE VISIBILIDAD POR ROL
-   ========================================== */
-
-/* Clases para control de acceso desde backend */
-.auth-only {
-  /* Solo usuarios autenticados */
-}
-
-.admin-only {
-  /* Solo usuarios admin */
-}
-
-.guest-only {
-  /* Solo usuarios invitados */
-}
-
-/* ==========================================
    SIDEBAR - INVITADO
    ========================================== */
 
@@ -295,11 +278,16 @@ body {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(254, 197, 68, 0.3);
   text-align: center;
 }
 
 .btn-admin-upload {
-  width: 100%;
+  display: block;
+  width: auto;
+  max-width: 220px;
+  margin: 0 auto;
   padding: 0.75rem 1rem;
   background-color: var(--color-yellow);
   color: var(--color-sidebar);
@@ -309,6 +297,7 @@ body {
   cursor: pointer;
   transition: var(--transition);
   font-size: 0.95rem;
+  text-align: center;
 }
 
 .btn-admin-upload:hover {
@@ -745,6 +734,13 @@ body {
 
   .btn {
     width: 100%;
+  }
+
+  .btn-admin-upload {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    display: block;
   }
 }
 
