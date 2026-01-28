@@ -12,7 +12,9 @@ class DatabaseSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'admin@civis.local'],
             [
+                'username' => 'admin',
                 'name' => 'Admin',
+                'surname' => 'Sistema',
                 'password' => bcrypt('admin1234'),
                 'role' => 'admin',
             ]
@@ -21,7 +23,9 @@ class DatabaseSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'user@civis.local'],
             [
+                'username' => 'usuario',
                 'name' => 'Usuario',
+                'surname' => 'Demo',
                 'password' => bcrypt('user1234'),
                 'role' => 'user',
             ]
