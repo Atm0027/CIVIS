@@ -220,7 +220,8 @@ async function searchFaqs(query) {
  * @returns {Promise<Object>} - Datos del usuario
  */
 async function getUserProfile() {
-    return await fetchAPI('/user/profile');
+    const response = await fetchAPI('/auth/me');
+    return response.user;
 }
 
 /**
