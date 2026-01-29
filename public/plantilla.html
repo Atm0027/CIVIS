@@ -16,11 +16,13 @@
         <h1 onclick="window.location.href='index.html'">Civis</h1>
       </div>
 
-      <div class="user-card">
+      <div id="user-profile-sidebar" class="user-card">
         <div class="user-avatar"></div>
         <p class="user-name" id="user-name">Usuario</p>
         <p class="user-email" id="user-email">usuario@civis.com</p>
-        <button class="btn-edit-profile" onclick="window.location.href='index.html'">Ver perfil</button>
+        <button class="btn-edit-profile" id="btn-edit-profile" onclick="window.location.href='usuario.html'">
+          Ver perfil
+        </button>
       </div>
 
       <div class="deadlines-section">
@@ -115,9 +117,40 @@
 
   </div>
 
+  <script src="js/config.env.js"></script>
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
+  <script>
+    // Verificar que el usuario esté logueado antes de cargar la página
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Intentar cargar usuario
+        let currentUser = getCurrentUserFromStorage();
+
+        // Si no hay datos locales y tenemos token, obtener desde API
+        if (!currentUser && hasToken()) {
+          currentUser = await getUserProfile();
+          saveCurrentUser(currentUser);
+        }
+
+        // Si no hay usuario, redirigir a login
+        if (!currentUser) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // Mostrar datos del usuario
+        document.getElementById('user-name').textContent = currentUser.name || 'Usuario';
+        document.getElementById('user-email').textContent = currentUser.email || 'correo@civis.com';
+      } catch (error) {
+        console.error('Error al verificar sesión:', error);
+        removeToken();
+        removeCurrentUser();
+        window.location.href = 'login.html';
+      }
+    });
+  </script>
 
 </body>
 </html>

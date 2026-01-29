@@ -20,11 +20,11 @@
       </div>
 
       <!-- Perfil de Usuario -->
-      <div class="user-card">
+      <div id="user-profile-sidebar" class="user-card">
         <div class="user-avatar"></div>
         <p class="user-name" id="user-name">Usuario Admin</p>
         <p class="user-email" id="user-email">admin@civis.com</p>
-        <button class="btn-edit-profile" onclick="window.location.href='index.html'">
+        <button class="btn-edit-profile" id="btn-edit-profile" onclick="window.location.href='usuario.html'">
           Ver perfil
         </button>
       </div>
@@ -62,7 +62,12 @@
               class="search-input"
               placeholder="Buscar trámites..."
             >
-            <button class="search-btn" aria-label="Buscar">🔍</button>
+            <button class="search-btn" aria-label="Buscar">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="8" cy="8" r="6"></circle>
+                <path d="M12 12l5 5"></path>
+              </svg>
+            </button>
           </div>
 
           <!-- Navegación -->
@@ -186,10 +191,48 @@
   </div>
 
   <!-- SCRIPTS -->
+  <script src="js/config.env.js"></script>
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/videos.js"></script>
+  <script>
+    // Verificar que el usuario sea ADMIN antes de cargar la página
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Intentar cargar usuario
+        let currentUser = getCurrentUserFromStorage();
+
+        // Si no hay datos locales y tenemos token, obtener desde API
+        if (!currentUser && hasToken()) {
+          currentUser = await getUserProfile();
+          saveCurrentUser(currentUser);
+        }
+
+        // Si no hay usuario, redirigir a login
+        if (!currentUser) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // Verificar que sea ADMIN (role === 'admin')
+        if (currentUser.role !== 'admin') {
+          console.warn('Acceso denegado: Usuario no es administrador');
+          window.location.href = 'index.html';
+          return;
+        }
+
+        // Mostrar datos del usuario admin
+        document.getElementById('user-name').textContent = currentUser.name || 'Usuario Admin';
+        document.getElementById('user-email').textContent = currentUser.email || 'admin@civis.com';
+      } catch (error) {
+        console.error('Error al verificar sesión de admin:', error);
+        removeToken();
+        removeCurrentUser();
+        window.location.href = 'login.html';
+      }
+    });
+  </script>
 
 </body>
 </html>

@@ -22,7 +22,7 @@
             </div>
 
             <!-- Perfil de Usuario -->
-            <div class="user-card">
+            <div id="user-profile-sidebar" class="user-card">
                 <div class="user-avatar"></div>
                 <p class="user-name" id="user-name">username</p>
                 <p class="user-email" id="user-email">usuario@civis.com</p>
@@ -256,6 +256,38 @@
             // Redirigir al login
             window.location.href = 'login.html';
         });
+    </script>
+
+    <!-- Verificación de sesión al cargar -->
+    <script>
+      // Verificar que el usuario esté logueado antes de cargar la página
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          // Intentar cargar usuario
+          let currentUser = getCurrentUserFromStorage();
+
+          // Si no hay datos locales y tenemos token, obtener desde API
+          if (!currentUser && hasToken()) {
+            currentUser = await getUserProfile();
+            saveCurrentUser(currentUser);
+          }
+
+          // Si no hay usuario, redirigir a login
+          if (!currentUser) {
+            window.location.href = 'login.html';
+            return;
+          }
+
+          // Mostrar datos del usuario
+          document.getElementById('user-name').textContent = currentUser.name || currentUser.username || 'Usuario';
+          document.getElementById('user-email').textContent = currentUser.email || 'correo@civis.com';
+        } catch (error) {
+          console.error('Error al verificar sesión:', error);
+          removeToken();
+          removeCurrentUser();
+          window.location.href = 'login.html';
+        }
+      });
     </script>
 
 </body>
