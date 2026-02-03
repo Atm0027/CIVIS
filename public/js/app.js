@@ -75,7 +75,7 @@ function initializeApp() {
             loadUpcomingDeadlines();
         } else {
             // Ocultar sección de plazos si es invitado
-            const deadlinesEl = document.getElementById('upcoming-deadlines');
+            const deadlinesEl = document.getElementById('deadlines-list');
             if (deadlinesEl) deadlinesEl.innerHTML = '<p class="text-sm text-slate-400">Inicia sesión para ver tus plazos.</p>';
         }
         loadVideoFeed();
@@ -94,14 +94,14 @@ function getElements() {
         pages: document.querySelectorAll('.page-content'),
 
         userProfileSidebar: document.getElementById('user-profile-sidebar'),
-        upcomingDeadlinesEl: document.getElementById('upcoming-deadlines'),
+        upcomingDeadlinesEl: document.getElementById('deadlines-list'),
 
-        videoFeedGrid: document.getElementById('video-feed-grid'),
+        videoFeedGrid: document.getElementById('tramites-grid'),
         feedTitle: document.getElementById('feed-title'),
         noResultsEl: document.getElementById('no-results'),
 
-        calendarFullList: document.getElementById('calendar-full-list'),
-        faqList: document.getElementById('faq-list'),
+        calendarFullList: document.querySelector('.calendar-wrapper'),
+        faqList: document.getElementById('faqs-list'),
 
         searchBar: document.getElementById('search-bar'),
         searchBtn: document.getElementById('search-btn'),
@@ -278,7 +278,7 @@ function renderAuthButtons() {
 
 // Carga y renderiza los plazos cercanos desde API
 async function loadUpcomingDeadlines() {
-    const upcomingDeadlinesEl = document.getElementById('upcoming-deadlines');
+    const upcomingDeadlinesEl = document.getElementById('deadlines-list');
 
     try {
         showLoader(upcomingDeadlinesEl);
@@ -300,7 +300,7 @@ async function loadUpcomingDeadlines() {
 
 // Carga y renderiza el feed de videos desde API
 async function loadVideoFeed() {
-    const videoFeedGrid = document.getElementById('video-feed-grid');
+    const videoFeedGrid = document.getElementById('tramites-grid');
     const noResultsEl = document.getElementById('no-results');
 
     try {
@@ -325,7 +325,7 @@ async function loadVideoFeed() {
 
 // Renderiza videos en el grid
 function renderVideos(videos) {
-    const videoFeedGrid = document.getElementById('video-feed-grid');
+    const videoFeedGrid = document.getElementById('tramites-grid');
     const noResultsEl = document.getElementById('no-results');
 
     videoFeedGrid.innerHTML = '';
@@ -341,7 +341,7 @@ function renderVideos(videos) {
 
 // Carga y renderiza el calendario completo desde API
 async function loadCalendarPage() {
-    const calendarFullList = document.getElementById('calendar-full-list');
+    const calendarFullList = document.querySelector('.calendar-wrapper');
 
     try {
         showLoader(calendarFullList);
@@ -361,7 +361,7 @@ async function loadCalendarPage() {
 
 // Carga y renderiza las FAQs desde API
 async function loadFaqPage() {
-    const faqList = document.getElementById('faq-list');
+    const faqList = document.getElementById('faqs-list');
 
     try {
         showLoader(faqList);
@@ -447,7 +447,7 @@ function loadProfileData() {
 // Manejador de búsqueda
 async function handleSearch(e) {
     const feedTitle = document.getElementById('feed-title');
-    const videoFeedGrid = document.getElementById('video-feed-grid');
+    const videoFeedGrid = document.getElementById('tramites-grid');
     const searchTerm = e.target.value.toLowerCase().trim();
 
     // Asegurarse de que estamos en la página de feed
