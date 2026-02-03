@@ -8,10 +8,13 @@ use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\DeadlineController;
 
 // públicas
+// públicas
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/videos', [VideoController::class, 'index']);
+Route::get('/videos/search', [VideoController::class, 'index']); // Frontend uses /videos/search
 Route::get('/videos/{id}', [VideoController::class, 'show']);
 Route::get('/faqs', [FaqController::class, 'index']);
+Route::get('/faqs/search', [FaqController::class, 'index']); // Frontend uses /faqs/search
 Route::get('/deadlines', [DeadlineController::class, 'index']);
 Route::get('/deadlines/{id}', [DeadlineController::class, 'show']);
 
@@ -23,8 +26,18 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/logout', [AuthController::class, 'logout']);
+
+        // User Profile routes matching frontend
+        Route::prefix('user')->group(function () {
+            Route::get('/profile', [AuthController::class, 'me']);
+            Route::put('/profile', [AuthController::class, 'updateProfile']);
+        });
     });
 });
+
+// Calendar / Deadlines
+Route::get('/calendar', [DeadlineController::class, 'index']);
+Route::get('/calendar/upcoming', [DeadlineController::class, 'upcoming']);
 
 use App\Http\Controllers\Api\UploadController;
 

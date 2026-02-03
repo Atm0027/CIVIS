@@ -14,7 +14,15 @@ class VideoController extends Controller
 
         if ($request->filled('category')) {
             $slug = $request->query('category');
-            $query->whereHas('category', fn ($q) => $q->where('slug', $slug));
+            $query->whereHas('category', fn($q) => $q->where('slug', $slug));
+        }
+
+        if ($request->filled('q')) {
+            $search = $request->query('q');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'ilike', "%{$search}%")
+                    ->orWhere('description', 'ilike', "%{$search}%");
+            });
         }
 
         return response()->json($query->paginate(10));

@@ -71,18 +71,31 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        $user = $request->user();
         return response()->json([
-            'user' => [
-                'id' => $user->id,
-                'username' => $user->username,
-                'name' => $user->name,
-                'surname' => $user->surname,
-                'dni' => $user->dni,
-                'email' => $user->email,
-                'role' => $user->role
-            ]
+            'user' => $request->user()
         ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'surname' => ['nullable', 'string', 'max:255'],
+            'dni' => ['nullable', 'string', 'max:20', 'unique:users,dni,' . $user->id],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'dateOfBirth' => ['nullable', 'date'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'postalCode' => ['nullable', 'string', 'max:10'],
+            'province' => ['nullable', 'string', 'max:100'],
+            'relevantData' => ['nullable', 'string'],
+        ]);
+
+        $user->update($data);
+
+        return response()->json($user);
     }
 
     public function logout(Request $request)
