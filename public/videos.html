@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Civis · Subir Videos</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
   <!-- LAYOUT PRINCIPAL -->
@@ -56,12 +58,7 @@
 
           <!-- Buscador -->
           <div class="search-box">
-            <input
-              type="text"
-              id="search-input"
-              class="search-input"
-              placeholder="Buscar trámites..."
-            >
+            <input type="text" id="search-input" class="search-input" placeholder="Buscar trámites...">
             <button class="search-btn" aria-label="Buscar">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="8" cy="8" r="6"></circle>
@@ -107,86 +104,75 @@
                     Título <span class="required">*</span>
                   </label>
 
-                  <input
-                    type="text"
-                    id="titulo"
-                    name="titulo"
-                    class="form-input"
-                    required
-                    placeholder="Ej: Guía de uso del Campus Virtual"
-                  >
-
-                </div>
-
-                <!-- URL DEL VIDEO -->
-                <div class="form-group form-full">
-                  <label for="url_video" class="form-label">
-                    URL del Video <span class="required">*</span>
-                  </label>
-
-                  <input
-                    type="url"
-                    id="url_video"
-                    name="url_video"
-                    class="form-input"
-                    required
-                    placeholder="https://www.youtube.com/watch?v=..."
-                  >
-
-                  <p class="form-hint">
-                    Puede ser un enlace de YouTube o Vimeo
-                  </p>
-                </div>
-
-                <!-- DESCRIPCIÓN -->
-                <div class="form-group form-full">
-                  <label for="descripcion" class="form-label">
-                    Descripción / Guía <span class="required">*</span>
-                  </label>
-
-                  <textarea
-                    id="descripcion"
-                    name="descripcion"
-                    rows="6"
-                    class="form-input form-textarea"
-                    required
-                    placeholder="Escribe aquí la guía completa, instrucciones o notas sobre el video..."
-                  ></textarea>
+                  <input type="text" id="titulo" name="titulo" class="form-input" required
+                    placeholder="Ej: Guía de uso del Campus Virtual">
 
                 </div>
 
               </div>
+
+              <!-- CATEGORÍA -->
+              <div class="form-group form-full">
+                <label for="category_id" class="form-label">
+                  Categoría <span class="required">*</span>
+                </label>
+                <select id="category_id" name="category_id" class="form-input" required>
+                  <option value="" disabled selected>Selecciona una categoría</option>
+                  <!-- Las categorías se cargarán aquí -->
+                </select>
+              </div>
+              <div class="form-group form-full">
+                <label for="url_video" class="form-label">
+                  URL del Video <span class="required">*</span>
+                </label>
+
+                <input type="url" id="url_video" name="url_video" class="form-input" required
+                  placeholder="https://www.youtube.com/watch?v=...">
+
+                <p class="form-hint">
+                  Puede ser un enlace de YouTube o Vimeo
+                </p>
+              </div>
+
+              <!-- DESCRIPCIÓN -->
+              <div class="form-group form-full">
+                <label for="descripcion" class="form-label">
+                  Descripción / Guía <span class="required">*</span>
+                </label>
+
+                <textarea id="descripcion" name="descripcion" rows="6" class="form-input form-textarea" required
+                  placeholder="Escribe aquí la guía completa, instrucciones o notas sobre el video..."></textarea>
+
+              </div>
+
             </div>
+        </div>
 
-            <!-- BOTONES -->
-            <div class="form-actions-bottom">
+        <!-- BOTONES -->
+        <div class="form-actions-bottom">
 
 
-              <button
-                type="button"
-                class="btn btn-secondary"
-                onclick="window.location.href='index.html'"
-              >
-                Cancelar
-              </button>
-              <button type="submit" class="btn btn-primary">
-                Publicar Video
-              </button>
-            </div>
+          <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary">
+            Publicar Video
+          </button>
+        </div>
 
-          </form>
+        </form>
 
-          <!-- MENSAJE DE ÉXITO -->
-          <div id="upload-success-message" class="success-message hidden">
-            <!-- ZONA LÓGICA: Mostrar session('success') si existe -->
-            ¡Video publicado correctamente!
-          </div>
-
+        <!-- MENSAJE DE ÉXITO -->
+        <div id="upload-success-message" class="success-message hidden">
+          <!-- ZONA LÓGICA: Mostrar session('success') si existe -->
+          ¡Video publicado correctamente!
         </div>
 
       </div>
 
-    </main>
+  </div>
+
+  </main>
 
   </div>
 
@@ -235,4 +221,5 @@
   </script>
 
 </body>
+
 </html>

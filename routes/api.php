@@ -42,6 +42,7 @@ Route::get('/calendar/upcoming', [DeadlineController::class, 'upcoming']);
 use App\Http\Controllers\Api\UploadController;
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::post('/videos', [VideoController::class, 'store']);
     Route::post('/uploads', [UploadController::class, 'store']);
     Route::delete('/uploads/{upload}', [UploadController::class, 'destroy']);
 });

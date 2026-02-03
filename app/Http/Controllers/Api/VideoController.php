@@ -32,4 +32,19 @@ class VideoController extends Controller
     {
         return response()->json(Video::findOrFail($id));
     }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'url' => ['required', 'url'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'duration' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $video = Video::create($data);
+
+        return response()->json($video, 201);
+    }
 }
