@@ -1,156 +1,248 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Civis · Ver Video</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civis · Ver Video</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
-  <div class="layout-wrapper">
+    <div class="layout-wrapper">
 
-    <!-- SIDEBAR DE USUARIO NORMAL -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <h1 onclick="window.location.href='index.html'">Civis</h1>
-      </div>
-
-      <div id="user-profile-sidebar" class="user-card">
-        <div class="user-avatar"></div>
-        <p class="user-name" id="user-name">Usuario</p>
-        <p class="user-email" id="user-email">usuario@civis.com</p>
-        <button class="btn-edit-profile" id="btn-edit-profile" onclick="window.location.href='usuario.html'">
-          Ver perfil
-        </button>
-      </div>
-
-      <div class="deadlines-section">
-        <h3 class="deadlines-title">Plazos cercanos</h3>
-        <ul class="deadlines-list" id="deadlines-list"></ul>
-      </div>
-
-      <!-- NOTA: No hay sección de Admin aquí. El usuario normal solo ve su perfil y plazos -->
-    </aside>
-
-    <!-- MAIN -->
-    <main class="main-wrapper">
-
-      <!-- NAVBAR -->
-      <header class="navbar">
-        <div class="navbar-container">
-          <div class="search-box">
-            <input type="text" id="search-input" class="search-input" placeholder="Buscar videos...">
-            <button class="search-btn" aria-label="Buscar">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="8" cy="8" r="6"></circle>
-                <path d="M12 12l5 5"></path>
-              </svg>
-            </button>
-          </div>
-          <nav class="nav-links">
-            <a href="index.html" class="nav-link">Inicio</a>
-            <a href="calendario.html" class="nav-link">Calendario</a>
-            <a href="preguntasFrecuentes.html" class="nav-link">Preguntas Frecuentes</a>
-          </nav>
-        </div>
-      </header>
-
-      <!-- CONTENIDO DEL VIDEO -->
-      <div class="content-area centered-content">
-
-        <button class="btn-back" onclick="window.location.href='index.html'">
-          ← Volver a la videoteca
-        </button>
-
-        <article class="video-content-layout">
-
-          <!-- REPRODUCTOR -->
-          <div class="main-video-container">
-            <div class="video-player">
-
-              <iframe
-                width="100%"
-                height="100%"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-
-                title="Reproductor de video"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-              </iframe>
+        <!-- SIDEBAR DE USUARIO NORMAL -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h1 onclick="window.location.href='index.html'">Civis</h1>
             </div>
-          </div>
 
-          <!-- INFORMACIÓN DEL VIDEO -->
-          <div class="video-details">
-            <header class="video-header">
-              <h1 class="video-title">
+            <div id="user-profile-sidebar" class="user-card">
+                <div class="user-avatar"></div>
+                <p class="user-name" id="user-name">Usuario</p>
+                <p class="user-email" id="user-email">usuario@civis.com</p>
+                <button class="btn-edit-profile" id="btn-edit-profile" onclick="window.location.href='usuario.html'">
+                    Ver perfil
+                </button>
+            </div>
 
-                Título del Video
-              </h1>
+            <div class="deadlines-section">
+                <h3 class="deadlines-title">Plazos cercanos</h3>
+                <ul class="deadlines-list" id="deadlines-list"></ul>
+            </div>
 
-              <div class="video-meta">
-                <span class="meta-tag badge-youtube">
-                  YouTube
-                </span>
-              </div>
+            <!-- SECCIÓN ADMIN (Insertada dinámicamente o oculta por defecto) -->
+            <div id="admin-section" class="admin-section hidden">
+                <h3 class="admin-title">Administración</h3>
+                <button id="btn-edit-video" class="btn-admin-upload">
+                    Editar este video
+                </button>
+            </div>
+
+            <!-- NOTA: No hay sección de Admin aquí. El usuario normal solo ve su perfil y plazos -->
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-wrapper">
+
+            <!-- NAVBAR -->
+            <header class="navbar">
+                <div class="navbar-container">
+                    <div class="search-box">
+                        <input type="text" id="search-input" class="search-input" placeholder="Buscar videos...">
+                        <button class="search-btn" aria-label="Buscar">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="8" cy="8" r="6"></circle>
+                                <path d="M12 12l5 5"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <nav class="nav-links">
+                        <a href="index.html" class="nav-link">Inicio</a>
+                        <a href="calendario.html" class="nav-link">Calendario</a>
+                        <a href="preguntasFrecuentes.html" class="nav-link">Preguntas Frecuentes</a>
+                    </nav>
+                </div>
             </header>
 
-            <!-- GUÍA/DESCRIPCIÓN -->
-            <div class="guide-content">
+            <!-- CONTENIDO DEL VIDEO -->
+            <div class="content-area centered-content">
 
-              <p>
-                Contenido de la guía...
-              </p>
+                <button class="btn-back" onclick="window.location.href='index.html'">
+                    ← Volver a la videoteca
+                </button>
+
+                <article class="video-content-layout">
+
+                    <!-- REPRODUCTOR -->
+                    <div class="main-video-container">
+                        <div class="video-player">
+
+                            <iframe id="video-iframe" width="100%" height="100%" src="" title="Reproductor de video"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+
+                    <!-- INFORMACIÓN DEL VIDEO -->
+                    <div class="video-details">
+                        <header class="video-header">
+                            <h1 class="video-title" id="video-title-text">
+                                Cargando video...
+                            </h1>
+
+                            <div class="video-meta" id="video-meta-container">
+                                <!-- Tags/Categoría se insertarán aquí -->
+                            </div>
+                        </header>
+
+                        <!-- GUÍA/DESCRIPCIÓN -->
+                        <div class="guide-content" id="video-description">
+                            <p>Cargando descripción...</p>
+                        </div>
+
+                        <!-- NOTA: No hay botones de editar, eliminar ni administrar. Solo visualización. -->
+
+                    </div>
+
+                </article>
+
             </div>
 
-            <!-- NOTA: No hay botones de editar, eliminar ni administrar. Solo visualización. -->
+        </main>
 
-          </div>
+    </div>
 
-        </article>
+    <script src="js/config.env.js?v=3"></script>
+    <script src="js/config.js?v=3"></script>
+    <script src="js/api.js?v=3"></script>
+    <script src="js/auth.js?v=3"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Verificar Autenticación
+            let currentUser = null;
+            try {
+                currentUser = getCurrentUserFromStorage();
+                if (!currentUser && hasToken()) {
+                    currentUser = await getUserProfile();
+                    saveCurrentUser(currentUser);
+                }
+                if (!currentUser) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                // Fill basic user info
+                document.getElementById('user-name').textContent = currentUser.name || 'Usuario';
+                document.getElementById('user-email').textContent = currentUser.email || '';
 
-      </div>
+                // SETUP ADMIN UI
+                if (currentUser.role === 'admin') {
+                    const adminSection = document.getElementById('admin-section');
+                    const editBtn = document.getElementById('btn-edit-video');
+                    if (adminSection) adminSection.classList.remove('hidden');
 
-    </main>
+                    // Edit button handler will be set after getting videoId
+                }
+            } catch (error) {
+                console.error('Session error:', error);
+                removeToken();
+                window.location.href = 'login.html';
+                return;
+            }
 
-  </div>
+            // 2. Obtener ID del video de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoId = urlParams.get('id');
 
-  <script src="js/config.env.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
-  <script>
-    // Verificar que el usuario esté logueado antes de cargar la página
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        // Intentar cargar usuario
-        let currentUser = getCurrentUserFromStorage();
+            if (!videoId) {
+                alert('No se especificó un video.');
+                window.location.href = 'index.html';
+                return;
+            }
 
-        // Si no hay datos locales y tenemos token, obtener desde API
-        if (!currentUser && hasToken()) {
-          currentUser = await getUserProfile();
-          saveCurrentUser(currentUser);
+            // Update Edit Button Link (if admin)
+            const editBtn = document.getElementById('btn-edit-video');
+            if (editBtn) {
+                editBtn.onclick = () => window.location.href = `videos.html?id=${videoId}`;
+            }
+
+            // 3. Cargar datos del video
+            try {
+                await loadVideoDetails(videoId);
+            } catch (error) {
+                console.error('Error loading video:', error);
+                document.getElementById('video-title-text').textContent = 'Error al cargar el video';
+                document.getElementById('video-description').innerHTML = `<p class="error-text">No se pudo cargar el video. ${error.message}</p>`;
+            }
+        });
+
+        async function loadVideoDetails(id) {
+            // Fetch video data
+            const video = await fetchAPI(`/videos/${id}`);
+
+            // Update DOM
+            document.title = `Civis · ${video.title}`;
+            document.getElementById('video-title-text').textContent = video.title;
+            document.getElementById('video-description').innerHTML = video.description
+                ? `<p>${video.description.replace(/\n/g, '<br>')}</p>`
+                : '<p>Sin descripción.</p>';
+
+            // Update Iframe
+            const iframe = document.getElementById('video-iframe');
+            const embedUrl = getEmbedUrl(video.url);
+            if (embedUrl) {
+                iframe.src = embedUrl;
+            } else {
+                iframe.style.display = 'none'; // Hide if invalid URL
+                // Could show a fallback link
+            }
+
+            // Update Meta/Tags (Category)
+            const metaContainer = document.getElementById('video-meta-container');
+            metaContainer.innerHTML = '';
+
+            if (video.category) {
+                metaContainer.innerHTML += `<span class="meta-tag" style="background-color: #e0f2fe; color: #0369a1;">${video.category.name}</span>`;
+            }
+
+            // If tags exist (checking if backend returns tags)
+            if (video.tags && Array.isArray(video.tags)) {
+                video.tags.forEach(tag => {
+                    metaContainer.innerHTML += `<span class="meta-tag" style="background-color: #f1f5f9; color: #475569;">${tag.name || tag}</span>`;
+                });
+            }
         }
 
-        // Si no hay usuario, redirigir a login
-        if (!currentUser) {
-          window.location.href = 'login.html';
-          return;
-        }
+        /**
+         * Convierte URL de YouTube/Vimeo a Embed URL
+         */
+        function getEmbedUrl(url) {
+            if (!url) return null;
 
-        // Mostrar datos del usuario
-        document.getElementById('user-name').textContent = currentUser.name || 'Usuario';
-        document.getElementById('user-email').textContent = currentUser.email || 'correo@civis.com';
-      } catch (error) {
-        console.error('Error al verificar sesión:', error);
-        removeToken();
-        removeCurrentUser();
-        window.location.href = 'login.html';
-      }
-    });
-  </script>
+            // YouTube
+            // Supports: youtube.com/watch?v=ID, youtube.com/embed/ID, youtu.be/ID
+            const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const ytMatch = url.match(ytRegex);
+            if (ytMatch && ytMatch[1]) {
+                return `https://www.youtube.com/embed/${ytMatch[1]}`;
+            }
+
+            // Vimeo
+            const vimeoRegex = /(?:vimeo\.com\/)(\d+)/;
+            const vimeoMatch = url.match(vimeoRegex);
+            if (vimeoMatch && vimeoMatch[1]) {
+                return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+            }
+
+            // Return original if likely already an embed or unknown (fallback)
+            return url;
+        }
+    </script>
 
 </body>
+
 </html>

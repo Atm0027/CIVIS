@@ -4,12 +4,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 1. Cargar categorías al iniciar
     await loadCategories();
 
-    // 2. Manejar envío del formulario
+    // 2. Comprobar si estamos en MODO EDICIÓN
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id');
+
+    if (videoId) {
+        enableEditMode(videoId);
+    }
+
+    // 3. Manejar envío del formulario
     const form = document.getElementById('upload-form');
     if (form) {
-        form.addEventListener('submit', handleUploadSubmit);
+        form.addEventListener('submit', (e) => handleUploadSubmit(e, videoId));
     }
 });
+
+async function enableEditMode(id) {
+    // Cambiar UI
+    document.title = 'Civis · Editar Video';
+    const titleEl = document.querySelector('.view-title');
+    if (titleEl) titleEl.textContent = 'Editar Video';
+
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.textContent = 'Guardar Cambios';
+
+    // Cargar datos
+    try {
+        const video = await fetchAPI(`/videos/${id}`);
+
+        document.getElementById('titulo').value = video.title || '';
+        document.getElementById('url_video').value = video.url || '';
+        document.getElementById('descripcion').value = video.description || '';
+
+        // Esperar un momento para asegurar que las categorías cargaron
+        const catSelect = document.getElementById('category_id');
+        if (catSelect && video.category_id) {
+            catSelect.value = video.category_id;
+        } else if (catSelect && video.category && video.category.id) {
+            catSelect.value = video.category.id;
+        }
+
+    } catch (error) {
+        console.error('Error cargando video para editar:', error);
+        alert('Error al cargar datos del video.');
+        window.location.href = 'index.html';
+    }
+}
 
 /**
  * Carga las categorías y rellena el select
@@ -19,7 +59,8 @@ async function loadCategories() {
     if (!categorySelect) return;
 
     try {
-        const categories = await fetchAPI('/categories');
+        const response = await fetchAPI('/categories');
+        const categories = response.data || response; // Handle {data: []} or []
 
         // Limpiar opciones (manteniendo la default)
         categorySelect.innerHTML = '<option value="" disabled selected>Selecciona una categoría</option>';
@@ -38,9 +79,9 @@ async function loadCategories() {
 }
 
 /**
- * Maneja el envío del formulario de subida
+ * Maneja el envío del formulario de subida (o edición)
  */
-async function handleUploadSubmit(e) {
+async function handleUploadSubmit(e, videoId = null) {
     e.preventDefault();
 
     const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -58,6 +99,15 @@ async function handleUploadSubmit(e) {
         return;
     }
 
+    // Validar URL
+    const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+    const vimeoRegex = /^(https?:\/\/)?(www\.)?(vimeo\.com)\/.+$/;
+
+    if (!ytRegex.test(url) && !vimeoRegex.test(url)) {
+        alert('Por favor introduce una URL válida de YouTube o Vimeo');
+        return;
+    }
+
     // Deshabilitar botón
     if (submitBtn) {
         submitBtn.disabled = true;
@@ -72,22 +122,29 @@ async function handleUploadSubmit(e) {
         // duration: null, // Opcional
     };
 
+    const isEdit = !!videoId;
+    const endpoint = isEdit ? `/videos/${videoId}` : '/videos';
+    const method = isEdit ? 'PUT' : 'POST';
+
     try {
-        await fetchAPI('/videos', {
-            method: 'POST',
+        await fetchAPI(endpoint, {
+            method: method,
             body: JSON.stringify(videoData)
         });
 
         // Mostrar éxito
         if (successMsg) {
-            successMsg.textContent = '¡Video publicado correctamente!';
+            successMsg.textContent = isEdit ? '¡Video actualizado correctamente!' : '¡Video publicado correctamente!';
             successMsg.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200');
             successMsg.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200', 'show'); // show class for styles if any
             successMsg.style.display = 'block'; // Ensure visibility
+            successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // Resetear formulario
-        form.reset();
+        // Resetear formulario (solo si es nuevo)
+        if (!isEdit) {
+            form.reset();
+        }
 
         // Restaurar botón después de unos segundos
         setTimeout(() => {

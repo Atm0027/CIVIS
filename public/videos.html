@@ -2,223 +2,225 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Civis · Subir Videos</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civis · Subir Videos</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
 
-  <!-- LAYOUT PRINCIPAL -->
-  <div class="layout-wrapper">
+    <!-- LAYOUT PRINCIPAL -->
+    <div class="layout-wrapper">
 
-    <!-- SIDEBAR IZQUIERDO -->
-    <aside class="sidebar">
+        <!-- SIDEBAR IZQUIERDO -->
+        <aside class="sidebar">
 
-      <!-- Logo -->
-      <div class="sidebar-logo">
-        <h1 onclick="window.location.href='index.html'">Civis</h1>
-      </div>
+            <!-- Logo -->
+            <div class="sidebar-logo">
+                <h1 onclick="window.location.href='index.html'">Civis</h1>
+            </div>
 
-      <!-- Perfil de Usuario -->
-      <div id="user-profile-sidebar" class="user-card">
-        <div class="user-avatar"></div>
-        <p class="user-name" id="user-name">Usuario Admin</p>
-        <p class="user-email" id="user-email">admin@civis.com</p>
-        <button class="btn-edit-profile" id="btn-edit-profile" onclick="window.location.href='usuario.html'">
-          Ver perfil
-        </button>
-      </div>
+            <!-- Perfil de Usuario -->
+            <div id="user-profile-sidebar" class="user-card">
+                <div class="user-avatar"></div>
+                <p class="user-name" id="user-name">Usuario Admin</p>
+                <p class="user-email" id="user-email">admin@civis.com</p>
+                <button class="btn-edit-profile" id="btn-edit-profile" onclick="window.location.href='usuario.html'">
+                    Ver perfil
+                </button>
+            </div>
 
-      <!-- Plazos Cercanos -->
-      <div class="deadlines-section">
-        <h3 class="deadlines-title">Plazos cercanos</h3>
-        <ul class="deadlines-list" id="deadlines-list">
-          <!-- Los plazos se cargarán aquí desde la API -->
-        </ul>
-      </div>
+            <!-- Plazos Cercanos -->
+            <div class="deadlines-section">
+                <h3 class="deadlines-title">Plazos cercanos</h3>
+                <ul class="deadlines-list" id="deadlines-list">
+                    <!-- Los plazos se cargarán aquí desde la API -->
+                </ul>
+            </div>
 
-      <!-- SECCIÓN ADMIN -->
-      <div class="admin-section">
-        <h3 class="admin-title">Admin</h3>
-        <button class="btn-admin-upload" onclick="window.location.href='videos.html'">
-          Subir vídeos
-        </button>
-      </div>
+            <!-- SECCIÓN ADMIN -->
+            <div class="admin-section">
+                <h3 class="admin-title">Admin</h3>
+                <button class="btn-admin-upload" onclick="window.location.href='videos.html'">
+                    Subir vídeos
+                </button>
+            </div>
 
-    </aside>
+        </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="main-wrapper">
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-wrapper">
 
-      <!-- NAVBAR SUPERIOR -->
-      <header class="navbar">
-        <div class="navbar-container">
+            <!-- NAVBAR SUPERIOR -->
+            <header class="navbar">
+                <div class="navbar-container">
 
-          <!-- Buscador -->
-          <div class="search-box">
-            <input type="text" id="search-input" class="search-input" placeholder="Buscar trámites...">
-            <button class="search-btn" aria-label="Buscar">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="8" cy="8" r="6"></circle>
-                <path d="M12 12l5 5"></path>
-              </svg>
-            </button>
-          </div>
+                    <!-- Buscador -->
+                    <div class="search-box">
+                        <input type="text" id="search-input" class="search-input" placeholder="Buscar trámites...">
+                        <button class="search-btn" aria-label="Buscar">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="8" cy="8" r="6"></circle>
+                                <path d="M12 12l5 5"></path>
+                            </svg>
+                        </button>
+                    </div>
 
-          <!-- Navegación -->
-          <nav class="nav-links">
-            <a href="index.html" class="nav-link">Inicio</a>
-            <a href="calendario.html" class="nav-link">Calendario</a>
-            <a href="preguntasFrecuentes.html" class="nav-link">Preguntas Frecuentes</a>
-          </nav>
-
-        </div>
-      </header>
-
-      <!-- CONTENIDO -->
-      <div class="content-area">
-
-        <button class="btn-back" onclick="window.location.href='index.html'">
-          ← Volver a la videoteca
-        </button>
-
-        <header class="view-header">
-          <h2 class="view-title">Subir Nuevo Video</h2>
-        </header>
-
-        <div class="upload-container">
-
-          <!-- FORMULARIO SIMPLIFICADO -->
-          <form id="upload-form" class="upload-form">
-
-            <div class="form-section">
-              <h3 class="form-section-title">Información del Video</h3>
-
-              <div class="form-grid">
-
-                <!-- TÍTULO -->
-                <div class="form-group form-full">
-                  <label for="titulo" class="form-label">
-                    Título <span class="required">*</span>
-                  </label>
-
-                  <input type="text" id="titulo" name="titulo" class="form-input" required
-                    placeholder="Ej: Guía de uso del Campus Virtual">
+                    <!-- Navegación -->
+                    <nav class="nav-links">
+                        <a href="index.html" class="nav-link">Inicio</a>
+                        <a href="calendario.html" class="nav-link">Calendario</a>
+                        <a href="preguntasFrecuentes.html" class="nav-link">Preguntas Frecuentes</a>
+                    </nav>
 
                 </div>
+            </header>
 
-              </div>
+            <!-- CONTENIDO -->
+            <div class="content-area">
 
-              <!-- CATEGORÍA -->
-              <div class="form-group form-full">
-                <label for="category_id" class="form-label">
-                  Categoría <span class="required">*</span>
-                </label>
-                <select id="category_id" name="category_id" class="form-input" required>
-                  <option value="" disabled selected>Selecciona una categoría</option>
-                  <!-- Las categorías se cargarán aquí -->
-                </select>
-              </div>
-              <div class="form-group form-full">
-                <label for="url_video" class="form-label">
-                  URL del Video <span class="required">*</span>
-                </label>
+                <button class="btn-back" onclick="window.location.href='index.html'">
+                    ← Volver a la videoteca
+                </button>
 
-                <input type="url" id="url_video" name="url_video" class="form-input" required
-                  placeholder="https://www.youtube.com/watch?v=...">
+                <header class="view-header">
+                    <h2 class="view-title">Subir Nuevo Video</h2>
+                </header>
 
-                <p class="form-hint">
-                  Puede ser un enlace de YouTube o Vimeo
-                </p>
-              </div>
+                <div class="upload-container">
 
-              <!-- DESCRIPCIÓN -->
-              <div class="form-group form-full">
-                <label for="descripcion" class="form-label">
-                  Descripción / Guía <span class="required">*</span>
-                </label>
+                    <!-- FORMULARIO SIMPLIFICADO -->
+                    <form id="upload-form" class="upload-form">
 
-                <textarea id="descripcion" name="descripcion" rows="6" class="form-input form-textarea" required
-                  placeholder="Escribe aquí la guía completa, instrucciones o notas sobre el video..."></textarea>
+                        <div class="form-section">
+                            <h3 class="form-section-title">Información del Video</h3>
 
-              </div>
+                            <div class="form-grid">
+
+                                <!-- TÍTULO -->
+                                <div class="form-group form-full">
+                                    <label for="titulo" class="form-label">
+                                        Título <span class="required">*</span>
+                                    </label>
+
+                                    <input type="text" id="titulo" name="titulo" class="form-input" required
+                                        placeholder="Ej: Guía de uso del Campus Virtual">
+
+                                </div>
+
+                            </div>
+
+                            <!-- CATEGORÍA -->
+                            <div class="form-group form-full">
+                                <label for="category_id" class="form-label">
+                                    Categoría <span class="required">*</span>
+                                </label>
+                                <select id="category_id" name="category_id" class="form-input" required>
+                                    <option value="" disabled selected>Selecciona una categoría</option>
+                                    <!-- Las categorías se cargarán aquí -->
+                                </select>
+                            </div>
+                            <div class="form-group form-full">
+                                <label for="url_video" class="form-label">
+                                    URL del Video <span class="required">*</span>
+                                </label>
+
+                                <input type="url" id="url_video" name="url_video" class="form-input" required
+                                    placeholder="https://www.youtube.com/watch?v=...">
+
+                                <p class="form-hint">
+                                    Puede ser un enlace de YouTube o Vimeo
+                                </p>
+                            </div>
+
+                            <!-- DESCRIPCIÓN -->
+                            <div class="form-group form-full">
+                                <label for="descripcion" class="form-label">
+                                    Descripción / Guía <span class="required">*</span>
+                                </label>
+
+                                <textarea id="descripcion" name="descripcion" rows="6" class="form-input form-textarea"
+                                    required
+                                    placeholder="Escribe aquí la guía completa, instrucciones o notas sobre el video..."></textarea>
+
+                            </div>
+
+                        </div>
+                </div>
+
+                <!-- BOTONES -->
+                <div class="form-actions-bottom">
+
+
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Publicar Video
+                    </button>
+                </div>
+
+                </form>
+
+                <!-- MENSAJE DE ÉXITO -->
+                <div id="upload-success-message" class="success-message hidden">
+                    <!-- ZONA LÓGICA: Mostrar session('success') si existe -->
+                    ¡Video publicado correctamente!
+                </div>
 
             </div>
-        </div>
 
-        <!-- BOTONES -->
-        <div class="form-actions-bottom">
+    </div>
 
+    </main>
 
-          <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">
-            Cancelar
-          </button>
-          <button type="submit" class="btn btn-primary">
-            Publicar Video
-          </button>
-        </div>
+    </div>
 
-        </form>
+    <!-- SCRIPTS -->
+    <script src="js/config.env.js?v=3"></script>
+    <script src="js/config.js?v=3"></script>
+    <script src="js/api.js?v=3"></script>
+    <script src="js/auth.js?v=3"></script>
+    <script src="js/videos.js?v=3"></script>
+    <script>
+        // Verificar que el usuario sea ADMIN antes de cargar la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Intentar cargar usuario
+                let currentUser = getCurrentUserFromStorage();
 
-        <!-- MENSAJE DE ÉXITO -->
-        <div id="upload-success-message" class="success-message hidden">
-          <!-- ZONA LÓGICA: Mostrar session('success') si existe -->
-          ¡Video publicado correctamente!
-        </div>
+                // Si no hay datos locales y tenemos token, obtener desde API
+                if (!currentUser && hasToken()) {
+                    currentUser = await getUserProfile();
+                    saveCurrentUser(currentUser);
+                }
 
-      </div>
+                // Si no hay usuario, redirigir a login
+                if (!currentUser) {
+                    window.location.href = 'login.html';
+                    return;
+                }
 
-  </div>
+                // Verificar que sea ADMIN (role === 'admin')
+                if (currentUser.role !== 'admin') {
+                    console.warn('Acceso denegado: Usuario no es administrador');
+                    window.location.href = 'index.html';
+                    return;
+                }
 
-  </main>
-
-  </div>
-
-  <!-- SCRIPTS -->
-  <script src="js/config.env.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/videos.js"></script>
-  <script>
-    // Verificar que el usuario sea ADMIN antes de cargar la página
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        // Intentar cargar usuario
-        let currentUser = getCurrentUserFromStorage();
-
-        // Si no hay datos locales y tenemos token, obtener desde API
-        if (!currentUser && hasToken()) {
-          currentUser = await getUserProfile();
-          saveCurrentUser(currentUser);
-        }
-
-        // Si no hay usuario, redirigir a login
-        if (!currentUser) {
-          window.location.href = 'login.html';
-          return;
-        }
-
-        // Verificar que sea ADMIN (role === 'admin')
-        if (currentUser.role !== 'admin') {
-          console.warn('Acceso denegado: Usuario no es administrador');
-          window.location.href = 'index.html';
-          return;
-        }
-
-        // Mostrar datos del usuario admin
-        document.getElementById('user-name').textContent = currentUser.name || 'Usuario Admin';
-        document.getElementById('user-email').textContent = currentUser.email || 'admin@civis.com';
-      } catch (error) {
-        console.error('Error al verificar sesión de admin:', error);
-        removeToken();
-        removeCurrentUser();
-        window.location.href = 'login.html';
-      }
-    });
-  </script>
+                // Mostrar datos del usuario admin
+                document.getElementById('user-name').textContent = currentUser.name || 'Usuario Admin';
+                document.getElementById('user-email').textContent = currentUser.email || 'admin@civis.com';
+            } catch (error) {
+                console.error('Error al verificar sesión de admin:', error);
+                removeToken();
+                removeCurrentUser();
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
 
 </body>
 

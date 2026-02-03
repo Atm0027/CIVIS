@@ -8,7 +8,7 @@
  */
 function VideoCard(video) {
     return `
-        <div class="video-card bg-white rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl cursor-pointer" data-video-id="${video.id}">
+        <div class="video-card bg-white rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl cursor-pointer" data-video-id="${video.id}" onclick="window.location.href='plantilla.html?id=${video.id}'">
             <img class="w-full h-48 object-cover" src="${video.thumbnail}" alt="Miniatura de ${video.title}">
             <div class="p-5">
                 <h3 class="text-lg font-bold text-gray-900 mb-2">${video.title}</h3>

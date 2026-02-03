@@ -307,9 +307,11 @@ async function loadVideoFeed() {
         showLoader(videoFeedGrid);
         noResultsEl.classList.add('hidden');
 
-        const videos = await getVideos();
+        const response = await getVideos();
+        // Handle pagination structure (Laravel default) or direct array
+        const videos = response.data || response;
 
-        if (videos.length === 0) {
+        if (!Array.isArray(videos) || videos.length === 0) {
             videoFeedGrid.innerHTML = '';
             noResultsEl.classList.remove('hidden');
             return;

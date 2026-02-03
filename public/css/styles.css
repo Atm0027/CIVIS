@@ -162,7 +162,8 @@ body {
   gap: 2rem;
   position: fixed;
   height: 100vh;
-  overflow-y: auto;
+  overflow: hidden;
+  /* Changed from overflow-y: auto */
   box-shadow: var(--shadow-lg);
 }
 
@@ -233,6 +234,38 @@ body {
 /* Plazos Cercanos */
 .deadlines-section {
   flex: 1;
+  overflow-y: auto;
+  /* Allow internal scrolling */
+  min-height: 0;
+  /* enable flex child scrolling */
+  padding-right: 5px;
+  /* Avoiding scrollbar overlap */
+}
+
+/* Scrollbar personalizado para deadlines */
+.deadlines-section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.deadlines-section::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.deadlines-section::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.deadlines-section::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Evitar que se encojan las secciones fijas */
+.sidebar-logo,
+.user-card,
+.admin-section {
+  flex-shrink: 0;
 }
 
 .deadlines-title {
@@ -428,6 +461,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -999,7 +1033,8 @@ body {
   box-shadow: var(--shadow-md);
   overflow: hidden;
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  padding-bottom: 56.25%;
+  /* 16:9 aspect ratio */
   height: 0;
 }
 
