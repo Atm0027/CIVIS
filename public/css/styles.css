@@ -232,49 +232,25 @@ body {
 }
 
 /* Plazos Cercanos */
+/* Plazos Cercanos */
 .deadlines-section {
   flex: 1;
-  overflow-y: auto;
-  /* Allow internal scrolling */
+  display: flex;
+  flex-direction: column;
   min-height: 0;
-  /* enable flex child scrolling */
-  padding-right: 5px;
-  /* Avoiding scrollbar overlap */
+  overflow: hidden;
+  /* Prevent container scroll */
 }
 
-/* Scrollbar personalizado para deadlines */
-.deadlines-section::-webkit-scrollbar {
-  width: 6px;
-}
-
-.deadlines-section::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-
-.deadlines-section::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-}
-
-.deadlines-section::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* Evitar que se encojan las secciones fijas */
-.sidebar-logo,
-.user-card,
-.admin-section {
-  flex-shrink: 0;
-}
-
+/* El título ya no scrollea */
 .deadlines-title {
   color: var(--color-yellow);
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid rgba(254, 197, 68, 0.3);
+  flex-shrink: 0;
 }
 
 .deadlines-list {
@@ -282,7 +258,40 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  overflow-y: auto;
+  /* Scroll is here now */
+  min-height: 0;
+  padding-right: 5px;
 }
+
+/* Scrollbar personalizado para la lista de plazos */
+.deadlines-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.deadlines-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.deadlines-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.deadlines-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Evitar que se encojan las secciones fijas */
+/* Evitar que se encojan las secciones fijas */
+.sidebar-logo,
+.user-card,
+.admin-section {
+  flex-shrink: 0;
+}
+
+/* Admin Actions en Sidebar */
 
 .deadline-item {
   background-color: rgba(255, 255, 255, 0.05);
