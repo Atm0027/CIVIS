@@ -27,7 +27,7 @@ function VideoCard(video) {
  * @returns {string} - HTML del item
  */
 function DeadlineItem(deadline) {
-    const itemDate = new Date(deadline.date);
+    const itemDate = new Date(deadline.start_date);
     const formattedDate = itemDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
 
     return `
@@ -51,9 +51,9 @@ function DeadlineItem(deadline) {
  * @returns {string} - HTML del item
  */
 function CalendarListItem(item) {
-    const itemDate = new Date(item.date);
+    const itemDate = new Date(item.start_date);
     const formattedDate = itemDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-    const isPast = new Date(item.date) < new Date();
+    const isPast = new Date(item.start_date) < new Date();
 
     return `
         <li class="py-4 flex justify-between items-center">
@@ -76,8 +76,8 @@ function CalendarListItem(item) {
 function FaqCard(faq) {
     return `
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">${faq.q}</h3>
-            <p class="text-gray-700">${faq.a}</p>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">${faq.question}</h3>
+            <p class="text-gray-700">${faq.answer}</p>
         </div>
     `;
 }

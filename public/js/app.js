@@ -422,9 +422,9 @@ function showPage(pageId) {
         }
         loadVideoFeed();
     } else if (pageId === 'calendar') {
-        loadCalendarPage();
+        // loadCalendarPage(); // DESHABILITADO
     } else if (pageId === 'faq') {
-        loadFaqPage();
+        // loadFaqPage(); // DESHABILITADO
     } else if (pageId === 'profile') {
         loadProfileData();
     }
