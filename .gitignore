@@ -89,3 +89,6 @@ build/
 # User uploads
 uploads/
 user-data/
+
+# Developer documentation (local only)
+ANALISIS_PROYECTO.md
