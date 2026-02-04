@@ -90,7 +90,7 @@ async function createNewCategory() {
     btnSave.textContent = 'Creando...';
 
     try {
-        const newCategory = await fetchAPI('/categories', {
+        const newCategory = await fetchAPI(CONFIG.api.endpoints.categories, {
             method: 'POST',
             body: JSON.stringify({ name })
         });
@@ -156,7 +156,7 @@ async function enableEditMode(id) {
 
     // Cargar datos
     try {
-        const video = await fetchAPI(`/videos/${id}`);
+        const video = await fetchAPI(CONFIG.api.endpoints.videoById.replace(':id', id));
 
         document.getElementById('titulo').value = video.title || '';
         document.getElementById('url_video').value = video.url || '';
@@ -248,7 +248,7 @@ function setupDeleteModal() {
 // Nueva función separada para la lógica de borrado API
 async function performDelete(videoId, btnElement = null, callback = null) {
     try {
-        await fetchAPI(`/videos/${videoId}`, {
+        await fetchAPI(CONFIG.api.endpoints.videoById.replace(':id', videoId), {
             method: 'DELETE'
         });
 
@@ -275,7 +275,7 @@ async function loadCategories() {
     if (!categorySelect) return;
 
     try {
-        const response = await fetchAPI('/categories');
+        const response = await fetchAPI(CONFIG.api.endpoints.categories);
         const categories = response.data || response; // Handle {data: []} or []
 
         // Limpiar opciones (manteniendo la default)
@@ -339,7 +339,7 @@ async function handleUploadSubmit(e, videoId = null) {
     };
 
     const isEdit = !!videoId;
-    const endpoint = isEdit ? `/videos/${videoId}` : '/videos';
+    const endpoint = isEdit ? CONFIG.api.endpoints.videoById.replace(':id', videoId) : CONFIG.api.endpoints.videos;
     const method = isEdit ? 'PUT' : 'POST';
 
     try {

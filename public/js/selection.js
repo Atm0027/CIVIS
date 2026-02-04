@@ -131,7 +131,7 @@ async function performBulkDelete() {
     }
 
     try {
-        const response = await fetchAPI('/videos/bulk', {
+        const response = await fetchAPI(CONFIG.api.endpoints.bulkDeleteVideos, {
             method: 'DELETE',
             body: JSON.stringify({ ids: Array.from(selectedVideos) })
         });

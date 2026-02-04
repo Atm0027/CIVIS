@@ -86,7 +86,7 @@ async function fetchAPI(endpoint, options = {}) {
  * @returns {Promise<Object>} - Datos del usuario y token
  */
 async function login(loginOrEmail, password) {
-    const response = await fetchAPI('/auth/login', {
+    const response = await fetchAPI(CONFIG.api.endpoints.login, {
         method: 'POST',
         body: JSON.stringify({ login: loginOrEmail, password })
     });
@@ -110,7 +110,7 @@ async function login(loginOrEmail, password) {
  * @returns {Promise<Object>} - Datos del usuario registrado
  */
 async function register(userData) {
-    const response = await fetchAPI('/auth/register', {
+    const response = await fetchAPI(CONFIG.api.endpoints.register, {
         method: 'POST',
         body: JSON.stringify(userData)
     });
@@ -137,7 +137,7 @@ async function register(userData) {
  */
 async function logout() {
     try {
-        await fetchAPI('/auth/logout', { method: 'POST' });
+        await fetchAPI(CONFIG.api.endpoints.logout, { method: 'POST' });
     } catch (error) {
         console.error('Error al hacer logout:', error);
     } finally {
@@ -154,7 +154,7 @@ async function logout() {
  * @returns {Promise<Array>} - Lista de videos
  */
 async function getVideos() {
-    return await fetchAPI('/videos');
+    return await fetchAPI(CONFIG.api.endpoints.videos);
 }
 
 /**
@@ -163,7 +163,7 @@ async function getVideos() {
  * @returns {Promise<Object>} - Datos del video
  */
 async function getVideoById(id) {
-    return await fetchAPI(`/videos/${id}`);
+    return await fetchAPI(CONFIG.api.endpoints.videoById.replace(':id', id));
 }
 
 /**
@@ -172,7 +172,9 @@ async function getVideoById(id) {
  * @returns {Promise<Array>} - Videos que coinciden con la búsqueda
  */
 async function searchVideos(query) {
-    return await fetchAPI(`/videos?q=${encodeURIComponent(query)}`);
+    // Usamos el endpoint configurado para búsqueda, o el fallback ?q= si el endpoint es base
+    const endpoint = CONFIG.api.endpoints.searchVideos || '/videos/search';
+    return await fetchAPI(`${endpoint}?q=${encodeURIComponent(query)}`);
 }
 
 // ===== CALENDARIO =====
@@ -182,7 +184,7 @@ async function searchVideos(query) {
  * @returns {Promise<Array>} - Lista de eventos/plazos
  */
 async function getCalendar() {
-    return await fetchAPI('/calendar');
+    return await fetchAPI(CONFIG.api.endpoints.calendar);
 }
 
 /**
@@ -191,7 +193,7 @@ async function getCalendar() {
  * @returns {Promise<Array>} - Eventos próximos
  */
 async function getUpcomingDeadlines(limit = 2) {
-    return await fetchAPI(`/calendar/upcoming?limit=${limit}`);
+    return await fetchAPI(`${CONFIG.api.endpoints.upcomingDeadlines}?limit=${limit}`);
 }
 
 // ===== FAQs =====
@@ -201,7 +203,7 @@ async function getUpcomingDeadlines(limit = 2) {
  * @returns {Promise<Array>} - Lista de FAQs
  */
 async function getFaqs() {
-    return await fetchAPI('/faqs');
+    return await fetchAPI(CONFIG.api.endpoints.faqs);
 }
 
 /**
@@ -210,7 +212,7 @@ async function getFaqs() {
  * @returns {Promise<Array>} - FAQs que coinciden
  */
 async function searchFaqs(query) {
-    return await fetchAPI(`/faqs/search?q=${encodeURIComponent(query)}`);
+    return await fetchAPI(`${CONFIG.api.endpoints.searchFaqs}?q=${encodeURIComponent(query)}`);
 }
 
 // ===== USUARIO =====
@@ -220,8 +222,18 @@ async function searchFaqs(query) {
  * @returns {Promise<Object>} - Datos del usuario
  */
 async function getUserProfile() {
-    const response = await fetchAPI('/auth/me');
-    return response.user;
+    // Nota: El endpoint userProfile está configurado como /auth/user/profile que mapea a me() en el backend
+    // o /auth/me directamente. Usamos la configuración para consistencia.
+    const response = await fetchAPI(CONFIG.api.endpoints.userProfile);
+    // Backend 'me' returns { user: ... } or just user?
+    // Route::get('/profile', [AuthController::class, 'me']);
+    // AuthController::me usually returns user object directly or wrapped.
+    // Let's stick to what was working, just updating the path source if possible.
+    // Previous code: fetchAPI('/auth/me'); return response.user;
+    // Current config userProfile: /auth/user/profile -> AuthController::me
+
+    // Si queremos ser consistentes:
+    return response.user || response;
 }
 
 /**
@@ -230,7 +242,7 @@ async function getUserProfile() {
  * @returns {Promise<Object>} - Usuario actualizado
  */
 async function updateUserProfile(updates) {
-    return await fetchAPI('/user/profile', {
+    return await fetchAPI(CONFIG.api.endpoints.updateProfile, {
         method: 'PUT',
         body: JSON.stringify(updates)
     });

@@ -182,7 +182,7 @@
 
         async function loadVideoDetails(id) {
             // Fetch video data
-            const video = await fetchAPI(`/videos/${id}`);
+            const video = await getVideoById(id);
 
             // Update DOM
             document.title = `Civis · ${video.title}`;

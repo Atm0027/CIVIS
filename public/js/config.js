@@ -57,6 +57,13 @@ const CONFIG = {
             videos: "/videos",
             videoById: "/videos/:id",
             searchVideos: "/videos/search",
+            bulkDeleteVideos: "/videos/bulk",
+
+            // Categorías
+            categories: "/categories",
+
+            // Uploads
+            uploads: "/uploads",
 
             // Calendario
             calendar: "/calendar",
@@ -67,8 +74,8 @@ const CONFIG = {
             searchFaqs: "/faqs/search",
 
             // Usuario
-            userProfile: "/user/profile",
-            updateProfile: "/user/profile"
+            userProfile: "/auth/user/profile",
+            updateProfile: "/auth/user/profile"
         }
     },
 
