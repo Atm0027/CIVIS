@@ -12,7 +12,8 @@ services:
     # Volumen para desarrollo: sincroniza archivos locales automáticamente
     volumes:
       - ./:/var/www/app
-      - /var/www/app/vendor  # Excluir vendor para usar el del contenedor
+      # app_laravel:/var/www/app
+      
 
     networks:
       - laravel
@@ -74,7 +75,7 @@ services:
     volumes:
       # Vincular el contenido local para desarrollo
       - ./:/var/www/app
-      - /var/www/app/vendor  # Excluir vendor
+      # app_laravel:/var/www/app
       # Configuración de nginx
       - ./deploy/nginx/conf.d:/etc/nginx/conf.d
 
@@ -117,5 +118,5 @@ networks:
 volumes:
   db_data:
   vendor_cache:
-  storage:
-  app_laravel:
+  # storage:
+  # app_laravel:

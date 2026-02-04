@@ -19,6 +19,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+/public/js/config.env.js
 Homestead.json
 Homestead.yaml
 Thumbs.db
