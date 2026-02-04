@@ -62,10 +62,11 @@ function getVideoThumbnail(url) {
     const vimeoRegex = /(?:vimeo\.com\/)(\d+)/;
     const vimeoMatch = url.match(vimeoRegex);
     if (vimeoMatch && vimeoMatch[1]) {
-        return 'https://via.placeholder.com/320x180?text=Vimeo';
+        return 'https://via.placeholder.com/320x180/1ab7ea/ffffff?text=Vimeo';
     }
 
-    return 'https://via.placeholder.com/320x180?text=Video';
+    // Genérico / NotebookLM / Otros
+    return 'https://via.placeholder.com/320x180/334155/ffffff?text=Video';
 }
 
 /**

@@ -191,14 +191,45 @@
                 ? `<p>${video.description.replace(/\n/g, '<br>')}</p>`
                 : '<p>Sin descripción.</p>';
 
-            // Update Iframe
+            // Update Video Player
             const iframe = document.getElementById('video-iframe');
+            const videoContainer = document.querySelector('.video-player');
             const embedUrl = getEmbedUrl(video.url);
-            if (embedUrl) {
+
+            // Check if it's a direct video file
+            const isDirectVideo = /\.(mp4|webm|ogg)$/i.test(video.url);
+
+            if (isDirectVideo) {
+                iframe.style.display = 'none';
+                // Remove existing native video if any
+                const existingVideo = videoContainer.querySelector('video');
+                if (existingVideo) existingVideo.remove();
+
+                const videoHtml = `
+                    <video controls class="w-full h-full rounded-lg shadow-lg">
+                        <source src="${video.url}" type="video/${video.url.split('.').pop()}">
+                        Tu navegador no soporta la reproducción de video.
+                    </video>
+                `;
+                videoContainer.insertAdjacentHTML('beforeend', videoHtml);
+            } else if (embedUrl) {
+                iframe.style.display = 'block';
+                const existingVideo = videoContainer.querySelector('video');
+                if (existingVideo) existingVideo.remove();
                 iframe.src = embedUrl;
             } else {
-                iframe.style.display = 'none'; // Hide if invalid URL
-                // Could show a fallback link
+                iframe.style.display = 'none';
+                videoContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full p-8 bg-slate-800 text-white rounded-lg">
+                        <svg class="w-16 h-16 mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="text-lg font-medium mb-4 text-center">No se puede incrustar este video directamente</p>
+                        <a href="${video.url}" target="_blank" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors">
+                            Ver video en pestaña nueva
+                        </a>
+                    </div>
+                `;
             }
 
             // Update Meta/Tags (Category)
@@ -209,7 +240,7 @@
                 metaContainer.innerHTML += `<span class="meta-tag" style="background-color: #e0f2fe; color: #0369a1;">${video.category.name}</span>`;
             }
 
-            // If tags exist (checking if backend returns tags)
+            // If tags exist
             if (video.tags && Array.isArray(video.tags)) {
                 video.tags.forEach(tag => {
                     metaContainer.innerHTML += `<span class="meta-tag" style="background-color: #f1f5f9; color: #475569;">${tag.name || tag}</span>`;
@@ -239,6 +270,7 @@
             }
 
             // Return original if likely already an embed or unknown (fallback)
+            // This allows platforms like NotebookLM or others with embed links to work
             return url;
         }
     </script>

@@ -315,12 +315,11 @@ async function handleUploadSubmit(e, videoId = null) {
         return;
     }
 
-    // Validar URL
-    const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
-    const vimeoRegex = /^(https?:\/\/)?(www\.)?(vimeo\.com)\/.+$/;
+    // Validar URL (Genérica para soportar cualquier fuente)
+    const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?.*$/;
 
-    if (!ytRegex.test(url) && !vimeoRegex.test(url)) {
-        alert('Por favor introduce una URL válida de YouTube o Vimeo');
+    if (!urlRegex.test(url)) {
+        alert('Por favor introduce una URL válida');
         return;
     }
 
