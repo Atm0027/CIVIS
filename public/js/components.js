@@ -23,7 +23,7 @@ function VideoCard(video) {
     const checkboxHidden = '';
 
     return `
-        <div class="video-card bg-white rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl cursor-pointer ${selectedClass}"
+        <div class="video-card bg-white rounded-lg shadow-md overflow-hidden cursor-pointer ${selectedClass}"
              data-video-id="${video.id}"
              onclick="${clickAction}">
 
@@ -65,7 +65,12 @@ function getVideoThumbnail(url) {
         return 'https://via.placeholder.com/320x180/1ab7ea/ffffff?text=Vimeo';
     }
 
-    // Genérico / NotebookLM / Otros
+    // NotebookLM
+    if (url.includes('notebooklm.google.com')) {
+        return 'https://via.placeholder.com/320x180/0f172a/ffffff?text=NotebookLM+Overview';
+    }
+
+    // Genérico / Otros
     return 'https://via.placeholder.com/320x180/334155/ffffff?text=Video';
 }
 

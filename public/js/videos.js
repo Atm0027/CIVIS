@@ -315,11 +315,11 @@ async function handleUploadSubmit(e, videoId = null) {
         return;
     }
 
-    // Validar URL (Genérica para soportar cualquier fuente)
-    const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?.*$/;
-
-    if (!urlRegex.test(url)) {
-        alert('Por favor introduce una URL válida');
+    // Validar URL (Usando API nativa para máxima compatibilidad)
+    try {
+        new URL(url);
+    } catch (_) {
+        alert('Por favor introduce una URL válida (ej: https://...)');
         return;
     }
 

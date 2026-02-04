@@ -181,9 +181,13 @@
         });
 
         async function loadVideoDetails(id) {
+            console.log('--- DEPURACIÓN VIDEO ---');
+            console.log('ID solicitado:', id);
+
             // Fetch video data
             const video = await getVideoById(id);
-
+            console.log('Datos del video recibidos:', video);
+            console.log('URL del video:', video.url);
             // Update DOM
             document.title = `Civis · ${video.title}`;
             document.getElementById('video-title-text').textContent = video.title;
@@ -198,14 +202,17 @@
 
             // Check if it's a direct video file
             const isDirectVideo = /\.(mp4|webm|ogg)$/i.test(video.url);
-            // Check if it's NotebookLM (which doesn't allow embedding)
-            const isNotebookLM = video.url.includes('notebooklm.google.com');
+            // Check if it's NotebookLM
+            const isNotebookLM = video.url && video.url.includes('notebooklm.google.com');
+
+            // Reset container for fresh render
+            const existingVideo = videoContainer.querySelector('video');
+            if (existingVideo) existingVideo.remove();
+            const existingOverlay = videoContainer.querySelector('.notebooklm-overlay');
+            if (existingOverlay) existingOverlay.remove();
+            iframe.style.display = 'none';
 
             if (isDirectVideo) {
-                iframe.style.display = 'none';
-                const existingVideo = videoContainer.querySelector('video');
-                if (existingVideo) existingVideo.remove();
-
                 const videoHtml = `
                     <video controls class="w-full h-full rounded-lg shadow-lg">
                         <source src="${video.url}" type="video/${video.url.split('.').pop()}">
@@ -214,41 +221,48 @@
                 `;
                 videoContainer.insertAdjacentHTML('beforeend', videoHtml);
             } else if (isNotebookLM) {
+                // SOLUTION: Load in iframe but keep it hidden until overlay is removed
                 iframe.style.display = 'none';
-                videoContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full p-8 bg-slate-900 text-white rounded-lg border-2 border-slate-700">
-                        <div class="mb-6 p-4 bg-slate-800 rounded-full">
-                            <svg class="w-16 h-16 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                iframe.src = video.url;
+
+                const overlayHtml = `
+                    <div class="notebooklm-overlay">
+                        <div class="notebooklm-overlay-icon">
+                            <svg class="w-12 h-12 text-blue-400" fill="currentColor" viewBox="0 0 24 24" style="width: 48px; height: 48px;">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
                             </svg>
                         </div>
-                        <h2 class="text-2xl font-bold mb-2">NotebookLM Video Overview</h2>
-                        <p class="text-slate-400 text-center max-w-md mb-8">
-                            Este contenido es una vista previa de NotebookLM. Debido a restricciones de seguridad de Google, debe abrirse fuera de esta plataforma.
+                        <h2>NotebookLM Overview</h2>
+                        <p>
+                            Este contenido es una generación de NotebookLM. Google puede restringir su visualización directa aquí.
                         </p>
-                        <a href="${video.url}" target="_blank" class="flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full transition-all transform hover:scale-105 shadow-lg">
-                            <span>Ver en NotebookLM</span>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                        </a>
+                        <div class="notebooklm-actions">
+                            <a href="${video.url}" target="_blank" class="btn-notebooklm-primary">
+                                <span>Abrir en NotebookLM</span>
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                            <button onclick="const ov = this.closest('.notebooklm-overlay'); if(ov) ov.remove(); document.getElementById('video-iframe').style.display='block';" class="btn-notebooklm-secondary">
+                                Intentar ver aquí de todos modos
+                            </button>
+                        </div>
                     </div>
                 `;
+                videoContainer.classList.add('relative'); // Apply utility
+                videoContainer.insertAdjacentHTML('beforeend', overlayHtml);
             } else if (embedUrl) {
                 iframe.style.display = 'block';
-                const existingVideo = videoContainer.querySelector('video');
-                if (existingVideo) existingVideo.remove();
                 iframe.src = embedUrl;
             } else {
-                iframe.style.display = 'none';
                 videoContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full p-8 bg-slate-800 text-white rounded-lg">
-                        <svg class="w-16 h-16 mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex flex-col items-center justify-center h-full p-5 bg-white text-gray-900 rounded-lg shadow-md">
+                        <svg width="64" height="64" class="mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                         </svg>
-                        <p class="text-lg font-medium mb-4 text-center">No se puede incrustar este video directamente</p>
-                        <a href="${video.url}" target="_blank" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors">
-                            Ver video en pestaña nueva
+                        <p class="text-lg font-medium mb-4 text-center">No se puede reproducir este enlace directamente</p>
+                        <a href="${video.url}" target="_blank" class="btn-notebooklm-primary">
+                            Ver en pestaña nueva
                         </a>
                     </div>
                 `;
