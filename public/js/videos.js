@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 2. Configurar botones de nueva categoría
     setupCategoryCreation();
 
-    // 3. Comprobar si estamos en MODO EDICIÓN
+    // 3. Configurar modal de eliminación
+    setupDeleteModal();
+
+    // 4. Comprobar si estamos en MODO EDICIÓN
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('id');
 
@@ -15,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         enableEditMode(videoId);
     }
 
-    // 4. Manejar envío del formulario
+    // 5. Manejar envío del formulario
     const form = document.getElementById('upload-form');
     if (form) {
         form.addEventListener('submit', (e) => handleUploadSubmit(e, videoId));
@@ -136,11 +139,19 @@ async function enableEditMode(id) {
     const submitBtn = document.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.textContent = 'Guardar Cambios';
 
-    // Mostrar botón de eliminar
+    // Mostrar botón de eliminar y configurar handler
     const deleteBtn = document.getElementById('btn-delete-video');
     if (deleteBtn) {
         deleteBtn.classList.remove('hidden');
-        deleteBtn.addEventListener('click', () => handleDeleteVideo(id));
+
+        // Desvincular handlers anteriores (aunque onclick sobrescribe, es buena práctica si usamos addEventListener)
+        // Usar un handler limpio
+        deleteBtn.onclick = (e) => {
+            console.log('Click en eliminar video');
+            e.preventDefault();
+            e.stopPropagation(); // Detener propagación
+            handleDeleteVideo(id);
+        };
     }
 
     // Cargar datos
@@ -167,24 +178,81 @@ async function enableEditMode(id) {
 }
 
 /**
- * Maneja la eliminación de un video
+ * Maneja la eliminación de un video usando modal personalizado
  */
-async function handleDeleteVideo(videoId) {
-    const confirmDelete = confirm('¿Estás seguro de que quieres eliminar este video? Esta acción no se puede deshacer.');
+let currentVideoIdToDelete = null;
 
-    if (!confirmDelete) return;
-
-    const deleteBtn = document.getElementById('btn-delete-video');
-    if (deleteBtn) {
-        deleteBtn.disabled = true;
-        deleteBtn.textContent = 'Eliminando...';
+function handleDeleteVideo(videoId) {
+    console.log('Abriendo modal para eliminar video', videoId);
+    currentVideoIdToDelete = videoId;
+    const modal = document.getElementById('delete-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        // Asegurar que se visualiza
+        modal.style.display = 'flex';
+    } else {
+        console.error('No se encontró el modal #delete-modal');
+        // Fallback a confirm nativo si falla el modal
+        if (confirm('¿Estás seguro de eliminar este video?')) {
+            performDelete(videoId);
+        }
     }
+}
 
+/**
+ * Configura los event listeners del modal de eliminación
+ */
+function setupDeleteModal() {
+    const modal = document.getElementById('delete-modal');
+    const cancelBtn = document.getElementById('modal-cancel');
+    const confirmBtn = document.getElementById('modal-confirm');
+
+    if (!modal || !cancelBtn || !confirmBtn) return;
+
+    // Función para cerrar modal limpia
+    const closeModal = () => {
+        modal.classList.add('hidden');
+        modal.style.display = ''; // Limpiar inline style si se usó
+        currentVideoIdToDelete = null;
+    };
+
+    // Cancelar - cerrar modal
+    cancelBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal();
+    };
+
+    // Confirmar eliminación
+    confirmBtn.onclick = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!currentVideoIdToDelete) return;
+
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Eliminando...';
+
+        await performDelete(currentVideoIdToDelete, confirmBtn, closeModal);
+    };
+
+    // Cerrar modal al hacer clic fuera (en el overlay)
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            console.log('Click en background del modal -> cerrar');
+            closeModal();
+        }
+    };
+}
+
+// Nueva función separada para la lógica de borrado API
+async function performDelete(videoId, btnElement = null, callback = null) {
     try {
         await fetchAPI(`/videos/${videoId}`, {
             method: 'DELETE'
         });
 
+        if (callback) callback();
         alert('Video eliminado correctamente.');
         window.location.href = 'index.html';
 
@@ -192,9 +260,9 @@ async function handleDeleteVideo(videoId) {
         console.error('Error eliminando video:', error);
         alert('Error al eliminar el video: ' + (error.message || 'Error desconocido'));
 
-        if (deleteBtn) {
-            deleteBtn.disabled = false;
-            deleteBtn.textContent = 'Eliminar Video';
+        if (btnElement) {
+            btnElement.disabled = false;
+            btnElement.textContent = 'Sí, eliminar';
         }
     }
 }

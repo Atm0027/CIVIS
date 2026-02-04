@@ -42,9 +42,14 @@
       <!-- SECCIÓN ADMIN (SOLO VISIBLE PARA ADMIN) -->
       <div id="admin-section" class="admin-section hidden">
         <h3 class="admin-title">Admin</h3>
-        <button class="btn-admin-upload" onclick="window.location.href='videos.html'">
-          Subir vídeos
-        </button>
+        <div class="admin-buttons">
+          <button class="btn-admin-upload" onclick="window.location.href='videos.html'">
+            Subir vídeos
+          </button>
+          <button id="btn-toggle-selection" class="btn-admin-selection">
+            Seleccionar
+          </button>
+        </div>
       </div>
 
     </aside>
@@ -123,12 +128,41 @@
 
   </div>
 
+  <!-- BARRA DE ACCIONES FLOTANTE (SELECCIÓN MÚLTIPLE) -->
+  <div id="selection-bar" class="selection-bar hidden">
+    <div class="selection-info">
+      <span id="selection-count">0</span> seleccionados
+    </div>
+    <div class="selection-actions">
+      <button id="btn-cancel-selection" class="btn btn-secondary btn-small">Cancelar</button>
+      <button id="btn-delete-selected" class="btn btn-danger btn-small">Eliminar</button>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMACIÓN PARA ELIMINACIÓN MASIVA -->
+  <div id="bulk-delete-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">⚠️ Eliminar Videos</h3>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que quieres eliminar <span id="bulk-delete-count" class="font-bold">0</span> videos?</p>
+        <p class="modal-warning">Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="bulk-modal-cancel" class="btn btn-secondary">Cancelar</button>
+        <button type="button" id="bulk-modal-confirm" class="btn btn-danger">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SCRIPTS -->
   <script src="js/config.env.js?v=3"></script>
   <script src="js/config.js?v=3"></script>
   <script src="js/api.js?v=3"></script>
   <script src="js/auth.js?v=3"></script>
   <script src="js/components.js?v=3"></script>
+  <script src="js/selection.js?v=3"></script>
   <script src="js/app.js?v=3"></script>
 
 </body>

@@ -163,41 +163,56 @@
                                     placeholder="Escribe aquí la guía completa, instrucciones o notas sobre el video..."></textarea>
 
                             </div>
-
                         </div>
-                </div>
 
-                <!-- BOTONES -->
-                <div class="form-actions-bottom">
-                    <!-- Botón eliminar (solo visible en modo edición) -->
-                    <button type="button" id="btn-delete-video" class="btn btn-danger hidden">
-                        Eliminar Video
-                    </button>
+                    </form>
 
-                    <div class="form-actions-right">
-                        <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">
-                            Cancelar
+                    <!-- BOTONES DE ACCIÓN (fuera del formulario para evitar conflictos) -->
+                    <div class="form-actions-bottom">
+                        <!-- Botón eliminar (solo visible en modo edición) -->
+                        <button type="button" id="btn-delete-video" class="btn btn-danger hidden">
+                            Eliminar Video
                         </button>
-                        <button type="submit" class="btn btn-primary">
-                            Publicar Video
-                        </button>
+
+                        <div class="form-actions-right">
+                            <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">
+                                Cancelar
+                            </button>
+                            <button type="submit" form="upload-form" class="btn btn-primary">
+                                Publicar Video
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                </form>
+                    <!-- MENSAJE DE ÉXITO -->
+                    <div id="upload-success-message" class="success-message hidden">
+                        <!-- ZONA LÓGICA: Mostrar session('success') si existe -->
+                        ¡Video publicado correctamente!
+                    </div>
 
-                <!-- MENSAJE DE ÉXITO -->
-                <div id="upload-success-message" class="success-message hidden">
-                    <!-- ZONA LÓGICA: Mostrar session('success') si existe -->
-                    ¡Video publicado correctamente!
                 </div>
 
             </div>
 
+        </main>
+
     </div>
 
-    </main>
-
+    <!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR -->
+    <div id="delete-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">⚠️ Eliminar Video</h3>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres eliminar este video?</p>
+                <p class="modal-warning">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="modal-cancel" class="btn btn-secondary">Cancelar</button>
+                <button type="button" id="modal-confirm" class="btn btn-danger">Sí, eliminar</button>
+            </div>
+        </div>
     </div>
 
     <!-- SCRIPTS -->

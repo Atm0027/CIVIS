@@ -44,6 +44,7 @@ use App\Http\Controllers\Api\UploadController;
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/videos', [VideoController::class, 'store']);
     Route::put('/videos/{id}', [VideoController::class, 'update']);
+    Route::delete('/videos/bulk', [VideoController::class, 'destroyBulk']);
     Route::delete('/videos/{id}', [VideoController::class, 'destroy']);
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::post('/uploads', [UploadController::class, 'store']);

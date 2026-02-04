@@ -72,4 +72,19 @@ class VideoController extends Controller
 
         return response()->json(['message' => 'Video eliminado correctamente'], 200);
     }
+
+    public function destroyBulk(Request $request)
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['required', 'integer', 'exists:videos,id'],
+        ]);
+
+        $count = Video::whereIn('id', $data['ids'])->delete();
+
+        return response()->json([
+            'message' => "Se eliminaron {$count} videos correctamente",
+            'count' => $count
+        ], 200);
+    }
 }

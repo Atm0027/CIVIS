@@ -9,8 +9,28 @@ function VideoCard(video) {
     const description = video.description ? video.description.substring(0, 100) + (video.description.length > 100 ? '...' : '') : 'Sin descripción';
     const categoryName = video.category ? video.category.name : 'Sin categoría';
 
+    // Verificar estado de selección (usando funciones globales de selection.js si existen)
+    const isSelected = window.isVideoSelected ? window.isVideoSelected(video.id) : false;
+
+    // Usamos handleVideoClick para decidir en tiempo de ejecución si seleccionar o navegar
+    const clickAction = `window.handleVideoClick(event, ${video.id})`;
+
+    const selectedClass = isSelected ? 'selected' : '';
+    const checkboxChecked = isSelected ? 'checked' : '';
+
+    // Eliminamos la clase 'hidden' condicional. La visibilidad se controlará por CSS
+    // usando la clase .selection-mode-active en el body
+    const checkboxHidden = '';
+
     return `
-        <div class="video-card bg-white rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl cursor-pointer" data-video-id="${video.id}" onclick="window.location.href='plantilla.html?id=${video.id}'">
+        <div class="video-card bg-white rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl cursor-pointer ${selectedClass}"
+             data-video-id="${video.id}"
+             onclick="${clickAction}">
+
+            <div class="video-card-overlay ${checkboxHidden}">
+                <input type="checkbox" class="video-checkbox" ${checkboxChecked} readonly>
+            </div>
+
             <img class="w-full h-48 object-cover" src="${thumbnail}" alt="Miniatura de ${video.title}" onerror="this.src='https://via.placeholder.com/320x180?text=Video'">
             <div class="p-5">
                 <h3 class="text-lg font-bold text-gray-900 mb-2">${video.title}</h3>
