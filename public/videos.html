@@ -117,10 +117,27 @@
                                 <label for="category_id" class="form-label">
                                     Categoría <span class="required">*</span>
                                 </label>
-                                <select id="category_id" name="category_id" class="form-input" required>
-                                    <option value="" disabled selected>Selecciona una categoría</option>
-                                    <!-- Las categorías se cargarán aquí -->
-                                </select>
+                                <div class="category-selector">
+                                    <select id="category_id" name="category_id" class="form-input" required>
+                                        <option value="" disabled selected>Selecciona una categoría</option>
+                                        <!-- Las categorías se cargarán aquí -->
+                                    </select>
+                                    <button type="button" id="btn-add-category" class="btn btn-secondary btn-small"
+                                        title="Añadir nueva categoría">
+                                        + Nueva
+                                    </button>
+                                </div>
+
+                                <!-- Input para nueva categoría (oculto por defecto) -->
+                                <div id="new-category-container" class="new-category-input hidden">
+                                    <input type="text" id="new-category-name" class="form-input"
+                                        placeholder="Nombre de la nueva categoría">
+                                    <button type="button" id="btn-save-category"
+                                        class="btn btn-primary btn-small">Crear</button>
+                                    <button type="button" id="btn-cancel-category"
+                                        class="btn btn-secondary btn-small">Cancelar</button>
+                                </div>
+                                <p id="category-error" class="form-error hidden"></p>
                             </div>
                             <div class="form-group form-full">
                                 <label for="url_video" class="form-label">

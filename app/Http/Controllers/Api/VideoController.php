@@ -10,7 +10,7 @@ class VideoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Video::query()->orderBy('id', 'desc');
+        $query = Video::with('category')->orderBy('id', 'desc');
 
         if ($request->filled('category')) {
             $slug = $request->query('category');
@@ -30,7 +30,7 @@ class VideoController extends Controller
 
     public function show($id)
     {
-        return response()->json(Video::findOrFail($id));
+        return response()->json(Video::with('category')->findOrFail($id));
     }
 
     public function store(Request $request)

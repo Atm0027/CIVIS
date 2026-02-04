@@ -1,24 +1,51 @@
-// ===== COMPONENTES REUTILIZABLES CIVIS =====
-// Este archivo contiene componentes HTML reutilizables generados con JavaScript
-
 /**
  * Componente: Tarjeta de Video
  * @param {Object} video - Objeto con datos del video
  * @returns {string} - HTML de la tarjeta
  */
 function VideoCard(video) {
+    // Generar thumbnail desde URL de YouTube/Vimeo
+    const thumbnail = getVideoThumbnail(video.url);
+    const description = video.description ? video.description.substring(0, 100) + (video.description.length > 100 ? '...' : '') : 'Sin descripción';
+    const categoryName = video.category ? video.category.name : 'Sin categoría';
+
     return `
         <div class="video-card bg-white rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl cursor-pointer" data-video-id="${video.id}" onclick="window.location.href='plantilla.html?id=${video.id}'">
-            <img class="w-full h-48 object-cover" src="${video.thumbnail}" alt="Miniatura de ${video.title}">
+            <img class="w-full h-48 object-cover" src="${thumbnail}" alt="Miniatura de ${video.title}" onerror="this.src='https://via.placeholder.com/320x180?text=Video'">
             <div class="p-5">
                 <h3 class="text-lg font-bold text-gray-900 mb-2">${video.title}</h3>
-                <p class="text-sm text-gray-600 mb-4">${video.description}</p>
+                <p class="text-sm text-gray-600 mb-4">${description}</p>
                 <div class="flex flex-wrap gap-2">
-                    ${video.tags.map(tag => `<span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">${tag}</span>`).join('')}
+                    <span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">${categoryName}</span>
                 </div>
             </div>
         </div>
     `;
+}
+
+/**
+ * Obtiene el thumbnail de un video de YouTube o Vimeo
+ * @param {string} url - URL del video
+ * @returns {string} - URL del thumbnail
+ */
+function getVideoThumbnail(url) {
+    if (!url) return 'https://via.placeholder.com/320x180?text=Video';
+
+    // YouTube
+    const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const ytMatch = url.match(ytRegex);
+    if (ytMatch && ytMatch[1]) {
+        return `https://img.youtube.com/vi/${ytMatch[1]}/mqdefault.jpg`;
+    }
+
+    // Vimeo - usar placeholder ya que Vimeo requiere API para thumbnails
+    const vimeoRegex = /(?:vimeo\.com\/)(\d+)/;
+    const vimeoMatch = url.match(vimeoRegex);
+    if (vimeoMatch && vimeoMatch[1]) {
+        return 'https://via.placeholder.com/320x180?text=Vimeo';
+    }
+
+    return 'https://via.placeholder.com/320x180?text=Video';
 }
 
 /**

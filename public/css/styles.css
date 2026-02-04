@@ -1295,6 +1295,56 @@ select.form-input {
   transform: rotate(180deg);
 }
 
+/* ==========================================
+   SELECTOR DE CATEGORÍAS CON CREAR NUEVA
+   ========================================== */
+
+.category-selector {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.category-selector .form-input {
+  flex: 1;
+}
+
+.new-category-input {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background-color: rgba(254, 197, 68, 0.1);
+  border-radius: var(--radius);
+  border: 1px dashed var(--color-yellow);
+}
+
+.new-category-input .form-input {
+  flex: 1;
+}
+
+.btn-small {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.btn-secondary {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-border);
+}
+
+.form-error {
+  color: var(--color-red);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
 .hidden {
   display: none !important;
 }

@@ -4,7 +4,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 1. Cargar categorías al iniciar
     await loadCategories();
 
-    // 2. Comprobar si estamos en MODO EDICIÓN
+    // 2. Configurar botones de nueva categoría
+    setupCategoryCreation();
+
+    // 3. Comprobar si estamos en MODO EDICIÓN
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('id');
 
@@ -12,12 +15,117 @@ document.addEventListener('DOMContentLoaded', async () => {
         enableEditMode(videoId);
     }
 
-    // 3. Manejar envío del formulario
+    // 4. Manejar envío del formulario
     const form = document.getElementById('upload-form');
     if (form) {
         form.addEventListener('submit', (e) => handleUploadSubmit(e, videoId));
     }
 });
+
+/**
+ * Configura los event listeners para crear nuevas categorías
+ */
+function setupCategoryCreation() {
+    const btnAdd = document.getElementById('btn-add-category');
+    const btnSave = document.getElementById('btn-save-category');
+    const btnCancel = document.getElementById('btn-cancel-category');
+    const container = document.getElementById('new-category-container');
+    const input = document.getElementById('new-category-name');
+    const errorEl = document.getElementById('category-error');
+
+    if (!btnAdd || !container) return;
+
+    // Mostrar input para nueva categoría
+    btnAdd.addEventListener('click', () => {
+        container.classList.remove('hidden');
+        btnAdd.classList.add('hidden');
+        input.focus();
+    });
+
+    // Cancelar creación
+    btnCancel.addEventListener('click', () => {
+        container.classList.add('hidden');
+        btnAdd.classList.remove('hidden');
+        input.value = '';
+        if (errorEl) errorEl.classList.add('hidden');
+    });
+
+    // Guardar nueva categoría
+    btnSave.addEventListener('click', async () => {
+        await createNewCategory();
+    });
+
+    // También crear al presionar Enter
+    input.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            await createNewCategory();
+        }
+    });
+}
+
+/**
+ * Crea una nueva categoría en la API y la añade al select
+ */
+async function createNewCategory() {
+    const input = document.getElementById('new-category-name');
+    const container = document.getElementById('new-category-container');
+    const btnAdd = document.getElementById('btn-add-category');
+    const btnSave = document.getElementById('btn-save-category');
+    const errorEl = document.getElementById('category-error');
+    const categorySelect = document.getElementById('category_id');
+
+    const name = input.value.trim();
+
+    if (!name) {
+        showCategoryError('Por favor introduce un nombre para la categoría');
+        return;
+    }
+
+    // Deshabilitar botón mientras se procesa
+    btnSave.disabled = true;
+    btnSave.textContent = 'Creando...';
+
+    try {
+        const newCategory = await fetchAPI('/categories', {
+            method: 'POST',
+            body: JSON.stringify({ name })
+        });
+
+        // Añadir al select
+        const option = document.createElement('option');
+        option.value = newCategory.id;
+        option.textContent = newCategory.name;
+        categorySelect.appendChild(option);
+
+        // Seleccionar la nueva categoría
+        categorySelect.value = newCategory.id;
+
+        // Limpiar y ocultar input
+        input.value = '';
+        container.classList.add('hidden');
+        btnAdd.classList.remove('hidden');
+        if (errorEl) errorEl.classList.add('hidden');
+
+    } catch (error) {
+        console.error('Error creando categoría:', error);
+        showCategoryError(error.message || 'Error al crear la categoría');
+    } finally {
+        btnSave.disabled = false;
+        btnSave.textContent = 'Crear';
+    }
+}
+
+/**
+ * Muestra un mensaje de error en la sección de categorías
+ */
+function showCategoryError(message) {
+    const errorEl = document.getElementById('category-error');
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+    }
+}
 
 async function enableEditMode(id) {
     // Cambiar UI
