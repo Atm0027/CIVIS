@@ -2,168 +2,170 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Civis · Videoteca de Trámites</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civis · Videoteca de Trámites</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
 
-  <!-- LAYOUT PRINCIPAL -->
-  <div class="layout-wrapper">
+    <!-- LAYOUT PRINCIPAL -->
+    <div class="layout-wrapper">
 
-    <!-- SIDEBAR IZQUIERDO -->
-    <aside class="sidebar">
+        <!-- SIDEBAR IZQUIERDO -->
+        <aside class="sidebar">
 
-      <!-- Logo -->
-      <div class="sidebar-logo">
-        <h1 onclick="window.location.href='index.html'">Civis</h1>
-      </div>
-
-      <!-- Perfil de Usuario / Botones de Auth -->
-      <div id="user-profile-sidebar" class="user-card">
-        <div class="user-avatar"></div>
-        <p class="user-name" id="user-name">Usuario</p>
-        <p class="user-email" id="user-email">usuario@civis.com</p>
-        <button class="btn-edit-profile" id="btn-edit-profile" onclick="window.location.href='usuario.html'">
-          Ver perfil
-        </button>
-      </div>
-
-      <!-- Plazos Cercanos -->
-      <div class="deadlines-section">
-        <h3 class="deadlines-title">Plazos cercanos</h3>
-        <ul class="deadlines-list" id="deadlines-list">
-          <!-- Los plazos se cargarán aquí desde la API -->
-        </ul>
-      </div>
-
-      <!-- SECCIÓN ADMIN (SOLO VISIBLE PARA ADMIN) -->
-      <div id="admin-section" class="admin-section hidden">
-        <h3 class="admin-title">Admin</h3>
-        <div class="admin-buttons">
-          <button class="btn-admin-upload" onclick="window.location.href='videos.html'">
-            Subir vídeos
-          </button>
-          <button id="btn-toggle-selection" class="btn-admin-selection">
-            Seleccionar
-          </button>
-        </div>
-      </div>
-
-    </aside>
-
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="main-wrapper">
-
-      <!-- NAVBAR SUPERIOR -->
-      <header class="navbar">
-        <div class="navbar-container">
-
-          <!-- Buscador -->
-          <div class="search-box">
-            <input type="text" id="search-input" class="search-input" placeholder="Buscar trámites...">
-            <button class="search-btn" aria-label="Buscar">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="8" cy="8" r="6"></circle>
-                <path d="M12 12l5 5"></path>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Navegación -->
-          <nav class="nav-links">
-            <a href="index.html" class="nav-link active">Inicio</a>
-            <a href="calendario.html" class="nav-link">Calendario</a>
-            <a href="preguntasFrecuentes.html" class="nav-link">Preguntas Frecuentes</a>
-          </nav>
-
-        </div>
-      </header>
-
-      <!-- CONTENIDO -->
-      <div class="content-area">
-
-        <!-- VISTA: VIDEOTECA DE TRÁMITES -->
-        <section id="view-videoteca" class="view active">
-
-          <header class="view-header">
-            <h2 class="view-title">Videoteca de Trámites</h2>
-          </header>
-
-          <div id="tramites-grid" class="tramites-grid">
-            <!-- Las tarjetas de trámites se cargarán aquí desde la API -->
-          </div>
-          <div id="no-results" class="hidden text-center py-8 text-gray-500">
-            No se encontraron trámites que coincidan con tu búsqueda.
-          </div>
-
-        </section>
-
-        <!-- VISTA: DETALLE DE TRÁMITE -->
-        <section id="view-detail" class="view">
-
-          <button class="btn-back" id="btn-back">
-            ← Volver
-          </button>
-
-          <div class="tramite-detail">
-
-            <div class="video-container" id="video-container">
-              <!-- El vídeo se cargará aquí desde la API -->
+            <!-- Logo -->
+            <div class="sidebar-logo">
+                <h1 onclick="window.location.href='index.html'">Civis</h1>
             </div>
 
-            <article class="tramite-guide" id="tramite-guide">
-              <!-- La guía del trámite se cargará aquí desde la API -->
-            </article>
+            <!-- Perfil de Usuario / Botones de Auth -->
+            <div id="user-profile-sidebar" class="user-card">
+                <div class="user-avatar"></div>
+                <p class="user-name" id="user-name">Usuario</p>
+                <p class="user-email" id="user-email">usuario@civis.com</p>
+                <button class="btn-edit-profile" id="btn-edit-profile" onclick="window.location.href='usuario.html'">
+                    Ver perfil
+                </button>
+            </div>
 
-          </div>
+            <!-- Plazos Cercanos -->
+            <div class="deadlines-section">
+                <h3 class="deadlines-title">Plazos cercanos</h3>
+                <ul class="deadlines-list" id="deadlines-list">
+                    <!-- Los plazos se cargarán aquí desde la API -->
+                </ul>
+            </div>
 
-        </section>
+            <!-- SECCIÓN ADMIN (SOLO VISIBLE PARA ADMIN) -->
+            <div id="admin-section" class="admin-section hidden">
+                <h3 class="admin-title">Admin</h3>
+                <div class="admin-buttons">
+                    <button class="btn-admin-upload" onclick="window.location.href='videos.html'">
+                        Subir vídeos
+                    </button>
+                    <button id="btn-toggle-selection" class="btn-admin-selection">
+                        Seleccionar
+                    </button>
+                </div>
+            </div>
 
-      </div>
+        </aside>
 
-    </main>
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-wrapper">
 
-  </div>
+            <!-- NAVBAR SUPERIOR -->
+            <header class="navbar">
+                <div class="navbar-container">
 
-  <!-- BARRA DE ACCIONES FLOTANTE (SELECCIÓN MÚLTIPLE) -->
-  <div id="selection-bar" class="selection-bar hidden">
-    <div class="selection-info">
-      <span id="selection-count">0</span> seleccionados
+                    <!-- Buscador -->
+                    <div class="search-box">
+                        <input type="text" id="search-input" class="search-input" placeholder="Buscar trámites...">
+                        <button id="search-btn" class="search-btn" aria-label="Buscar">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="8" cy="8" r="6"></circle>
+                                <path d="M12 12l5 5"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Navegación -->
+                    <nav class="nav-links">
+                        <a href="index.html" class="nav-link active">Inicio</a>
+                        <a href="calendario.html" class="nav-link">Calendario</a>
+                        <a href="preguntasFrecuentes.html" class="nav-link">Preguntas Frecuentes</a>
+                    </nav>
+
+                </div>
+            </header>
+
+            <!-- CONTENIDO -->
+            <div class="content-area">
+
+                <!-- VISTA: VIDEOTECA DE TRÁMITES -->
+                <section id="view-videoteca" class="view active">
+
+                    <header class="view-header">
+                        <h2 id="feed-title" class="view-title">Videoteca de Trámites</h2>
+                    </header>
+
+                    <div id="tramites-grid" class="tramites-grid">
+                        <!-- Las tarjetas de trámites se cargarán aquí desde la API -->
+                    </div>
+                    <div id="no-results" class="hidden text-center py-8 text-gray-500">
+                        No se encontraron trámites que coincidan con tu búsqueda.
+                    </div>
+
+                </section>
+
+                <!-- VISTA: DETALLE DE TRÁMITE -->
+                <section id="view-detail" class="view">
+
+                    <button class="btn-back" id="btn-back">
+                        ← Volver
+                    </button>
+
+                    <div class="tramite-detail">
+
+                        <div class="video-container" id="video-container">
+                            <!-- El vídeo se cargará aquí desde la API -->
+                        </div>
+
+                        <article class="tramite-guide" id="tramite-guide">
+                            <!-- La guía del trámite se cargará aquí desde la API -->
+                        </article>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+
     </div>
-    <div class="selection-actions">
-      <button id="btn-cancel-selection" class="btn btn-secondary btn-small">Cancelar</button>
-      <button id="btn-delete-selected" class="btn btn-danger btn-small">Eliminar</button>
-    </div>
-  </div>
 
-  <!-- MODAL DE CONFIRMACIÓN PARA ELIMINACIÓN MASIVA -->
-  <div id="bulk-delete-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">⚠️ Eliminar Videos</h3>
-      </div>
-      <div class="modal-body">
-        <p>¿Estás seguro de que quieres eliminar <span id="bulk-delete-count" class="font-bold">0</span> videos?</p>
-        <p class="modal-warning">Esta acción no se puede deshacer.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" id="bulk-modal-cancel" class="btn btn-secondary">Cancelar</button>
-        <button type="button" id="bulk-modal-confirm" class="btn btn-danger">Sí, eliminar</button>
-      </div>
+    <!-- BARRA DE ACCIONES FLOTANTE (SELECCIÓN MÚLTIPLE) -->
+    <div id="selection-bar" class="selection-bar hidden">
+        <div class="selection-info">
+            <span id="selection-count">0</span> seleccionados
+        </div>
+        <div class="selection-actions">
+            <button id="btn-cancel-selection" class="btn btn-secondary btn-small">Cancelar</button>
+            <button id="btn-delete-selected" class="btn btn-danger btn-small">Eliminar</button>
+        </div>
     </div>
-  </div>
 
-  <!-- SCRIPTS -->
-  <script src="js/config.env.js?v=3"></script>
-  <script src="js/config.js?v=3"></script>
-  <script src="js/api.js?v=3"></script>
-  <script src="js/auth.js?v=3"></script>
-  <script src="js/components.js?v=3"></script>
-  <script src="js/selection.js?v=3"></script>
-  <script src="js/app.js?v=3"></script>
+    <!-- MODAL DE CONFIRMACIÓN PARA ELIMINACIÓN MASIVA -->
+    <div id="bulk-delete-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">⚠️ Eliminar Videos</h3>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres eliminar <span id="bulk-delete-count" class="font-bold">0</span> videos?
+                </p>
+                <p class="modal-warning">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="bulk-modal-cancel" class="btn btn-secondary">Cancelar</button>
+                <button type="button" id="bulk-modal-confirm" class="btn btn-danger">Sí, eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/config.env.js?v=3"></script>
+    <script src="js/config.js?v=3"></script>
+    <script src="js/api.js?v=6"></script>
+    <script src="js/auth.js?v=3"></script>
+    <script src="js/components.js?v=3"></script>
+    <script src="js/selection.js?v=3"></script>
+    <script src="js/app.js?v=8"></script>
 
 </body>
 

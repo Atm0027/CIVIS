@@ -75,76 +75,93 @@ function initRegisterPage() {
     const submitButton = registerForm.querySelector('button[type="submit"]');
     const messageContainer = document.getElementById('message');
 
+    // Helper para email (inlinado para evitar dependencias externas críticas)
+    const isValidEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
+
+    // Helper para obtener valor seguro de input
+    const getVal = (input) => input ? input.value : '';
+
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const username = usernameInput.value.trim();
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-        const name = nameInput.value.trim();
-
-        // Validaciones básicas
-        if (!username || !name || !email || !password || !confirmPassword) {
-            showAuthError(messageContainer, 'Por favor, completa todos los campos obligatorios');
-            return;
-        }
-
-        if (!validateEmail(email)) {
-            showAuthError(messageContainer, 'Por favor, ingresa un email válido');
-            return;
-        }
-
-        if (password.length < 6) {
-            showAuthError(messageContainer, 'La contraseña debe tener al menos 6 caracteres');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            showAuthError(messageContainer, 'Las contraseñas no coinciden');
-            return;
-        }
-
-        // Deshabilitar botón mientras se procesa
-        submitButton.disabled = true;
-        const originalButtonText = submitButton.textContent;
-        submitButton.textContent = 'Creando cuenta...';
-        messageContainer.classList.add('hidden');
+        console.log('Formulario enviado'); // Debug
 
         try {
-            // Preparar datos completos para la API
-            const userData = {
-                username,
-                email,
-                password,
-                name,
-                surname: surnameInput ? surnameInput.value.trim() : '',
-                dni: dniInput.value.trim(),
-                phone: phoneInput.value.trim(),
-                dateOfBirth: dateOfBirthInput.value,
-                address: addressInput.value.trim(),
-                city: cityInput.value.trim(),
-                postalCode: postalCodeInput.value.trim(),
-                province: provinceInput.value.trim()
-            };
+            const username = getVal(usernameInput).trim();
+            const email = getVal(emailInput).trim();
+            const password = getVal(passwordInput);
+            const confirmPassword = getVal(confirmPasswordInput);
+            const name = getVal(nameInput).trim();
 
-            // Llamar a la API de registro
-            await register(userData);
+            // Validaciones básicas
+            if (!username || !name || !email || !password || !confirmPassword) {
+                showAuthError(messageContainer, 'Por favor, completa todos los campos obligatorios');
+                return;
+            }
 
-            // Si llega aquí, el registro fue exitoso
-            messageContainer.textContent = '¡Registro exitoso! Iniciando sesión...';
-            messageContainer.classList.remove('hidden', 'message-error');
-            messageContainer.classList.add('message-success');
+            if (!isValidEmail(email)) {
+                showAuthError(messageContainer, 'Por favor, ingresa un email válido');
+                return;
+            }
 
-            // Redirigir al index después de un breve delay para que vean el mensaje
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
+            if (password.length < 6) {
+                showAuthError(messageContainer, 'La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
 
-        } catch (error) {
-            showAuthError(messageContainer, error.message || 'Error al crear la cuenta. Intenta nuevamente.');
-            submitButton.disabled = false;
-            submitButton.textContent = originalButtonText;
+            if (password !== confirmPassword) {
+                showAuthError(messageContainer, 'Las contraseñas no coinciden');
+                return;
+            }
+
+            // Deshabilitar botón mientras se procesa
+            submitButton.disabled = true;
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = 'Creando cuenta...';
+            messageContainer.classList.add('hidden');
+
+            try {
+                // Preparar datos completos para la API
+                const userData = {
+                    username,
+                    email,
+                    password,
+                    name,
+                    surname: getVal(surnameInput).trim() || null,
+                    dni: getVal(dniInput).trim() || null,
+                    phone: getVal(phoneInput).trim() || null,
+                    dateOfBirth: getVal(dateOfBirthInput) || null,
+                    address: getVal(addressInput).trim() || null,
+                    city: getVal(cityInput).trim() || null,
+                    postalCode: getVal(postalCodeInput).trim() || null,
+                    province: getVal(provinceInput).trim() || null
+                };
+
+                // Llamar a la API de registro
+                await register(userData);
+
+                // Si llega aquí, el registro fue exitoso
+                messageContainer.textContent = '¡Registro exitoso! Iniciando sesión...';
+                messageContainer.classList.remove('hidden', 'message-error');
+                messageContainer.classList.add('message-success');
+
+                // Redirigir al index después de un breve delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+
+            } catch (error) {
+                console.error('API Error:', error);
+                showAuthError(messageContainer, error.message || 'Error al crear la cuenta. Intenta nuevamente.');
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+            }
+        } catch (err) {
+            console.error('Critical Error in Register Handler:', err);
+            alert('Error interno en el formulario: ' + err.message);
         }
     });
 }
@@ -169,12 +186,17 @@ async function logoutUser() {
 }
 
 // ===== AUTO-INICIALIZACIÓN SEGÚN LA PÁGINA =====
+// ===== AUTO-INICIALIZACIÓN SEGÚN EXISTENCIA DE ELEMENTOS =====
 document.addEventListener('DOMContentLoaded', () => {
-    const currentPath = window.location.pathname;
-
-    if (currentPath.includes('login.html')) {
+    // Verificar si existe formulario de login
+    if (document.getElementById('login-form')) {
+        console.log('Iniciando página de Login...');
         initLoginPage();
-    } else if (currentPath.includes('register.html')) {
+    }
+
+    // Verificar si existe formulario de registro
+    if (document.getElementById('register-form')) {
+        console.log('Iniciando página de Registro...');
         initRegisterPage();
     }
 });

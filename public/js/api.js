@@ -172,7 +172,7 @@ async function getVideoById(id) {
  * @returns {Promise<Array>} - Videos que coinciden con la búsqueda
  */
 async function searchVideos(query) {
-    return await fetchAPI(`/videos/search?q=${encodeURIComponent(query)}`);
+    return await fetchAPI(`/videos?q=${encodeURIComponent(query)}`);
 }
 
 // ===== CALENDARIO =====

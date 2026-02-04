@@ -49,23 +49,40 @@ class AuthController extends Controller
             'dni' => ['nullable', 'string', 'max:20', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'dateOfBirth' => ['nullable', 'date'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'postalCode' => ['nullable', 'string', 'max:10'],
+            'province' => ['nullable', 'string', 'max:100'],
         ]);
+
+        // Helper para convertir strings vacíos a null
+        $getValue = function ($key) use ($data) {
+            return !empty($data[$key]) ? $data[$key] : null;
+        };
 
         $user = \App\Models\User::create([
             'username' => $data['username'],
             'name' => $data['name'],
-            'surname' => $data['surname'] ?? null,
-            'dni' => $data['dni'] ?? null,
+            'surname' => $getValue('surname'),
+            'dni' => $getValue('dni'),
             'email' => $data['email'],
             'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
-            'role' => 'user', // Todos los nuevos usuarios tienen rol 'user' por defecto
+            'role' => 'user',
+            'phone' => $getValue('phone'),
+            'dateOfBirth' => $getValue('dateOfBirth'),
+            'address' => $getValue('address'),
+            'city' => $getValue('city'),
+            'postalCode' => $getValue('postalCode'),
+            'province' => $getValue('province'),
         ]);
 
         $token = $user->createToken('web')->plainTextToken;
 
         return response()->json([
             'token' => $token,
-            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'dni' => $user->dni, 'email' => $user->email, 'role' => $user->role],
+            'user' => $user,
         ], 201);
     }
 

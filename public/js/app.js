@@ -147,15 +147,21 @@ function setupEventListeners(elements) {
         });
     }
 
-    // Navegación principal (solo enlaces con data-page, no todos los nav-links)
+    // Navegación principal (solo enlaces con data-page)
     if (elements.navLinks && elements.navLinks.length > 0) {
         elements.navLinks.forEach(link => {
             if (link.dataset.page) {
                 link.addEventListener('click', (e) => {
+                    // Si el link apunta a un HTML distinto, dejar que navegue
+                    const href = link.getAttribute('href');
+                    if (href && href.includes('.html') && href !== 'index.html') {
+                        return;
+                    }
+
                     e.preventDefault();
-                    const pageId = link.dataset.page;
-                    showPage(pageId);
-                    // En móvil, cerrar la sidebar después de hacer clic
+                    showPage('videoteca'); // Default to videoteca for now as invalid 'feed' was used
+
+                    // En móvil, cerrar la sidebar
                     if (window.innerWidth < 768 && elements.sidebar && elements.sidebarOverlay) {
                         elements.sidebar.classList.add('-translate-x-full');
                         elements.sidebarOverlay.classList.add('hidden');
@@ -208,6 +214,14 @@ function setupEventListeners(elements) {
                 elements.clearSearchBtn.classList.add('hidden');
                 handleSearch({ target: { value: '' } });
             }
+        });
+    }
+
+    // Botón volver en detalle
+    const btnBack = document.getElementById('btn-back');
+    if (btnBack) {
+        btnBack.addEventListener('click', () => {
+            showPage('videoteca');
         });
     }
 
@@ -382,51 +396,59 @@ async function loadFaqPage() {
 
 // Función para mostrar la página correcta y ocultar las demás
 function showPage(pageId) {
-    // Protección de rutas: Si intenta acceder a calendario o perfil sin estar logueado
+    // Mapeo de IDs lógicos a IDs de DOM en index.html
+    const viewMap = {
+        'videoteca': 'view-videoteca',
+        'feed': 'view-videoteca', // Alias
+        'detail': 'view-detail'
+    };
+
+    const targetViewId = viewMap[pageId] || pageId;
+
+    // Si estamos en otra página HTML (calendario, usuario), y piden 'videoteca', ir a index.html
+    const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
+    if (!isIndex && (pageId === 'videoteca' || pageId === 'feed')) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    // Protección de rutas
     if ((pageId === 'calendar' || pageId === 'profile') && !currentUser) {
         window.location.href = 'login.html';
         return;
     }
 
-    const pages = document.querySelectorAll('.page-content');
-    const navLinks = document.querySelectorAll('.nav-link');
+    const views = document.querySelectorAll('.view');
 
-    // Ocultar todas las páginas
-    pages.forEach(page => page.classList.add('hidden'));
-
-    // Mostrar la página solicitada
-    const activePage = document.getElementById(`page-${pageId}`);
-    if (activePage) {
-        activePage.classList.remove('hidden');
-    }
-
-    // Actualizar el estado activo de los links de navegación
-    navLinks.forEach(link => {
-        link.classList.remove('bg-slate-700', 'text-white');
-        link.classList.add('text-slate-300');
-        if (link.dataset.page === pageId) {
-            link.classList.add('bg-slate-700', 'text-white');
-            link.classList.remove('text-slate-300');
-        }
+    // Ocultar todas las vistas
+    views.forEach(view => {
+        view.classList.remove('active');
+        // view.style.display = 'none'; // Dejar que CSS maneje display via .active
     });
 
-    // Lógica de renderizado específica de la página
-    if (pageId === 'feed') {
-        // Al volver al feed, resetea la búsqueda
-        const searchBar = document.getElementById('search-bar');
+    // Mostrar la vista solicitada
+    const activeView = document.getElementById(targetViewId);
+    if (activeView) {
+        activeView.classList.add('active');
+        // activeView.style.display = 'block';
+    }
+
+    // Lógica específica de la vista
+    if (pageId === 'videoteca' || pageId === 'feed') {
         const feedTitle = document.getElementById('feed-title');
-        if (searchBar) searchBar.value = '';
-        if (feedTitle) {
-            feedTitle.textContent = 'Videoteca de Trámites';
-            feedTitle.classList.remove('text-blue-600', 'text-red-600');
+        // Solo resetear si NO venimos de una búsqueda (esto se maneja en handleSearch)
+        // O si explicitamente queremos resetear.
+        // Por ahora, asumimos que si llamamos a showPage('videoteca') queremos ver el feed.
+
+        // Si el input de búsqueda está vacío, cargar feed normal
+        const searchInput = document.getElementById('search-input');
+        if (searchInput && searchInput.value.trim() === '') {
+            if (feedTitle) {
+                feedTitle.textContent = 'Videoteca de Trámites';
+                feedTitle.classList.remove('text-blue-600', 'text-red-600');
+            }
+            loadVideoFeed();
         }
-        loadVideoFeed();
-    } else if (pageId === 'calendar') {
-        // loadCalendarPage(); // DESHABILITADO
-    } else if (pageId === 'faq') {
-        // loadFaqPage(); // DESHABILITADO
-    } else if (pageId === 'profile') {
-        loadProfileData();
     }
 }
 
@@ -452,8 +474,8 @@ async function handleSearch(e) {
     const videoFeedGrid = document.getElementById('tramites-grid');
     const searchTerm = e.target.value.toLowerCase().trim();
 
-    // Asegurarse de que estamos en la página de feed
-    showPage('feed');
+    // Asegurarse de que estamos en la página de feed (videoteca)
+    showPage('videoteca');
 
     if (searchTerm === '') {
         feedTitle.textContent = 'Videoteca de Trámites';
