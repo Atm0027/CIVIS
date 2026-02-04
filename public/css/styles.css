@@ -690,6 +690,28 @@ body {
   border-color: var(--color-red);
 }
 
+.btn-danger {
+  background-color: var(--color-red);
+  color: var(--color-white);
+}
+
+.btn-danger:hover {
+  background-color: #b82429;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-danger:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.form-actions-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
 /* Mensaje de éxito */
 .success-message {
   margin-top: 1rem;

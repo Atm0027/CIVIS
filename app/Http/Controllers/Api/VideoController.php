@@ -47,4 +47,29 @@ class VideoController extends Controller
 
         return response()->json($video, 201);
     }
+
+    public function update(Request $request, $id)
+    {
+        $video = Video::findOrFail($id);
+
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'url' => ['required', 'url'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'duration' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $video->update($data);
+
+        return response()->json($video);
+    }
+
+    public function destroy($id)
+    {
+        $video = Video::findOrFail($id);
+        $video->delete();
+
+        return response()->json(['message' => 'Video eliminado correctamente'], 200);
+    }
 }

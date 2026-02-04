@@ -169,14 +169,19 @@
 
                 <!-- BOTONES -->
                 <div class="form-actions-bottom">
-
-
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">
-                        Cancelar
+                    <!-- Botón eliminar (solo visible en modo edición) -->
+                    <button type="button" id="btn-delete-video" class="btn btn-danger hidden">
+                        Eliminar Video
                     </button>
-                    <button type="submit" class="btn btn-primary">
-                        Publicar Video
-                    </button>
+
+                    <div class="form-actions-right">
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Publicar Video
+                        </button>
+                    </div>
                 </div>
 
                 </form>

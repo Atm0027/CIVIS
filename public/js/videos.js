@@ -136,6 +136,13 @@ async function enableEditMode(id) {
     const submitBtn = document.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.textContent = 'Guardar Cambios';
 
+    // Mostrar botón de eliminar
+    const deleteBtn = document.getElementById('btn-delete-video');
+    if (deleteBtn) {
+        deleteBtn.classList.remove('hidden');
+        deleteBtn.addEventListener('click', () => handleDeleteVideo(id));
+    }
+
     // Cargar datos
     try {
         const video = await fetchAPI(`/videos/${id}`);
@@ -156,6 +163,39 @@ async function enableEditMode(id) {
         console.error('Error cargando video para editar:', error);
         alert('Error al cargar datos del video.');
         window.location.href = 'index.html';
+    }
+}
+
+/**
+ * Maneja la eliminación de un video
+ */
+async function handleDeleteVideo(videoId) {
+    const confirmDelete = confirm('¿Estás seguro de que quieres eliminar este video? Esta acción no se puede deshacer.');
+
+    if (!confirmDelete) return;
+
+    const deleteBtn = document.getElementById('btn-delete-video');
+    if (deleteBtn) {
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Eliminando...';
+    }
+
+    try {
+        await fetchAPI(`/videos/${videoId}`, {
+            method: 'DELETE'
+        });
+
+        alert('Video eliminado correctamente.');
+        window.location.href = 'index.html';
+
+    } catch (error) {
+        console.error('Error eliminando video:', error);
+        alert('Error al eliminar el video: ' + (error.message || 'Error desconocido'));
+
+        if (deleteBtn) {
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = 'Eliminar Video';
+        }
     }
 }
 
