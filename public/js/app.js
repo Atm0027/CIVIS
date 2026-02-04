@@ -471,7 +471,8 @@ async function handleSearch(e) {
         showLoader(videoFeedGrid);
 
         // Buscar en la API
-        const videos = await searchVideos(searchTerm);
+        const response = await searchVideos(searchTerm);
+        const videos = response.data || response;
 
         // Actualizar título con contador de resultados
         const resultCount = videos.length;
