@@ -13,10 +13,6 @@ database/database.sqlite
 database_old
 *.sqlite
 
-# Dependencies (use container's vendor)
-node_modules
-vendor
-
 # Logs and storage with potentially locked files
 *.log
 storage/logs
