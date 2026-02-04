@@ -24,8 +24,8 @@
             <!-- Perfil de Usuario -->
             <div id="user-profile-sidebar" class="user-card">
                 <div class="user-avatar"></div>
-                <p class="user-name" id="user-name">username</p>
-                <p class="user-email" id="user-email">usuario@civis.com</p>
+                <p class="user-name" id="user-name">Usuario</p>
+                <p class="user-email" id="user-email">Cargando...</p>
                 <button class="btn-edit-profile" onclick="window.location.href='index.html'">
                     Volver al inicio
                 </button>
@@ -51,11 +51,12 @@
                     <!-- Buscador -->
                     <div class="search-box">
                         <input type="text" id="search-input" class="search-input" placeholder="Buscar trámites...">
-                        <button class="search-btn" aria-label="Buscar">
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="8" cy="8" r="6"></circle>
-                            <path d="M12 12l5 5"></path>
-                          </svg>
+                        <button id="search-btn" class="search-btn" aria-label="Buscar">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="8" cy="8" r="6"></circle>
+                                <path d="M12 12l5 5"></path>
+                            </svg>
                         </button>
                     </div>
 
@@ -80,24 +81,26 @@
                 <div class="profile-container">
 
                     <!-- Formulario de Edición de Perfil -->
-                    <form id="profile-form" class="auth-form">
+                    <!-- NOTA: IDs alineados con app.js -->
+                    <form id="profile-edit-form" class="auth-form">
 
                         <!-- Fila 1: Username (Lectura) -->
                         <div class="form-group">
-                            <label for="username" class="form-label">Nombre de Usuario</label>
-                            <input type="text" id="username" name="username" class="form-input" readonly
-                                style="background-color: #f3f4f6; cursor: not-allowed;">
+                            <label for="profile-username" class="form-label">Nombre de Usuario</label>
+                            <input type="text" id="profile-username" name="username" class="form-input" readonly
+                                style="background-color: #f3f4f6; cursor: not-allowed;" value="usuario">
                         </div>
 
                         <!-- Fila 2: Nombre y Apellido -->
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="name" class="form-label">Nombre </label>
-                                <input type="text" id="name" name="name" class="form-input" required placeholder="Juan">
+                                <label for="profile-name" class="form-label">Nombre </label>
+                                <input type="text" id="profile-name" name="name" class="form-input" required
+                                    placeholder="Juan">
                             </div>
                             <div class="form-group">
-                                <label for="surname" class="form-label">Apellido</label>
-                                <input type="text" id="surname" name="surname" class="form-input" required
+                                <label for="profile-surname" class="form-label">Apellido</label>
+                                <input type="text" id="profile-surname" name="surname" class="form-input" required
                                     placeholder="Lopez García">
                             </div>
                         </div>
@@ -105,13 +108,13 @@
                         <!-- Fila 3: DNI y Email -->
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="dni" class="form-label">DNI/NIE</label>
-                                <input type="text" id="dni" name="dni" class="form-input" pattern="[0-9]{8}[A-Za-z]"
-                                    placeholder="12345678A">
+                                <label for="profile-dni" class="form-label">DNI/NIE</label>
+                                <input type="text" id="profile-dni" name="dni" class="form-input"
+                                    pattern="[0-9]{8}[A-Za-z]" placeholder="12345678A">
                             </div>
                             <div class="form-group">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" id="email" name="email" class="form-input" required
+                                <label for="profile-email" class="form-label">Email</label>
+                                <input type="email" id="profile-email" name="email" class="form-input" required
                                     placeholder="email@ejemplo.com">
                             </div>
                         </div>
@@ -119,49 +122,54 @@
                         <!-- Fila 4: Teléfono y Fecha de nacimiento -->
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="phone" class="form-label">Teléfono</label>
-                                <input type="tel" id="phone" name="phone" class="form-input" placeholder="666 777 888">
+                                <label for="profile-phone" class="form-label">Teléfono</label>
+                                <input type="tel" id="profile-phone" name="phone" class="form-input"
+                                    placeholder="666 777 888">
                             </div>
                             <div class="form-group">
-                                <label for="dateOfBirth" class="form-label">Fecha de Nacimiento</label>
-                                <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-input">
+                                <label for="profile-dateOfBirth" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" id="profile-dateOfBirth" name="dateOfBirth" class="form-input">
                             </div>
                         </div>
 
                         <!-- Fila 5: Dirección -->
                         <div class="form-group">
-                            <label for="address" class="form-label">Dirección</label>
-                            <input type="text" id="address" name="address" class="form-input"
+                            <label for="profile-address" class="form-label">Dirección</label>
+                            <input type="text" id="profile-address" name="address" class="form-input"
                                 placeholder="Calle Principal 123">
                         </div>
 
                         <!-- Fila 6: Ciudad, Código Postal y Provincia -->
                         <div class="form-row form-row-3">
                             <div class="form-group">
-                                <label for="city" class="form-label">Localidad</label>
-                                <input type="text" id="city" name="city" class="form-input" placeholder="Madrid">
+                                <label for="profile-city" class="form-label">Localidad</label>
+                                <input type="text" id="profile-city" name="city" class="form-input"
+                                    placeholder="Madrid">
                             </div>
                             <div class="form-group">
-                                <label for="postalCode" class="form-label">Código Postal</label>
-                                <input type="text" id="postalCode" name="postalCode" class="form-input"
+                                <label for="profile-postalCode" class="form-label">Código Postal</label>
+                                <input type="text" id="profile-postalCode" name="postalCode" class="form-input"
                                     pattern="[0-9]{5}" placeholder="28001">
                             </div>
                             <div class="form-group">
-                                <label for="province" class="form-label">Provincia</label>
-                                <input type="text" id="province" name="province" class="form-input"
+                                <label for="profile-province" class="form-label">Provincia</label>
+                                <input type="text" id="profile-province" name="province" class="form-input"
                                     placeholder="Madrid">
                             </div>
                         </div>
 
-                        <!-- Mensaje de error/éxito -->
-                        <div id="message" class="message hidden"></div>
+                        <!-- Campo oculto necesario para app.js -->
+                        <input type="hidden" id="profile-relevant-data">
+
+                        <!-- Mensaje de error/éxito (ID alineado con app.js) -->
+                        <div id="save-success-message" class="message hidden"></div>
 
                         <!-- Botones de acción -->
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">
                                 Guardar Cambios
                             </button>
-                            <button type="button" class="btn btn-secondary" id="btn-logout">
+                            <button type="button" class="btn btn-secondary" id="logout-btn">
                                 Cerrar Sesión
                             </button>
                         </div>
@@ -177,118 +185,15 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/config.env.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/utils.js"></script>
-    <script>
-        // Verificar autenticación
-        const currentUser = getCurrentUserFromStorage();
-        if (!currentUser) {
-            window.location.href = 'login.html';
-        }
+    <script src="js/config.env.js?v=3"></script>
+    <script src="js/config.js?v=3"></script>
+    <script src="js/api.js?v=6"></script>
+    <script src="js/auth.js?v=3"></script>
+    <script src="js/utils.js?v=3"></script>
 
-        // Cargar datos del usuario en el formulario
-        function loadUserData() {
-            if (currentUser) {
-                // El nombre de usuario es el campo 'username'
-                document.getElementById('username').value = currentUser.username || '';
-                document.getElementById('email').value = currentUser.email || '';
-                document.getElementById('name').value = currentUser.name || '';
-                document.getElementById('surname').value = currentUser.surname || '';
-                document.getElementById('dni').value = currentUser.dni || '';
-                document.getElementById('phone').value = currentUser.phone || '';
-                document.getElementById('dateOfBirth').value = currentUser.dateOfBirth || '';
-                document.getElementById('address').value = currentUser.address || '';
-                document.getElementById('city').value = currentUser.city || '';
-                document.getElementById('postalCode').value = currentUser.postalCode || '';
-                document.getElementById('province').value = currentUser.province || '';
-
-                // Actualizar sidebar
-                document.getElementById('user-name').textContent = currentUser.username || currentUser.name || '';
-                document.getElementById('user-email').textContent = currentUser.email;
-            }
-        }
-
-        // Cargar datos al iniciar
-        loadUserData();
-
-        // Manejar el formulario de perfil
-        document.getElementById('profile-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const messageDiv = document.getElementById('message');
-
-            // Recoger datos del formulario
-            const updatedData = {
-                email: document.getElementById('email').value,
-                name: document.getElementById('name').value,
-                dni: document.getElementById('dni').value,
-                phone: document.getElementById('phone').value,
-                dateOfBirth: document.getElementById('dateOfBirth').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                postalCode: document.getElementById('postalCode').value,
-                province: document.getElementById('province').value
-            };
-
-            // Actualizar datos del usuario (fusionar con datos existentes)
-            const updatedUser = { ...currentUser, ...updatedData };
-            localStorage.setItem('civis_current_user', JSON.stringify(updatedUser));
-
-            // Mostrar mensaje de éxito
-            messageDiv.classList.remove('hidden', 'message-error', 'message-success');
-            messageDiv.classList.add('message-success');
-            messageDiv.textContent = 'Perfil actualizado correctamente';
-
-            // Actualizar sidebar
-            document.getElementById('user-name').textContent = updatedUser.name || updatedUser.username;
-            document.getElementById('user-email').textContent = updatedUser.email;
-        });
-
-        // Manejar cerrar sesión
-        document.getElementById('btn-logout').addEventListener('click', async function () {
-            // Limpiar datos locales
-            localStorage.removeItem('civis_auth_token');
-            localStorage.removeItem('civis_current_user');
-
-            // Redirigir al login
-            window.location.href = 'login.html';
-        });
-    </script>
-
-    <!-- Verificación de sesión al cargar -->
-    <script>
-      // Verificar que el usuario esté logueado antes de cargar la página
-      document.addEventListener('DOMContentLoaded', async () => {
-        try {
-          // Intentar cargar usuario
-          let currentUser = getCurrentUserFromStorage();
-
-          // Si no hay datos locales y tenemos token, obtener desde API
-          if (!currentUser && hasToken()) {
-            currentUser = await getUserProfile();
-            saveCurrentUser(currentUser);
-          }
-
-          // Si no hay usuario, redirigir a login
-          if (!currentUser) {
-            window.location.href = 'login.html';
-            return;
-          }
-
-          // Mostrar datos del usuario
-          document.getElementById('user-name').textContent = currentUser.name || currentUser.username || 'Usuario';
-          document.getElementById('user-email').textContent = currentUser.email || 'correo@civis.com';
-        } catch (error) {
-          console.error('Error al verificar sesión:', error);
-          removeToken();
-          removeCurrentUser();
-          window.location.href = 'login.html';
-        }
-      });
-    </script>
+    <!-- Lógica principal ahora manejada por app.js -->
+    <script src="js/components.js?v=3"></script>
+    <script src="js/app.js?v=9"></script>
 
 </body>
 

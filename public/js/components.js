@@ -247,17 +247,3 @@ function Modal(title, content) {
     `;
 }
 
-// Exportar componentes (comentado por ahora, descomentar al usar módulos ES6)
-// export {
-//     VideoCard,
-//     DeadlineItem,
-//     CalendarListItem,
-//     FaqCard,
-//     TagBadge,
-//     SuccessMessage,
-//     ErrorMessage,
-//     SkeletonCard,
-//     EmptyState,
-//     UserProfileSidebar,
-//     Modal
-// };

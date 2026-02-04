@@ -1,5 +1,4 @@
-// ===== LÓGICA PRINCIPAL DE LA APLICACIÓN CIVIS (REFACTORIZADA) =====
-// NOTA: Este archivo ya NO contiene datos simulados
+// ===== LÓGICA PRINCIPAL DE LA APLICACIÓN CIVIS =====
 // Todos los datos se obtienen desde la API Laravel
 
 // Variable global para el usuario actual (null si no está logueado)
@@ -109,6 +108,7 @@ function getElements() {
 
         profileForm: document.getElementById('profile-edit-form'),
         profileNameInput: document.getElementById('profile-name'),
+        profileSurnameInput: document.getElementById('profile-surname'),
         profileEmailInput: document.getElementById('profile-email'),
         profileDniInput: document.getElementById('profile-dni'),
         profilePhoneInput: document.getElementById('profile-phone'),
@@ -455,6 +455,7 @@ function showPage(pageId) {
 // Carga los datos del perfil en el formulario
 function loadProfileData() {
     document.getElementById('profile-name').value = currentUser.name || '';
+    document.getElementById('profile-surname').value = currentUser.surname || '';
     document.getElementById('profile-email').value = currentUser.email || '';
     document.getElementById('profile-dni').value = currentUser.dni || '';
     document.getElementById('profile-phone').value = currentUser.phone || '';
@@ -532,6 +533,7 @@ async function handleProfileSubmit(e) {
     // Recoger todos los datos del formulario
     const updates = {
         name: document.getElementById('profile-name').value,
+        surname: document.getElementById('profile-surname').value,
         email: document.getElementById('profile-email').value,
         dni: document.getElementById('profile-dni').value,
         phone: document.getElementById('profile-phone').value,

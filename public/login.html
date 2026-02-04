@@ -71,52 +71,8 @@
   <!-- Scripts -->
   <script src="js/config.env.js?v=2"></script>
   <script src="js/config.js?v=2"></script>
-  <script src="js/utils.js?v=2"></script>
   <script src="js/api.js?v=2"></script>
   <script src="js/auth.js?v=2"></script>
-  <script>
-    // Login handling
-    if (hasToken()) {
-      window.location.href = 'index.html';
-    }
-
-    document.getElementById('login-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-
-      const usernameOrEmail = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      const messageDiv = document.getElementById('message');
-      const submitButton = this.querySelector('button[type="submit"]');
-
-      if (!usernameOrEmail || !password) {
-        messageDiv.classList.remove('hidden', 'message-error', 'message-success');
-        messageDiv.classList.add('message-error');
-        messageDiv.textContent = 'Por favor, completa todos los campos';
-        return;
-      }
-
-      submitButton.disabled = true;
-      const originalText = submitButton.textContent;
-      submitButton.textContent = 'Iniciando sesión...';
-      messageDiv.classList.add('hidden');
-
-      try {
-        await login(usernameOrEmail, password);
-        messageDiv.classList.remove('hidden', 'message-error');
-        messageDiv.classList.add('message-success');
-        messageDiv.textContent = '¡Bienvenido! Redirigiendo...';
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1000);
-      } catch (error) {
-        messageDiv.classList.remove('hidden', 'message-success');
-        messageDiv.classList.add('message-error');
-        messageDiv.textContent = error.message || 'Error al iniciar sesión. Verifica tus credenciales.';
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
-      }
-    });
-  </script>
 </body>
 
 </html>

@@ -75,13 +75,13 @@ function initRegisterPage() {
     const submitButton = registerForm.querySelector('button[type="submit"]');
     const messageContainer = document.getElementById('message');
 
-    // Helper para email (inlinado para evitar dependencias externas críticas)
+    // validar email
     const isValidEmail = (email) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
     };
 
-    // Helper para obtener valor seguro de input
+    // obtener valor seguro de input
     const getVal = (input) => input ? input.value : '';
 
     registerForm.addEventListener('submit', async (e) => {
