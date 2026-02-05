@@ -1,0 +1,76 @@
+erDiagram
+    %% ENTIDADES PRINCIPALES
+
+    users {
+        bigint id PK
+        string username "Unique"
+        string email "Unique"
+        string password "Hashed"
+        string name
+        string surname "Nullable"
+        string dni "Unique, Nullable"
+        string role "Default: 'user'"
+        string phone "Nullable"
+        date dateOfBirth "Nullable"
+        string address "Nullable"
+        string city "Nullable"
+        string postalCode "Nullable"
+        string province "Nullable"
+        text relevantData "Nullable"
+        timestamp email_verified_at "Nullable"
+        string remember_token "Nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    categories {
+        bigint id PK
+        string name
+        string slug "Unique"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    videos {
+        bigint id PK
+        bigint category_id FK
+        string title
+        text description "Nullable"
+        string url
+        integer duration "Nullable"
+        boolean published "Default: true"
+        date process_start_date "Inferred from Model"
+        date process_end_date "Inferred from Model"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    deadlines {
+        bigint id PK
+        bigint category_id FK
+        string title
+        text description "Nullable"
+        date start_date
+        date end_date "Nullable"
+        string source_url "Nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    faqs {
+        bigint id PK
+        string question
+        text answer
+        boolean published "Default: true"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    %% RELACIONES
+
+    categories ||--o{ videos : "tiene (1:N)"
+    categories ||--o{ deadlines : "tiene (1:N)"
+
+    %% NOTAS ADICIONALES
+    %% users no tiene relaciones directas (FK) con otras tablas en el esquema actual.
+    %% faqs es una entidad global independiente.
