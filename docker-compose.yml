@@ -12,6 +12,7 @@ services:
     # Volumen para desarrollo: sincroniza archivos locales automáticamente
     volumes:
       - ./:/var/www/app
+      - vendor_cache:/var/www/app/vendor
       # app_laravel:/var/www/app
       
 
