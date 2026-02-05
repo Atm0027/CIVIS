@@ -126,51 +126,5 @@ class CivisSeeder extends Seeder
                 'published' => true,
             ]);
         }
-
-        // =========================
-        // DEADLINES (5)
-        // =========================
-        Deadline::insert([
-            [
-                'title' => 'Solicitud becas MEC',
-                'description' => 'Plazo para solicitar becas del Ministerio',
-                'start_date' => '2026-03-01',
-                'end_date' => '2026-05-31',
-                'category_id' => $studies->id,
-                'source_url' => 'https://www.educacion.gob.es',
-            ],
-            [
-                'title' => 'Renovación NIE',
-                'description' => 'Renovación de documentos de extranjería',
-                'start_date' => '2026-01-01',
-                'end_date' => '2026-12-31',
-                'category_id' => $citizenship->id,
-                'source_url' => 'https://www.inclusion.gob.es',
-            ],
-            [
-                'title' => 'Inscripción SEPE',
-                'description' => 'Alta como demandante de empleo',
-                'start_date' => '2026-02-01',
-                'end_date' => null,
-                'category_id' => $employment->id,
-                'source_url' => 'https://www.sepe.es',
-            ],
-            [
-                'title' => 'Preinscripción universitaria',
-                'description' => 'Proceso de preinscripción universitaria',
-                'start_date' => '2026-04-01',
-                'end_date' => '2026-06-30',
-                'category_id' => $studies->id,
-                'source_url' => 'https://www.educacion.gob.es',
-            ],
-            [
-                'title' => 'Cursos de formación',
-                'description' => 'Plazo para cursos de formación gratuitos',
-                'start_date' => '2026-01-15',
-                'end_date' => '2026-03-15',
-                'category_id' => $employment->id,
-                'source_url' => 'https://www.sepe.es',
-            ],
-        ]);
     }
 }
