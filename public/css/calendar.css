@@ -58,6 +58,34 @@
 }
 
 /* Grid del Calendario */
+
+/* Search Inputs */
+.calendar-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.calendar-select,
+.calendar-input {
+    padding: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: transparent;
+    color: var(--color-text);
+    font-size: 0.9rem;
+}
+
+.calendar-input {
+    width: 80px;
+}
+
+.nav-divider {
+    color: var(--color-border);
+    font-size: 1.2rem;
+    margin: 0 0.5rem;
+}
+
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);

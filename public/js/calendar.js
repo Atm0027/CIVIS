@@ -55,6 +55,21 @@ function setupEventListeners() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeModal();
     });
+
+    // Date Search
+    const searchBtn = document.getElementById('search-date-btn');
+    if (searchBtn) {
+        searchBtn.onclick = () => {
+            const month = parseInt(document.getElementById('search-month').value);
+            const year = parseInt(document.getElementById('search-year').value);
+
+            if (!isNaN(month) && !isNaN(year)) {
+                calendarState.currentDate.setMonth(month);
+                calendarState.currentDate.setFullYear(year);
+                renderCalendar();
+            }
+        };
+    }
 }
 
 function changeMonth(offset) {
@@ -70,6 +85,13 @@ function goToToday() {
 function renderCalendar() {
     const year = calendarState.currentDate.getFullYear();
     const month = calendarState.currentDate.getMonth();
+
+    // Sincronizar inputs de búsqueda
+    const monthSelect = document.getElementById('search-month');
+    const yearInput = document.getElementById('search-year');
+
+    if (monthSelect) monthSelect.value = month;
+    if (yearInput) yearInput.value = year;
 
     // Actualizar Header
     const monthNames = [

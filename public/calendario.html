@@ -84,6 +84,26 @@
                     <div class="calendar-header">
                         <h2 id="calendar-month-year" class="calendar-current-date">Cargando...</h2>
                         <div class="calendar-nav">
+                            <div class="calendar-search">
+                                <select id="search-month" class="calendar-select">
+                                    <option value="0">Enero</option>
+                                    <option value="1">Febrero</option>
+                                    <option value="2">Marzo</option>
+                                    <option value="3">Abril</option>
+                                    <option value="4">Mayo</option>
+                                    <option value="5">Junio</option>
+                                    <option value="6">Julio</option>
+                                    <option value="7">Agosto</option>
+                                    <option value="8">Septiembre</option>
+                                    <option value="9">Octubre</option>
+                                    <option value="10">Noviembre</option>
+                                    <option value="11">Diciembre</option>
+                                </select>
+                                <input type="number" id="search-year" class="calendar-input" min="2000" max="2100"
+                                    placeholder="Año">
+                                <button id="search-date-btn" class="btn-calendar-nav">Ir</button>
+                            </div>
+                            <span class="nav-divider">|</span>
                             <button id="prev-month" class="btn-calendar-nav" aria-label="Mes anterior">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
