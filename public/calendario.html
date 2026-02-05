@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Civis · Calendario</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/calendar.css">
 </head>
 
 <body>
@@ -79,7 +80,28 @@
 
                 <!-- Área del calendario -->
                 <div class="calendar-container">
-                    <div class="calendar-wrapper">
+
+                    <div class="calendar-header">
+                        <h2 id="calendar-month-year" class="calendar-current-date">Cargando...</h2>
+                        <div class="calendar-nav">
+                            <button id="prev-month" class="btn-calendar-nav" aria-label="Mes anterior">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                            </button>
+                            <button id="today-btn" class="btn-calendar-nav">Hoy</button>
+                            <button id="next-month" class="btn-calendar-nav" aria-label="Mes siguiente">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="calendar-grid" class="calendar-grid">
+                        <!-- JS inyectará los días aquí -->
                     </div>
                 </div>
 
@@ -87,6 +109,19 @@
 
         </main>
 
+    </div>
+
+    <!-- MODAL DE DETALLE -->
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-date" class="modal-title">Fecha</h3>
+                <button class="close-modal-btn">&times;</button>
+            </div>
+            <ul id="modal-tasks" class="modal-task-list">
+                <!-- Se llena dinámicamente -->
+            </ul>
+        </div>
     </div>
 
     <!-- SCRIPTS -->
@@ -126,6 +161,7 @@
     </script>
     <script src="js/components.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/calendar.js"></script>
 
 </body>
 

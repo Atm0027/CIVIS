@@ -10,9 +10,32 @@ class DeadlineController extends Controller
 {
     public function index()
     {
-        return response()->json(
-            Deadline::query()->orderBy('id', 'asc')->get()
-        );
+        $deadlines = Deadline::query()->orderBy('start_date', 'asc')->get();
+        $videos = \App\Models\Video::whereNotNull('process_start_date')->get();
+
+        $events = collect();
+
+        foreach ($deadlines as $deadline) {
+            $events->push([
+                'id' => $deadline->id,
+                'title' => $deadline->title,
+                'date' => $deadline->start_date,
+                'end_date' => $deadline->end_date,
+                'type' => 'deadline'
+            ]);
+        }
+
+        foreach ($videos as $video) {
+            $events->push([
+                'id' => $video->id,
+                'title' => $video->title,
+                'date' => $video->process_start_date,
+                'end_date' => $video->process_end_date,
+                'type' => 'video'
+            ]);
+        }
+
+        return response()->json($events->sortBy('date')->values());
     }
 
     public function upcoming(Request $request)

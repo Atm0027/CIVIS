@@ -41,6 +41,8 @@ class VideoController extends Controller
             'url' => ['required', 'url'],
             'category_id' => ['required', 'exists:categories,id'],
             'duration' => ['nullable', 'integer', 'min:0'],
+            'process_start_date' => ['nullable', 'date'],
+            'process_end_date' => ['nullable', 'date', 'after_or_equal:process_start_date'],
         ]);
 
         $video = Video::create($data);
@@ -58,6 +60,8 @@ class VideoController extends Controller
             'url' => ['required', 'url'],
             'category_id' => ['required', 'exists:categories,id'],
             'duration' => ['nullable', 'integer', 'min:0'],
+            'process_start_date' => ['nullable', 'date'],
+            'process_end_date' => ['nullable', 'date', 'after_or_equal:process_start_date'],
         ]);
 
         $video->update($data);

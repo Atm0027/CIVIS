@@ -161,6 +161,8 @@ async function enableEditMode(id) {
         document.getElementById('titulo').value = video.title || '';
         document.getElementById('url_video').value = video.url || '';
         document.getElementById('descripcion').value = video.description || '';
+        document.getElementById('process_start_date').value = video.process_start_date || '';
+        document.getElementById('process_end_date').value = video.process_end_date || '';
 
         // Esperar un momento para asegurar que las categorías cargaron
         const catSelect = document.getElementById('category_id');
@@ -334,6 +336,9 @@ async function handleUploadSubmit(e, videoId = null) {
         url: url,
         description: description,
         category_id: categoryId,
+        categoryId: categoryId,
+        process_start_date: document.getElementById('process_start_date').value || null,
+        process_end_date: document.getElementById('process_end_date').value || null,
         // duration: null, // Opcional
     };
 
