@@ -1,0 +1,116 @@
+openapi: 3.0.0
+info:
+  title: API CIVIS
+  description: API para la gestión de trámites burocráticos y videos tutoriales.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api
+    description: Servidor de Desarrollo
+paths:
+  /auth/login:
+    post:
+      summary: Iniciar sesión
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  example: admin@civis.local
+                password:
+                  type: string
+                  example: admin1234
+      responses:
+        "200":
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: "#/components/schemas/User"
+  /videos:
+    get:
+      summary: Listar videos
+      tags: [Videos]
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+        - in: query
+          name: q
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lista paginada de videos
+    post:
+      summary: Crear video (Admin)
+      tags: [Videos]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoInput"
+      responses:
+        "201":
+          description: Video creado
+  /deadlines:
+    get:
+      summary: Listar plazos
+      tags: [Deadlines]
+      responses:
+        "200":
+          description: Lista de plazos
+  /calendar:
+    get:
+      summary: Obtener eventos del calendario
+      description: Devuelve una lista unificada de Plazos y Videos con fechas.
+      tags: [Calendar]
+      responses:
+        "200":
+          description: Lista de eventos
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+    VideoInput:
+      type: object
+      required: [title, url, category_id]
+      properties:
+        title:
+          type: string
+        url:
+          type: string
+        category_id:
+          type: integer
+        process_start_date:
+          type: string
+          format: date
+        process_end_date:
+          type: string
+          format: date
