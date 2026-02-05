@@ -2,6 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Verificar Autenticación
+    // 1. Verificar Autenticación (Opcional)
     let currentUser = null;
     try {
         currentUser = getCurrentUserFromStorage();
@@ -9,10 +10,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentUser = await getUserProfile();
             saveCurrentUser(currentUser);
         }
-        if (!currentUser) {
-            window.location.href = 'login.html';
-            return;
-        }
+    } catch (error) {
+        console.error('Session error:', error);
+        removeToken();
+        // No redirigir, permitir modo invitado
+        currentUser = null;
+    }
+
+    if (currentUser) {
         // Fill basic user info
         const userNameEl = document.getElementById('user-name');
         const userEmailEl = document.getElementById('user-email');
@@ -27,11 +32,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Edit button handler will be set after getting videoId
         }
-    } catch (error) {
-        console.error('Session error:', error);
-        removeToken();
-        window.location.href = 'login.html';
-        return;
+    } else {
+        // MODO INVITADO: Mostrar botones de Login/Registro en sidebar
+        const userProfileSidebar = document.getElementById('user-profile-sidebar');
+        if (userProfileSidebar) {
+            userProfileSidebar.innerHTML = `
+                <p class="user-name" style="font-size: 1rem; margin-bottom: 1rem;">Bienvenido</p>
+                <a href="login.html" class="btn-edit-profile" style="display: block; text-align: center; margin-bottom: 0.5rem; text-decoration: none;">
+                    Iniciar Sesión
+                </a>
+                <a href="register.html" class="btn-edit-profile" style="display: block; text-align: center; background: transparent; border: 1px solid var(--color-primary); text-decoration: none;">
+                    Registrarse
+                </a>
+            `;
+        }
+
+        // Ocultar sección de plazos si es invitado
+        const deadlinesEl = document.getElementById('deadlines-list');
+        if (deadlinesEl) deadlinesEl.innerHTML = '<p class="text-sm text-slate-400">Inicia sesión para ver tus plazos.</p>';
     }
 
     // 2. Obtener ID del video de la URL
