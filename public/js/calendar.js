@@ -9,15 +9,8 @@ const calendarState = {
 
 async function loadCalendarEvents() {
     try {
-        const response = await fetchAPI(CONFIG.api.endpoints.deadline || '/calendar'); // Fallback or defined endpoint
-        // Como el endpoint en api.php es /calendar -> DeadlineController@index
-        // Pero en config.js podría no estar definido 'calendar', así que usamos hardcoded relative si es necesario o añadimos a config.
-        // Asumiendo que CONFIG.api.base_url está configurado, podemos hacer:
-
-        // Mejor opción: usar el endpoint '/calendar' relativo a la API.
-        // Si fetchAPI concatena BASE_URL, entonces pasamos '/calendar'
-
-        const events = await fetchAPI('/calendar');
+        // Usar el endpoint configurado
+        const events = await fetchAPI(CONFIG.api.endpoints.calendar);
         calendarState.events = events;
         renderCalendar();
     } catch (error) {
@@ -161,7 +154,12 @@ function createDayElement(dayNumber, isOtherMonth, isToday = false, dateStr = nu
     // Eventos y Click Handler (Solo para días del mes actual)
     if (!isOtherMonth && dateStr) {
         // Buscar eventos para este día (inicio o fin)
-        const dayEvents = calendarState.events.filter(e => e.date === dateStr || e.end_date === dateStr);
+        // La API puede devolver fechas con hora (YYYY-MM-DD HH:mm:ss), así que normalizamos a YYYY-MM-DD
+        const dayEvents = calendarState.events.filter(e => {
+            const eDate = e.date ? e.date.split(' ')[0].split('T')[0] : null;
+            const eEndDate = e.end_date ? e.end_date.split(' ')[0].split('T')[0] : null;
+            return eDate === dateStr || eEndDate === dateStr;
+        });
 
         if (dayEvents.length > 0) {
             const dotsContainer = document.createElement('div');
@@ -171,8 +169,13 @@ function createDayElement(dayNumber, isOtherMonth, isToday = false, dateStr = nu
                 const dot = document.createElement('div');
                 // Determinar tipo de punto
                 let dotClass = 'event-dot';
-                if (event.date === dateStr) dotClass += ' start-date'; // Verde/Default
-                if (event.end_date === dateStr) dotClass += ' end-date'; // Rojo/Diferente
+
+                // Normalizar fechas para comparación visual
+                const eDate = event.date ? event.date.split(' ')[0].split('T')[0] : null;
+                const eEndDate = event.end_date ? event.end_date.split(' ')[0].split('T')[0] : null;
+
+                if (eDate === dateStr) dotClass += ' start-date'; // Verde/Default
+                if (eEndDate === dateStr) dotClass += ' end-date'; // Rojo/Diferente
 
                 if (event.type === 'urgent') dotClass += ' urgent';
 
@@ -210,15 +213,19 @@ function openModal(dateStr, events) {
             const li = document.createElement('li');
             li.className = `modal-task-item ${event.type === 'urgent' ? 'urgent' : ''}`;
 
+            // Normalizar fechas del evento para comparación
+            const eDate = event.date ? event.date.split(' ')[0].split('T')[0] : null;
+            const eEndDate = event.end_date ? event.end_date.split(' ')[0].split('T')[0] : null;
+
             let timeText = '';
-            if (event.date === dateStr && event.end_date === dateStr) {
+            if (eDate === dateStr && eEndDate === dateStr) {
                 timeText = 'Inicio y Fin del trámite';
-            } else if (event.date === dateStr) {
+            } else if (eDate === dateStr) {
                 timeText = 'Inicio de trámite';
-                if (event.end_date) timeText += ` (Finaliza: ${event.end_date})`;
-            } else if (event.end_date === dateStr) {
+                if (eEndDate) timeText += ` (Finaliza: ${event.end_date.split(' ')[0]})`;
+            } else if (eEndDate === dateStr) {
                 timeText = 'Fin de trámite';
-                if (event.date) timeText += ` (Inició: ${event.date})`;
+                if (eDate) timeText += ` (Inició: ${event.date.split(' ')[0]})`;
             }
 
             li.innerHTML = `
