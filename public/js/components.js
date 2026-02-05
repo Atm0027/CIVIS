@@ -104,9 +104,10 @@ function DeadlineItem(deadline) {
  * @returns {string} - HTML del item
  */
 function CalendarListItem(item) {
-    const itemDate = new Date(item.start_date);
+    // Use 'date' field from API (DeadlineController@index returns 'date', not 'start_date')
+    const itemDate = new Date(item.date);
     const formattedDate = itemDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-    const isPast = new Date(item.start_date) < new Date();
+    const isPast = new Date(item.date) < new Date();
 
     return `
         <li class="py-4 flex justify-between items-center">
