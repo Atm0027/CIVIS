@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Inicializar la aplicación
     initializeApp();
+
+    // Escuchar evento de videos eliminados para recargar la lista
+    document.addEventListener('videosDeleted', () => {
+        loadVideoFeed();
+    });
 });
 
 // ===== CARGAR USUARIO ACTUAL =====
@@ -454,6 +459,7 @@ function showPage(pageId) {
 
 // Carga los datos del perfil en el formulario
 function loadProfileData() {
+    document.getElementById('profile-username').value = currentUser.username || '';
     document.getElementById('profile-name').value = currentUser.name || '';
     document.getElementById('profile-surname').value = currentUser.surname || '';
     document.getElementById('profile-email').value = currentUser.email || '';

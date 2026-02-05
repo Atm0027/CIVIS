@@ -36,7 +36,22 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => ['id' => $user->id, 'username' => $user->username, 'name' => $user->name, 'surname' => $user->surname, 'dni' => $user->dni, 'email' => $user->email, 'role' => $user->role],
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'name' => $user->name,
+                'surname' => $user->surname,
+                'dni' => $user->dni,
+                'email' => $user->email,
+                'role' => $user->role,
+                'phone' => $user->phone,
+                'dateOfBirth' => $user->dateOfBirth,
+                'address' => $user->address,
+                'city' => $user->city,
+                'postalCode' => $user->postalCode,
+                'province' => $user->province,
+                'relevantData' => $user->relevantData,
+            ],
         ]);
     }
 
@@ -100,6 +115,7 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'dni' => ['nullable', 'string', 'max:20', 'unique:users,dni,' . $user->id],
             'phone' => ['nullable', 'string', 'max:20'],
             'dateOfBirth' => ['nullable', 'date'],
