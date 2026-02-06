@@ -1,11 +1,31 @@
-# Hito 1: Documentación Técnica - Grupo CIVIS
+# Hito 1: Documentación Técnica - Proyecto CIVIS
 
-## 1. Diagrama de Arquitectura Real
+**Autores:**
+*   Máximo Casado Giner
+*   Alejandro Torrez Muñoz
+*   Ramón Manzano Alonso
+*   Zhou Zhihui
+
+## 1. Introducción
+
+Este documento recoge la documentación técnica correspondiente al Hito 1 (Versión Beta – MVP) del proyecto CIVIS, desarrollado en el marco del Proyecto Intermodular del ciclo formativo de Desarrollo de Aplicaciones Web (DAW).
+
+El objetivo de esta entrega es validar la viabilidad técnica del sistema, demostrando la correcta integración entre Frontend, Backend y Base de Datos, así como el funcionamiento del flujo principal de la aplicación.
+
+En las siguientes secciones se detalla la arquitectura implementada, el modelo de datos definitivo, la documentación de la API y un informe de los principales problemas técnicos encontrados durante el desarrollo, junto con las soluciones aplicadas.
+
+**Acceso al Repositorio:** [https://github.com/Atm0027/CIVIS](https://github.com/Atm0027/CIVIS)
+
+---
+
+## 2. Diagrama de Arquitectura Real
 
 **Stack Tecnológico:**
 
 | Capa | Tecnología | Descripción |
 |------|------------|-------------|
+| **Frontend Host** | Cloudflare Pages | Alojamiento de la SPA estática. |
+| **Backend Host** | Railway | Despliegue de la API y Base de Datos. |
 | **Backend** | Laravel 12 (PHP 8.4) | API RESTful y lógica de negocio. |
 | **Frontend** | HTML5 + CSS3 + JS Vanilla | Interfaz de usuario ligera y responsiva. |
 | **Base de Datos** | PostgreSQL 15 (Alpine) | Persistencia de datos relacional. |
@@ -18,16 +38,20 @@
 
 ```mermaid
 graph TD
-    User((Usuario)) -- "HTTP :80 / HTTPS :443" --> Nginx["Nginx (Reverse Proxy)"]
-    Nginx -- "FastCGI :9000" --> PHP["PHP-FPM<br/>(Container: civis-app)"]
-    PHP -- "SQL :5432" --> DB[(PostgreSQL)]
-    PHP -- "HTTP Response (JSON)" --> Nginx
-    Nginx -- "HTTP Response (JSON)" --> User
+    User((Usuario)) -- "HTTPS / Browser" --> CF["Cloudflare Pages<br/>(Frontend SPA)"]
+    User -- "API Requests (JSON)<br/>HTTPS" --> Railway["Railway App<br/>(Backend)"]
+    
+    subgraph Railway Infrastructure
+        Railway --> Nginx["Nginx (Reverse Proxy)"]
+        Nginx -- "FastCGI :9000" --> PHP["PHP-FPM<br/>(Container: civis-app)"]
+        PHP -- "SQL :5432" --> DB[(PostgreSQL)]
+    end
 ```
 
 
 
-## 2. Modelo de Datos Definitivo (Diagrama E-R)
+
+## 3. Modelo de Datos Definitivo (Diagrama E-R)
 
 A continuación se muestra el esquema fiel a la base de datos implementada (incluyendo relaciones y campos actuales):
 
@@ -111,7 +135,7 @@ erDiagram
 
 ---
 
-## 3. Documentación de la API
+## 4. Documentación de la API
 
 Listado de endpoints verificados y funcionales.
 
@@ -204,6 +228,47 @@ paths:
       responses:
         '200':
           description: Lista de eventos
+  /uploads:
+    get:
+      summary: Listar archivos (Usuario)
+      tags: [Uploads]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de archivos
+    post:
+      summary: Subir archivo (Admin)
+      tags: [Uploads]
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Archivo creado
+  /uploads/{id}:
+    delete:
+      summary: Eliminar archivo (Admin)
+      tags: [Uploads]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Archivo eliminado
 components:
   securitySchemes:
     bearerAuth:
@@ -264,6 +329,7 @@ components:
 | `POST` | `/api/auth/logout` | Cierra sesión (invalida token). |
 | `GET` | `/api/auth/user/profile` | (Alias) Obtiene perfil de usuario. |
 | `PUT` | `/api/auth/user/profile` | Actualiza datos del perfil. |
+| `GET` | `/api/uploads` | Lista archivos subidos por el usuario. |
 
 ### Endpoints de Administración (Requiere Token Admin)
 
@@ -274,6 +340,8 @@ components:
 | `DELETE` | `/api/videos/{id}` | Eliminar un video. |
 | `DELETE` | `/api/videos/bulk` | Eliminación masiva de videos. |
 | `POST` | `/api/categories` | Crear una nueva categoría. |
+| `POST` | `/api/uploads` | Subir un nuevo archivo. |
+| `DELETE` | `/api/uploads/{id}` | Eliminar un archivo. |
 
 ### Ejemplo de Uso (Creación de Recurso)
 
@@ -293,7 +361,9 @@ components:
 
 ---
 
-## 4. Informe de Problemas
+## 5. Informe de Problemas
+
+### 5.1. Obstáculos en el Desarrollo e Infraestructura Inicial
 
 **Obstáculo Técnico Principal:** Integración Polimórfica en Calendario
 
@@ -348,3 +418,28 @@ Durante los últimos días críticos de la entrega del Hito 1, el equipo enfrent
 
 **Solución Aplicada:**
 1.  **Migración a Cloudflare:** Ante la imposibilidad de operar el entorno local afectado, se tomó la decisión de emergencia de "subir" y desplegar la infraestructura a través de Cloudflare. Esto permitió desacoplar la disponibilidad del proyecto de la situación física del técnico, restableciendo el servicio y asegurando la entrega a tiempo bajo una nueva arquitectura en la nube.
+
+---
+
+### 5.2. Desafíos Técnicos del Despliegue en Producción (Cloudflare & Railway)
+
+Tras la migración de emergencia, el equipo tuvo que enfrentarse a una serie de errores críticos de infraestructura derivados de la separación de entornos (Frontend en Cloudflare y Backend en Railway).
+
+*   **Error 502 Bad Gateway (Comunicación Nginx / PHP-FPM):**
+    *   **Problema:** El servidor Nginx no lograba conectar con el backend PHP debido a fallos de resolución en la red interna del contenedor (TCP/IP).
+    *   **Solución:** Se sustituyó la conexión por red por Sockets de Dominio Unix (`/var/run/php/php-fpm.sock`). Se inyectó un script de diagnóstico ("El Chivato") para detectar fallos de permisos y se forzó la propiedad del socket al usuario `www-data` en el Dockerfile para garantizar la comunicación.
+
+*   **Fallo de Resolución DNS en Base de Datos:**
+    *   **Problema:** El backend no lograba localizar el host interno de PostgreSQL en Railway, devolviendo errores de traducción de nombre.
+    *   **Solución:** Se configuró una Conexión Pública mediante TCP Proxy, ajustando el host y el puerto externo específico proporcionado por el proveedor para asegurar la persistencia de datos.
+
+*   **Gestión Dinámica de Variables de Entorno (Error 405):**
+    *   **Problema:** El Frontend en Cloudflare no detectaba la URL de la API, intentando realizar peticiones a rutas locales inexistentes.
+    *   **Solución:** Se modificó el flujo de construcción (build command) para generar dinámicamente el archivo `config.env.js` en cada despliegue, inyectando la `API_BASE_URL` directamente en el navegador.
+
+*   **Sincronización de Puertos y Errores de CORS:**
+    *   **Problema:** Railway esperaba tráfico en el puerto 8000, pero el contenedor estaba configurado internamente para el 9000, lo que provocaba bloqueos de seguridad y caídas del servicio.
+    *   **Solución:** Se forzó a Laravel a escuchar en el puerto esperado mediante el comando `php artisan serve --host=0.0.0.0 --port=8000`, sincronizando el flujo de red y eliminando los bloqueos de CORS.
+
+**Estado Final:**
+Con estas intervenciones de ingeniería de sistemas, la plataforma CIVIS se encuentra 100% operativa, con el Frontend conectado exitosamente a la API y la base de datos migrada y estable.
