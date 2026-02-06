@@ -18,9 +18,14 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => array_filter(
-        array_map(
-            'trim',
-            explode(',', env('CORS_ALLOWED_ORIGINS', env('APP_URL', 'http://localhost')))
+        array_unique(
+            array_merge(
+                ['https://civis.pages.dev', 'http://localhost', 'http://localhost:8000'],
+                array_map(
+                    'trim',
+                    explode(',', env('CORS_ALLOWED_ORIGINS', ''))
+                )
+            )
         )
     ),
 
