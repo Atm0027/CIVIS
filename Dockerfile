@@ -28,7 +28,7 @@ COPY . .
 # En lugar de usar 'sed', creamos una configuración con prioridad ZZ (la más alta)
 # Esto obliga a PHP a escuchar en 127.0.0.1:9000 sin importar lo que diga el resto.
 RUN echo "[www]" > /usr/local/etc/php-fpm.d/zz-zz-force-listen.conf && \
-    echo "listen = 127.0.0.1:9000" >> /usr/local/etc/php-fpm.d/zz-zz-force-listen.conf && \
+    echo "listen = /var/run/php/php-fpm.sock" >> /usr/local/etc/php-fpm.d/zz-zz-force-listen.conf && \
     echo "listen.mode = 0666" >> /usr/local/etc/php-fpm.d/zz-zz-force-listen.conf
 # --- FIN DEL CAMBIO ---
 
