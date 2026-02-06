@@ -1,24 +1,32 @@
 # Imagen base
 FROM php:8.4-fpm
 
-# Instalar extensiones necesarias
+# Instalar extensiones necesarias y servidor web
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     unzip \
     git \
-    && docker-php-ext-install pdo pdo_pgsql
+    nginx \
+    supervisor \
+    gettext-base \
+    && docker-php-ext-install pdo pdo_pgsql \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Instalar Composer (sin dependencias del host)
+# Instalar Composer
 COPY --from=composer:2.9.4 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/app
 
-# Copiar y instalar dependencias PHP (caching optimizado)
+# Copiar y instalar dependencias PHP
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Copiar TODO el proyecto (incluye /public con frontend)
+# Copiar archivos del proyecto
 COPY . .
+
+# Copiar configuraciones de deploy
+COPY deploy/nginx/conf.d/civis.conf /etc/nginx/conf.d/default.conf.template
+COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Limpiar archivos innecesarios
 RUN rm -rf node_modules package.json package-lock.json
@@ -26,8 +34,9 @@ RUN rm -rf node_modules package.json package-lock.json
 # Hacer ejecutable el script de inicio
 RUN chmod +x start.sh
 
-# Puerto por defecto de Railway
+# Crear directorios de logs si no existen
+RUN mkdir -p /var/log/supervisor /var/log/nginx
+
 EXPOSE 8080
 
-# Usar start.sh como comando de inicio
 CMD ["bash", "start.sh"]

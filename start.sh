@@ -1,28 +1,37 @@
 #!/bin/bash
 set -e
 
-echo "[CIVIS] Iniciando aplicación..."
+echo "[CIVIS] 🚀 Iniciando script de arranque..."
 
-# Ejecutar migraciones
+# 1. Configurar Nginx con el puerto dinámico de Railway
+echo "[CIVIS] Configurando puerto Nginx: ${PORT:-8080}..."
+export PORT=${PORT:-8080}
+envsubst '${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+
+# 2. Ejecutar tareas deLaravel
 echo "[CIVIS] Ejecutando migraciones..."
 php artisan migrate --force --no-interaction
 
-# Ejecutar seeders
-echo "[CIVIS] Ejecutando seeders..."
+echo "[CIVIS] Verificando seeders..."
 if php artisan db:seed --force --no-interaction; then
-    echo "[CIVIS] ✅ Seeders ejecutados correctamente"
+    echo "[CIVIS] ✅ Seeders ejecutados"
 else
-    echo "[CIVIS] ⚠️ Seeders ya ejecutados o hubo un error"
+    echo "[CIVIS] ⚠️ Seeders ya ejecutados o error controlado"
 fi
 
-# Limpiar caché
+echo "[CIVIS] Limpiando caché..."
 php artisan config:clear 2>/dev/null || true
 php artisan cache:clear 2>/dev/null || true
+php artisan route:cache 2>/dev/null || true
+php artisan view:clear 2>/dev/null || true
 
-# Crear enlace de storage
+echo "[CIVIS] Enlazando storage..."
 php artisan storage:link --no-interaction 2>/dev/null || true
 
-echo "[CIVIS] ✅ Iniciando servidor en puerto ${PORT:-8000}..."
+echo "[CIVIS] Corrigiendo permisos..."
+chown -R www-data:www-data /var/www/app/storage /var/www/app/bootstrap/cache
+chmod -R 775 /var/www/app/storage /var/www/app/bootstrap/cache
 
-# Iniciar servidor Laravel
-exec php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+# 3. Iniciar Supervisor (gestiona Nginx y PHP-FPM)
+echo "[CIVIS] ✅ Iniciando Supervisor (Nginx + PHP-FPM)..."
+exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
