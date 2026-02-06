@@ -17,17 +17,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_filter(
-        array_unique(
-            array_merge(
-                ['https://civis.pages.dev', 'http://localhost', 'http://localhost:8000'],
-                array_map(
-                    'trim',
-                    explode(',', env('CORS_ALLOWED_ORIGINS', ''))
-                )
-            )
-        )
-    ),
+    'allowed_origins' => [
+        'https://civis.pages.dev',
+        'http://localhost',
+        'http://localhost:8000',
+        ...explode(',', env('CORS_ALLOWED_ORIGINS', ''))
+    ],
 
     'allowed_origins_patterns' => [],
 
