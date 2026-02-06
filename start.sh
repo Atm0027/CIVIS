@@ -19,6 +19,12 @@ mkdir -p /var/www/app/storage/framework/sessions
 mkdir -p /var/www/app/storage/framework/views
 mkdir -p /var/www/app/resources/views
 
+if [ -z "$DATABASE_URL" ] && [ -z "$DB_URL" ]; then
+    echo "[CIVIS] ⚠️ WARNING: No se detectó DATABASE_URL ni DB_URL. La conexión podría fallar."
+else
+    echo "[CIVIS] ✅ Base de datos configurada (DATABASE_URL detectada)"
+fi
+
 echo "[CIVIS] Ejecutando migraciones..."
 php artisan migrate --force --no-interaction || echo "[CIVIS] ⚠️ Error en migraciones"
 
