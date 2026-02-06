@@ -15,6 +15,9 @@
 
 **Esquema de Comunicación:**
 
+
+
+```mermaid
 graph TD
     User((Usuario))
         -- "HTTP :80 / HTTPS :443" -->
@@ -35,6 +38,7 @@ graph TD
     Nginx
         -- "HTTP Response (JSON)" -->
     User
+
 
 
 ## 2. Modelo de Datos Definitivo (Diagrama E-R)
