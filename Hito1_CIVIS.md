@@ -15,16 +15,27 @@
 
 **Esquema de Comunicación:**
 
-```mermaid
 graph TD
-    User((Usuario)) -- HTTP/HTTPS (Port 80) --> Nginx[Nginx Proxy]
-    Nginx -- Proxy Pass --> PHP[PHP-FPM (Container: civis-app)]
-    PHP -- SQL (Port 5432) --> DB[(PostgreSQL)]
-    PHP -- JSON Response --> Nginx
-    Nginx -- JSON Response --> User
-```
+    User((Usuario))
+        -- "HTTP :80 / HTTPS :443" -->
+    Nginx["Nginx (Reverse Proxy)"]
 
----
+    Nginx
+        -- "FastCGI :9000" -->
+    PHP["PHP-FPM<br/>(Container: civis-app)"]
+
+    PHP
+        -- "SQL :5432" -->
+    DB[(PostgreSQL)]
+
+    PHP
+        -- "HTTP Response (JSON)" -->
+    Nginx
+
+    Nginx
+        -- "HTTP Response (JSON)" -->
+    User
+
 
 ## 2. Modelo de Datos Definitivo (Diagrama E-R)
 
