@@ -38,8 +38,6 @@ COPY deploy/php-fpm/zz-civis.conf /usr/local/etc/php-fpm.d/zz-civis.conf
 RUN rm -rf /etc/nginx/sites-enabled/* /etc/nginx/sites-available/* \
     /etc/nginx/conf.d/default.conf
 
-# Forzar a PHP a escuchar en el puerto 9000 (TCP) para evitar Error 502
-RUN sed -i 's/listen = .*/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/*.conf || true
 
 # Limpiar archivos innecesarios
 RUN rm -rf node_modules package.json package-lock.json
