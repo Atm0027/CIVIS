@@ -303,3 +303,47 @@ El sistema gestionaba dos tipos de eventos temporales desconectados: "Plazos Adm
 1.  **Refactorización del Modelo (`Model Refactor`):** Se alteró la tabla `videos` (migración `2026_02_05`) para incluir `process_start_date` y `process_end_date`.
 2.  **Unificación de API:** Se implementó lógica en el Backend para que los endpoints del calendario inyecten y normalicen ambos tipos de datos en una estructura JSON común.
 3.  **Visualización Unificada:** El Frontend ahora consume esta fuente unificada y renderiza ambos tipos de eventos con distintivos visuales (colores diferentes para Plazos vs. Trámites), resolviendo la fragmentación de la información.
+
+---
+
+**Obstáculo Técnico:** Control de Acceso y Segregación de Roles
+
+**Descripción del Problema:**
+El sistema carecía de una distinción efectiva entre tipos de usuarios, permitiendo potencialmente que cualquier usuario autenticado accediera a funcionalidades críticas (como la creación de videos o gestión de categorías) si conocía las rutas de la API. La falta de segregación de roles al inicio del desarrollo impedía crear interfaces personalizadas y seguras para los administradores.
+
+**Solución Aplicada:**
+1.  **Migración de Esquema (Schema Migration):** Se añadió el campo `role` a la tabla `users` (migración `2026_01_15_125051`) para establecer permisos explícitos (`user` vs `admin`).
+2.  **Protección Middleware (Middleware Security):** Se desarrolló el middleware `IsAdmin` para interceptar y validar peticiones a rutas sensibles, rechazando accesos no autorizados con un código 403.
+3.  **Seguridad por Rutas:** Se agruparon los endpoints administrativos (POST/PUT/DELETE en videos y categorías) bajo el middleware `auth:sanctum` y `admin` en `routes/api.php`.
+
+---
+
+**Obstáculo Técnico:** Inconsistencia en Despliegue Docker (Volúmenes Huérfanos)
+
+**Descripción del Problema:**
+Durante el desarrollo, se detectó que los cambios en el código (específicamente en la carga de vistas de videos) no se reflejaban en el navegador, o arrojaban errores inesperados de "archivo no encontrado". Este comportamiento peculiar fue identificado y diagnosticado gracias a las alertas persistentes en el navegador de un miembro del equipo (Zhou), lo que fue clave para aislar el problema. La causa raíz fue la colisión entre el volumen de código actual montado en caliente (bind mount) y volúmenes anónimos antiguos ("huérfanos") que Docker mantenía de ejecuciones previas, los cuales servían una versión obsoleta de la estructura de carpetas `storage` o `public`.
+
+**Solución Aplicada:**
+1.  **Limpieza de Entorno:** Se ejecutó una purga completa de los recursos del stack con `docker-compose down --volumes --remove-orphans`. Esto eliminó explícitamente cualquier volumen persistente no declarado que pudiera estar interfiriendo.
+2.  **Reinicio Limpio:** Se levantaron los servicios forzando la recreación de contenedores (`docker-compose up -d --build --force-recreate`), asegurando que el mapeo `./:/var/www/app` fuera la única fuente de verdad para el código aplicación.
+
+---
+
+**Obstáculo Técnico:** Desalineación de Identificadores en Fusión Front/Back
+
+**Descripción del Problema:**
+Al integrar los repositorios de Frontend y Backend, surgieron fallos masivos de funcionalidad. El Frontend realizaba llamadas a elementos del DOM y propiedades de la API utilizando identificadores (IDs y nombres de variables) que no existían o habían sido renombrados en la última versión del Backend/HTML. Esta desincronización provocó que scripts críticos fallaran silenciosamente o nulificaran la interacción del usuario.
+
+**Solución Aplicada:**
+1.  **Auditoría y Renombrado:** Se realizó una revisión exhaustiva de los archivos JavaScript y las vistas Blade/HTML para estandarizar la nomenclatura. Se renombraron selectores e identificadores para garantizar una coincidencia exacta entre la lógica del cliente y la estructura del servidor.
+2.  **Limpieza de Código:** Se eliminaron archivos obsoletos y referencias a IDs antiguos que ya no tenían función en la nueva arquitectura, reduciendo la deuda técnica y previniendo futuros conflictos de nombres.
+
+---
+
+**Obstáculo Externo:** Interrupción Crítica del Entorno de Despliegue
+
+**Descripción del Problema:**
+Durante los últimos días críticos de la entrega del Hito 1, el equipo enfrentó un bloqueo inesperado debido a causas de fuerza mayor. El técnico encargado del despliegue (Zhou) sufrió un incidente de seguridad personal en su domicilio (ataque por parte de un vecino), lo cual impidió el acceso y mantenimiento de la infraestructura local que se estaba utilizando. Aunque se desconocen las motivaciones exactas y el alcance total de las secuelas, este evento detuvo por completo el avance del despliegue en el entorno original.
+
+**Solución Aplicada:**
+1.  **Migración a Cloudflare:** Ante la imposibilidad de operar el entorno local afectado, se tomó la decisión de emergencia de "subir" y desplegar la infraestructura a través de Cloudflare. Esto permitió desacoplar la disponibilidad del proyecto de la situación física del técnico, restableciendo el servicio y asegurando la entrega a tiempo bajo una nueva arquitectura en la nube.
