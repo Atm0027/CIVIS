@@ -38,23 +38,4 @@ chmod -R 775 /var/www/app/storage /var/www/app/bootstrap/cache
 # 3. Iniciar Supervisor (gestiona Nginx y PHP-FPM)
 echo "[CIVIS] ✅ Iniciando Supervisor (Nginx + PHP-FPM)..."
 
-# Autodiagnóstico extendido en background
-(
-    sleep 7
-    echo "[CIVIS] 🔍 DIAGNÓSTICO PROFUNDO:"
-    echo "--- Estado de Puertos (ss) ---"
-    ss -tuln
-
-    echo "--- Test 1: Nginx Static (check.html) ---"
-    curl -I -v http://127.0.0.1:${PORT}/check.html
-
-    echo "--- Test 2: Laravel Root (/) ---"
-    curl -I -v http://127.0.0.1:${PORT}/
-
-    echo "--- Test 3: API Endpoint (/api/videos) ---"
-    curl -v http://127.0.0.1:${PORT}/api/videos
-
-    echo "--- Fin Diagnóstico ---"
-) &
-
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
