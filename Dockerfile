@@ -40,7 +40,7 @@ RUN rm -rf node_modules package.json package-lock.json
 RUN chmod +x start.sh
 
 # Crear directorios de logs y sockets
-RUN mkdir -p /var/log/supervisor /var/log/nginx /var/run/php && \
+RUN mkdir -p /var/log/supervisor /var/log/nginx /var/run/php /var/www/app/resources/views && \
     chown -R www-data:www-data /var/run/php && \
     chmod 777 /var/run/php
 
