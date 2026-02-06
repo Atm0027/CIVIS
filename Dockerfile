@@ -23,10 +23,11 @@ COPY . .
 # Limpiar archivos innecesarios
 RUN rm -rf node_modules package.json package-lock.json
 
-EXPOSE 9000
+# Hacer ejecutable el script de inicio
+RUN chmod +x start.sh
 
-COPY ./deploy/app/docker-php-entrypoint.sh /usr/local/bin/docker-php-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-php-entrypoint.sh
+# Puerto por defecto de Railway
+EXPOSE 8080
 
-ENTRYPOINT ["/usr/local/bin/docker-php-entrypoint.sh"]
-CMD ["php-fpm"]
+# Usar start.sh como comando de inicio
+CMD ["bash", "start.sh"]
