@@ -27,6 +27,7 @@ COPY . .
 # Copiar configuraciones de deploy
 COPY deploy/nginx/conf.d/civis.conf /etc/nginx/conf.d/default.conf.template
 COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY deploy/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Limpiar archivos innecesarios
 RUN rm -rf node_modules package.json package-lock.json
