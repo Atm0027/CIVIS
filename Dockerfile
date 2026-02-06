@@ -32,6 +32,7 @@ COPY deploy/php-fpm/zz-civis.conf /usr/local/etc/php-fpm.d/zz-civis.conf
 # Eliminar configs por defecto de Nginx y PHP que causan conflictos
 RUN rm -rf /etc/nginx/sites-enabled/* /etc/nginx/sites-available/* \
     /usr/local/etc/php-fpm.d/zz-docker.conf \
+    /usr/local/etc/php-fpm.d/www.conf \
     /usr/local/etc/php-fpm.d/www.conf.default
 
 # Limpiar archivos innecesarios
