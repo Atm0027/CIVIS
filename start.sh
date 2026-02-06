@@ -37,9 +37,5 @@ chmod -R 775 storage bootstrap/cache
 # 6. Arranque de servicios via Supervisor
 echo "[CIVIS] ✅ Todo listo. Iniciando servicios..."
 
-# --- INICIO DEL CHIVATO DE DIAGNÓSTICO ---
-# Esto se ejecutará en segundo plano, esperará 10 segundos a que PHP arranque
-# y luego imprimirá en los logs si el archivo existe y sus permisos.
-(sleep 10 && echo "====== 🕵️ DIAGNÓSTICO DE SOCKET 🕵️ ======" && ls -la /var/run/php/ && echo "=========================================") &
-# --- FIN DEL CHIVATO ---
+
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

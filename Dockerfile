@@ -24,15 +24,12 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Copiar archivos del proyecto
 COPY . .
 
-# --- INICIO DEL CAMBIO ---
-# En lugar de usar 'sed', creamos una configuración con prioridad ZZ (la más alta)
-# Esto obliga a PHP a escuchar en 127.0.0.1:9000 sin importar lo que diga el resto.
+# Configurar PHP-FPM para usar Unix Socket
 RUN echo "[www]" > /usr/local/etc/php-fpm.d/zz-zz-force.conf && \
     echo "listen = /var/run/php/php-fpm.sock" >> /usr/local/etc/php-fpm.d/zz-zz-force.conf && \
     echo "listen.mode = 0666" >> /usr/local/etc/php-fpm.d/zz-zz-force.conf && \
     echo "listen.owner = www-data" >> /usr/local/etc/php-fpm.d/zz-zz-force.conf && \
     echo "listen.group = www-data" >> /usr/local/etc/php-fpm.d/zz-zz-force.conf
-# --- FIN DEL CAMBIO ---
 
 # Copiar configuraciones de deploy
 COPY deploy/nginx/conf.d/civis.conf /etc/nginx/conf.d/default.conf.template
