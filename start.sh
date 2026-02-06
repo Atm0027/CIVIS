@@ -8,6 +8,9 @@ echo "[CIVIS] Configurando puerto Nginx: ${PORT:-8080}..."
 export PORT=${PORT:-8080}
 envsubst '${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
+echo "[CIVIS] 🔍 Configuración Nginx generada:"
+cat /etc/nginx/conf.d/default.conf
+
 # 2. Ejecutar tareas deLaravel
 echo "[CIVIS] Ejecutando migraciones..."
 php artisan migrate --force --no-interaction

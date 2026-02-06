@@ -27,7 +27,11 @@ COPY . .
 # Copiar configuraciones de deploy
 COPY deploy/nginx/conf.d/civis.conf /etc/nginx/conf.d/default.conf.template
 COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY deploy/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY deploy/php-fpm/zz-civis.conf /usr/local/etc/php-fpm.d/zz-civis.conf
+
+# Eliminar configs por defecto que puedan causar conflictos (como escuchar en 9000)
+RUN rm -f /usr/local/etc/php-fpm.d/zz-docker.conf \
+    /usr/local/etc/php-fpm.d/www.conf.default
 
 # Limpiar archivos innecesarios
 RUN rm -rf node_modules package.json package-lock.json
