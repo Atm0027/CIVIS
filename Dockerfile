@@ -24,9 +24,10 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Copiar archivos del proyecto
 COPY . .
 
-# Configuración de PHP-FPM: asegurar que escuche en el puerto 9000
-RUN sed -i 's|listen = /usr/local/var/run/php-fpm.sock|listen = 9000|g' /usr/local/etc/php-fpm.d/www.conf || true \
-    && sed -i 's|listen = 127.0.0.1:9000|listen = 9000|g' /usr/local/etc/php-fpm.d/www.conf || true
+# Configuración de PHP-FPM: FORZAR escucha en 127.0.0.1:9000 (Sobrescribe todo lo anterior)
+RUN echo "[www]" > /usr/local/etc/php-fpm.d/zz-zz-force-listen.conf && \
+    echo "listen = 127.0.0.1:9000" >> /usr/local/etc/php-fpm.d/zz-zz-force-listen.conf && \
+    echo "listen.mode = 0666" >> /usr/local/etc/php-fpm.d/zz-zz-force-listen.conf
 
 # Copiar configuraciones de deploy
 COPY deploy/nginx/conf.d/civis.conf /etc/nginx/conf.d/default.conf.template
