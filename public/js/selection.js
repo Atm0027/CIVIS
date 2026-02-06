@@ -117,7 +117,14 @@ function initiateBulkDelete() {
     const modal = document.getElementById('bulk-delete-modal');
 
     if (countSpan) countSpan.textContent = selectedVideos.size;
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+        modal.classList.remove('hidden');
+        // Asegurar que se visualiza
+        modal.style.display = 'flex';
+        // Forzar reflow para que la transición de opacidad funcione
+        void modal.offsetWidth;
+        modal.classList.add('active');
+    }
 }
 
 /**
@@ -130,6 +137,18 @@ async function performBulkDelete() {
         confirmBtn.textContent = 'Eliminando...';
     }
 
+    // Función auxiliar para cerrar modal
+    const closeBulkModal = () => {
+        const modal = document.getElementById('bulk-delete-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.style.display = '';
+            }, 300);
+        }
+    };
+
     try {
         const response = await fetchAPI(CONFIG.api.endpoints.bulkDeleteVideos, {
             method: 'DELETE',
@@ -137,8 +156,7 @@ async function performBulkDelete() {
         });
 
         // Cerrar modal
-        const modal = document.getElementById('bulk-delete-modal');
-        if (modal) modal.classList.add('hidden');
+        closeBulkModal();
 
         // Mostrar mensaje éxito
         alert(`Se han eliminado ${selectedVideos.size} videos correctamente.`);
@@ -152,7 +170,7 @@ async function performBulkDelete() {
     } catch (error) {
         console.error('Error eliminando videos:', error);
         alert('Error al eliminar los videos: ' + (error.message || 'Error desconocido'));
-    } finally {
+        // Si hay error, reactivar botón pero NO cerrar modal
         if (confirmBtn) {
             confirmBtn.disabled = false;
             confirmBtn.textContent = 'Sí, eliminar';
@@ -187,7 +205,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (modalCancel) {
         modalCancel.addEventListener('click', () => {
-            document.getElementById('bulk-delete-modal').classList.add('hidden');
+            const modal = document.getElementById('bulk-delete-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.style.display = '';
+                }, 300);
+            }
         });
     }
 

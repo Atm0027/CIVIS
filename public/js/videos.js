@@ -192,6 +192,9 @@ function handleDeleteVideo(videoId) {
         modal.classList.remove('hidden');
         // Asegurar que se visualiza
         modal.style.display = 'flex';
+        // Forzar reflow para que la transición de opacidad funcione
+        void modal.offsetWidth;
+        modal.classList.add('active');
     } else {
         console.error('No se encontró el modal #delete-modal');
         // Fallback a confirm nativo si falla el modal
@@ -213,9 +216,13 @@ function setupDeleteModal() {
 
     // Función para cerrar modal limpia
     const closeModal = () => {
-        modal.classList.add('hidden');
-        modal.style.display = ''; // Limpiar inline style si se usó
-        currentVideoIdToDelete = null;
+        modal.classList.remove('active');
+        // Esperar a la transición antes de ocultar completamente
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.style.display = ''; // Limpiar inline style si se usó
+            currentVideoIdToDelete = null;
+        }, 300); // 300ms coincide con CSS transition
     };
 
     // Cancelar - cerrar modal
