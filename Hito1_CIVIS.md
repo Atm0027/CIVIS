@@ -6,7 +6,7 @@
 
 | Capa | Tecnología | Descripción |
 |------|------------|-------------|
-| **Backend** | Laravel 11 (PHP 8.2) | API RESTful y lógica de negocio. |
+| **Backend** | Laravel 12 (PHP 8.4) | API RESTful y lógica de negocio. |
 | **Frontend** | HTML5 + CSS3 + JS Vanilla | Interfaz de usuario ligera y responsiva. |
 | **Base de Datos** | PostgreSQL 15 (Alpine) | Persistencia de datos relacional. |
 | **Infraestructura** | Docker | Contenedores para Nginx, PHP y DB. |
