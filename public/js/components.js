@@ -31,7 +31,7 @@ function VideoCard(video) {
                 <input type="checkbox" class="video-checkbox" ${checkboxChecked} readonly>
             </div>
 
-            <img class="w-full h-48 object-cover" src="${thumbnail}" alt="Miniatura de ${video.title}" onerror="this.src='https://via.placeholder.com/320x180?text=Video'">
+            <img class="w-full h-48 object-cover" src="${thumbnail}" alt="Miniatura de ${video.title}" onerror="this.src='https://placehold.co/320x180?text=Video'">
             <div class="p-5">
                 <h3 class="text-lg font-bold text-gray-900 mb-2">${video.title}</h3>
                 <p class="text-sm text-gray-600 mb-4">${description}</p>
@@ -49,7 +49,7 @@ function VideoCard(video) {
  * @returns {string} - URL del thumbnail
  */
 function getVideoThumbnail(url) {
-    if (!url) return 'https://via.placeholder.com/320x180?text=Video';
+    if (!url) return 'https://placehold.co/320x180?text=Video';
 
     // YouTube
     const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
@@ -62,16 +62,16 @@ function getVideoThumbnail(url) {
     const vimeoRegex = /(?:vimeo\.com\/)(\d+)/;
     const vimeoMatch = url.match(vimeoRegex);
     if (vimeoMatch && vimeoMatch[1]) {
-        return 'https://via.placeholder.com/320x180/1ab7ea/ffffff?text=Vimeo';
+        return 'https://placehold.co/320x180/1ab7ea/ffffff?text=Vimeo';
     }
 
     // NotebookLM
     if (url.includes('notebooklm.google.com')) {
-        return 'https://via.placeholder.com/320x180/0f172a/ffffff?text=NotebookLM+Overview';
+        return 'https://placehold.co/320x180/0f172a/ffffff?text=NotebookLM+Overview';
     }
 
     // Genérico / Otros
-    return 'https://via.placeholder.com/320x180/334155/ffffff?text=Video';
+    return 'https://placehold.co/320x180/334155/ffffff?text=Video';
 }
 
 /**
