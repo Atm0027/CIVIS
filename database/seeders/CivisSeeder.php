@@ -15,20 +15,20 @@ class CivisSeeder extends Seeder
         // =========================
         // CATEGORIES (3)
         // =========================
-        $studies = Category::create([
-            'name' => 'Estudios',
-            'slug' => 'estudios',
-        ]);
+        $studies = Category::firstOrCreate(
+            ['slug' => 'estudios'],
+            ['name' => 'Estudios']
+        );
 
-        $citizenship = Category::create([
-            'name' => 'Ciudadanía',
-            'slug' => 'ciudadania',
-        ]);
+        $citizenship = Category::firstOrCreate(
+            ['slug' => 'ciudadania'],
+            ['name' => 'Ciudadanía']
+        );
 
-        $employment = Category::create([
-            'name' => 'Empleo',
-            'slug' => 'empleo',
-        ]);
+        $employment = Category::firstOrCreate(
+            ['slug' => 'empleo'],
+            ['name' => 'Empleo']
+        );
 
 
 
