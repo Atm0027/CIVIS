@@ -13,6 +13,7 @@
 | **Servidor Web** | Nginx 1.29 | Proxy inverso y servidor de estáticos. |
 | **Autenticación** | Laravel Sanctum | Tokens JWT estatales para API. |
 
+
 **Esquema de Comunicación:**
 
 ```mermaid
@@ -22,6 +23,7 @@ graph TD
     PHP -- "SQL :5432" --> DB[(PostgreSQL)]
     PHP -- "HTTP Response (JSON)" --> Nginx
     Nginx -- "HTTP Response (JSON)" --> User
+```
 
 
 
