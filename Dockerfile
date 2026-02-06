@@ -24,17 +24,21 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Copiar archivos del proyecto
 COPY . .
 
+# Configuración de PHP-FPM: asegurar que escuche en el puerto 9000
+RUN sed -i 's|listen = /usr/local/var/run/php-fpm.sock|listen = 9000|g' /usr/local/etc/php-fpm.d/www.conf || true \
+    && sed -i 's|listen = 127.0.0.1:9000|listen = 9000|g' /usr/local/etc/php-fpm.d/www.conf || true
+
 # Copiar configuraciones de deploy
 COPY deploy/nginx/conf.d/civis.conf /etc/nginx/conf.d/default.conf.template
 COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY deploy/php-fpm/zz-civis.conf /usr/local/etc/php-fpm.d/zz-civis.conf
 
-# Eliminar configs por defecto de Nginx y PHP que causan conflictos
+# Eliminar configs por defecto de Nginx que causan conflictos
 RUN rm -rf /etc/nginx/sites-enabled/* /etc/nginx/sites-available/* \
-    /usr/local/etc/php-fpm.d/zz-docker.conf \
-    /usr/local/etc/php-fpm.d/www.conf \
-    /usr/local/etc/php-fpm.d/www.conf.default \
     /etc/nginx/conf.d/default.conf
+
+# Forzar a PHP a escuchar en el puerto 9000 (TCP) para evitar Error 502
+RUN sed -i 's/listen = .*/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/*.conf || true
 
 # Limpiar archivos innecesarios
 RUN rm -rf node_modules package.json package-lock.json

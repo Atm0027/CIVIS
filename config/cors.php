@@ -21,7 +21,6 @@ return [
         'https://civis.pages.dev',
         'http://localhost',
         'http://localhost:8000',
-        ...explode(',', env('CORS_ALLOWED_ORIGINS', ''))
     ],
 
     'allowed_origins_patterns' => [],

@@ -24,9 +24,10 @@ fi
 
 # 4. Optimizaciones de Producción
 echo "[CIVIS] Optimizando para producción..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan optimize
 php artisan storage:link --no-interaction || true
 
 # 5. Ajuste final de permisos (solo sobre lo necesario)
