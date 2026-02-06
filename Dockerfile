@@ -42,9 +42,15 @@ RUN rm -rf node_modules package.json package-lock.json
 # Hacer ejecutable el script de inicio
 RUN chmod +x start.sh
 
-# Crear directorios de logs y sockets y asignar permisos
-RUN mkdir -p /var/log/supervisor /var/log/nginx /var/run/php /var/www/app/resources/views && \
+# Crear directorios necesarios y asignar permisos
+RUN mkdir -p /var/log/supervisor /var/log/nginx /var/run/php \
+    /var/www/app/resources/views \
+    /var/www/app/storage/framework/cache/data \
+    /var/www/app/storage/framework/views \
+    /var/www/app/storage/framework/sessions \
+    /var/www/app/bootstrap/cache && \
     chown -R www-data:www-data /var/run/php /var/www/app && \
+    chmod -R 775 /var/www/app/storage /var/www/app/bootstrap/cache && \
     chmod 777 /var/run/php
 
 EXPOSE 8080
