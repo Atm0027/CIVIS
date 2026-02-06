@@ -41,3 +41,44 @@ Frontend: ✅ Conectado y recibiendo datos de la API.
 Backend: ✅ Procesando peticiones con Status 200/204.
 Base de Datos: ✅ Migrada y con todas las tablas creadas (users, videos, etc.).
 Resultado: El proyecto CIVIS está oficialmente desplegado y listo para su uso.
+
+
+
+Informe de Problema: Resolución de Error 502 Bad Gateway
+Resumen del Incidente
+El despliegue fallaba con un error persistente 502 Bad Gateway. Nginx no podía comunicarse con el backend PHP-FPM, resultando en que la aplicación no cargara.
+
+Causas Raíz Identificadas
+Confusión de Enlace TCP/IP: Inicialmente, PHP-FPM estaba configurado para escuchar en 127.0.0.1:9000. Sin embargo, dentro del entorno del contenedor Docker, Nginx a veces tenía problemas para resolver localhost vs 127.0.0.1 vs [::1], lo que llevaba a rechazos de conexión ("Connection refused").
+Error de Permisos de Socket: Tras cambiar a un Socket de Dominio Unix (/var/run/php/php-fpm.sock) para evitar problemas de red, el archivo del socket fue creado por el usuario root (comportamiento por defecto de PHP-FPM). Nginx, ejecutándose como www-data, no podía acceder al archivo a pesar de tener permisos de lectura/escritura amplios (0666), probablemente debido a políticas de seguridad estrictas o restricciones en el directorio padre.
+Pasos de Resolución
+1. Cambio a Sockets de Dominio Unix
+Abandonamos el enfoque TCP/IP (red) a favor de Sockets de Dominio Unix (archivos). Esto es más rápido y seguro ya que no expone un puerto de red.
+
+Cambios Realizados:
+
+Dockerfile: Se configuró PHP-FPM para crear un socket en /var/run/php/php-fpm.sock.
+Configuración de Nginx: Se actualizó fastcgi_pass para apuntar a unix:/var/run/php/php-fpm.sock.
+2. Implementación de Herramienta de Diagnóstico ("El Chivato")
+Para identificar por qué fallaba la conexión al socket, inyectamos un script de diagnóstico en 
+start.sh
+.
+
+Este script se ejecuta 10 segundos después del inicio.
+Lista los archivos en /var/run/php/ en los logs.
+Resultado: Confirmó que el socket existía pero era propiedad de root.
+3. Corrección de Propietario del Socket
+Modificamos el Dockerfile para instruir explícitamente a PHP-FPM que asigne la propiedad del socket al usuario del servidor web (www-data).
+
+Código Añadido al Dockerfile:
+
+dockerfile
+RUN echo "[www]" > /usr/local/etc/php-fpm.d/zz-zz-force.conf && \
+    echo "listen = /var/run/php/php-fpm.sock" >> /usr/local/etc/php-fpm.d/zz-zz-force.conf && \
+    echo "listen.mode = 0666" >> /usr/local/etc/php-fpm.d/zz-zz-force.conf && \
+    echo "listen.owner = www-data" >> /usr/local/etc/php-fpm.d/zz-zz-force.conf && \
+    echo "listen.group = www-data" >> /usr/local/etc/php-fpm.d/zz-zz-force.conf
+Resultado Final
+El socket ahora es propiedad correcta de www-data.
+Nginx puede comunicarse exitosamente con PHP-FPM.
+La aplicación carga correctamente sin errores 502.
