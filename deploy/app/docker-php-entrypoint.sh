@@ -42,7 +42,13 @@ chmod -R 755 /var/www/app/storage
 echo "[CIVIS] Ejecutando migraciones y enlaces..."
 php artisan migrate --force --no-interaction
 php artisan storage:link --no-interaction || echo "[CIVIS] Enlace de storage ya existe."
-php artisan db:seed --force --no-interaction 2>/dev/null || echo "[CIVIS] Seeds ya existentes, continuando..."
+
+echo "[CIVIS] Ejecutando seeders..."
+if php artisan db:seed --force --no-interaction; then
+    echo "[CIVIS] ✅ Seeders ejecutados correctamente"
+else
+    echo "[CIVIS] ⚠️ Seeders ya ejecutados o error (esto es normal si ya existen datos)"
+fi
 
 # ============================================================
 # 4. Limpiar caché de configuración para aplicar CORS
