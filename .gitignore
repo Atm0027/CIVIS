@@ -94,3 +94,4 @@ user-data/
 # Developer documentation (local only)
 ANALISIS_PROYECTO.md
 
+public/js/config.env.js
