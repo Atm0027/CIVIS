@@ -37,10 +37,11 @@ chown -R www-data:www-data /var/www/app/storage
 chmod -R 755 /var/www/app/storage
 
 # ============================================================
-# 3. Ejecutar migraciones
+# 3. Ejecutar migraciones y links
 # ============================================================
-echo "[CIVIS] Ejecutando migraciones..."
+echo "[CIVIS] Ejecutando migraciones y enlaces..."
 php artisan migrate --force --no-interaction
+php artisan storage:link --no-interaction || echo "[CIVIS] Enlace de storage ya existe."
 php artisan db:seed --force --no-interaction 2>/dev/null || echo "[CIVIS] Seeds ya existentes, continuando..."
 
 # ============================================================
