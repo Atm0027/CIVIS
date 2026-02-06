@@ -3,9 +3,9 @@ set -e
 
 echo "[CIVIS] 🚀 Iniciando script de arranque..."
 
-# 1. Configurar Nginx con el puerto dinámico de Railway
-echo "[CIVIS] Configurando puerto Nginx: ${PORT:-8080}..."
-export PORT=${PORT:-8080}
+# 1. Configurar puerto de Nginx
+echo "[CIVIS] Configurando puerto Nginx: ${PORT}..."
+rm -f /etc/nginx/conf.d/*.conf
 envsubst '${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
 echo "[CIVIS] 🔍 Configuración Nginx generada:"

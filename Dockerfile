@@ -33,7 +33,8 @@ COPY deploy/php-fpm/zz-civis.conf /usr/local/etc/php-fpm.d/zz-civis.conf
 RUN rm -rf /etc/nginx/sites-enabled/* /etc/nginx/sites-available/* \
     /usr/local/etc/php-fpm.d/zz-docker.conf \
     /usr/local/etc/php-fpm.d/www.conf \
-    /usr/local/etc/php-fpm.d/www.conf.default
+    /usr/local/etc/php-fpm.d/www.conf.default \
+    /etc/nginx/conf.d/default.conf
 
 # Limpiar archivos innecesarios
 RUN rm -rf node_modules package.json package-lock.json
