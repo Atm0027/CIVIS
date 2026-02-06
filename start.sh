@@ -14,15 +14,16 @@ cat /etc/nginx/conf.d/default.conf
 # 2. Preparar entorno Laravel
 echo "[CIVIS] Preparando directorios..."
 mkdir -p /var/www/app/storage/framework/cache/data
-mkdir -p /var/www/app/storage/framework/app/cache
 mkdir -p /var/www/app/storage/framework/sessions
 mkdir -p /var/www/app/storage/framework/views
 mkdir -p /var/www/app/resources/views
 
 if [ -z "$DATABASE_URL" ] && [ -z "$DB_URL" ]; then
-    echo "[CIVIS] ⚠️ WARNING: No se detectó DATABASE_URL ni DB_URL. La conexión podría fallar."
+    echo "[CIVIS] ⚠️ WARNING: No se detectó DATABASE_URL ni DB_URL. La conexión fallará."
 else
-    echo "[CIVIS] ✅ Base de datos configurada (DATABASE_URL detectada)"
+    # Mostramos parte de la URL para debuggear (sin el password)
+    DEBUG_URL=$(echo $DATABASE_URL | sed 's/:[^:@]*@/:****@/')
+    echo "[CIVIS] ✅ Base de datos inyectada: $DEBUG_URL"
 fi
 
 echo "[CIVIS] Ejecutando migraciones..."
