@@ -1,51 +1,38 @@
 #!/bin/bash
 set -e
 
-echo "[CIVIS] 🚀 Iniciando script de arranque..."
+echo "[CIVIS] 🚀 Iniciando sistema..."
 
-# 1. Configurar puerto de Nginx
-echo "[CIVIS] Configurando puerto Nginx: ${PORT}..."
+# 1. Aplicar variables de entorno al template de Nginx
+echo "[CIVIS] Configurando servidor web (Puerto: ${PORT})..."
 rm -f /etc/nginx/conf.d/*.conf
 envsubst '${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
-echo "[CIVIS] ✅ Configuración Nginx lista."
+# 2. Preparar directorios de Laravel (asegurar que existen)
+mkdir -p storage/framework/{cache/data,sessions,views}
+mkdir -p bootstrap/cache
+mkdir -p resources/views
 
-# 2. Preparar entorno Laravel
-echo "[CIVIS] Preparando directorios..."
-mkdir -p /var/www/app/storage/framework/cache/data
-mkdir -p /var/www/app/storage/framework/sessions
-mkdir -p /var/www/app/storage/framework/views
-mkdir -p /var/www/app/resources/views
-
-if [ -z "$DATABASE_URL" ] && [ -z "$DB_URL" ]; then
-    echo "[CIVIS] ⚠️ WARNING: No se detectó DATABASE_URL ni DB_URL. La conexión fallará."
+# 3. Base de Datos: Migraciones y Seeders
+if [ -n "$DATABASE_URL" ] || [ -n "$DB_URL" ]; then
+    echo "[CIVIS] Ejecutando base de datos..."
+    php artisan migrate --force --no-interaction || echo "[CIVIS] ⚠️ Error en migraciones"
+    php artisan db:seed --force --no-interaction || echo "[CIVIS] ⚠️ Seeders ya estaban presentes o fallaron"
 else
-    # Mostramos parte de la URL para debuggear (sin el password)
-    DEBUG_URL=$(echo $DATABASE_URL | sed 's/:[^:@]*@/:****@/')
-    echo "[CIVIS] ✅ Base de datos inyectada: $DEBUG_URL"
+    echo "[CIVIS] ⚠️ WARNING: No se detectó URL de base de datos."
 fi
 
-echo "[CIVIS] Ejecutando migraciones..."
-php artisan migrate --force --no-interaction || echo "[CIVIS] ⚠️ Error en migraciones"
-
-echo "[CIVIS] Verificando seeders..."
-php artisan db:seed --force --no-interaction || echo "[CIVIS] ⚠️ Seeders ya ejecutados o error controlado"
-
-echo "[CIVIS] Gestionando caché..."
-# Usamos || true para que no detenga el arranque si hay errores menores
-php artisan config:clear || true
-php artisan cache:clear || true
-php artisan view:clear || true
-php artisan route:clear || true
-
-echo "[CIVIS] Enlazando storage..."
+# 4. Optimizaciones de Producción
+echo "[CIVIS] Optimizando para producción..."
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 php artisan storage:link --no-interaction || true
 
-echo "[CIVIS] Corrigiendo permisos..."
-chown -R www-data:www-data /var/www/app/storage /var/www/app/bootstrap/cache
-chmod -R 775 /var/www/app/storage /var/www/app/bootstrap/cache
+# 5. Ajuste final de permisos (solo sobre lo necesario)
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
 
-# 3. Iniciar Supervisor (gestiona Nginx y PHP-FPM)
-echo "[CIVIS] ✅ Iniciando Supervisor (Nginx + PHP-FPM)..."
-
+# 6. Arranque de servicios via Supervisor
+echo "[CIVIS] ✅ Todo listo. Iniciando servicios..."
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
