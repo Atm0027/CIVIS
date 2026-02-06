@@ -24,15 +24,17 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Copiar archivos del proyecto
 COPY . .
 
-# Configuración de PHP-FPM: FORZAR escucha en 127.0.0.1:9000 (Sobrescribe todo lo anterior)
+# --- INICIO DEL CAMBIO ---
+# En lugar de usar 'sed', creamos una configuración con prioridad ZZ (la más alta)
+# Esto obliga a PHP a escuchar en 127.0.0.1:9000 sin importar lo que diga el resto.
 RUN echo "[www]" > /usr/local/etc/php-fpm.d/zz-zz-force-listen.conf && \
     echo "listen = 127.0.0.1:9000" >> /usr/local/etc/php-fpm.d/zz-zz-force-listen.conf && \
     echo "listen.mode = 0666" >> /usr/local/etc/php-fpm.d/zz-zz-force-listen.conf
+# --- FIN DEL CAMBIO ---
 
 # Copiar configuraciones de deploy
 COPY deploy/nginx/conf.d/civis.conf /etc/nginx/conf.d/default.conf.template
 COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY deploy/php-fpm/zz-civis.conf /usr/local/etc/php-fpm.d/zz-civis.conf
 
 # Eliminar configs por defecto de Nginx que causan conflictos
 RUN rm -rf /etc/nginx/sites-enabled/* /etc/nginx/sites-available/* \
