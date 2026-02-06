@@ -15,29 +15,13 @@
 
 **Esquema de Comunicación:**
 
-
-
 ```mermaid
 graph TD
-    User((Usuario))
-        -- "HTTP :80 / HTTPS :443" -->
-    Nginx["Nginx (Reverse Proxy)"]
-
-    Nginx
-        -- "FastCGI :9000" -->
-    PHP["PHP-FPM<br/>(Container: civis-app)"]
-
-    PHP
-        -- "SQL :5432" -->
-    DB[(PostgreSQL)]
-
-    PHP
-        -- "HTTP Response (JSON)" -->
-    Nginx
-
-    Nginx
-        -- "HTTP Response (JSON)" -->
-    User
+    User((Usuario)) -- "HTTP :80 / HTTPS :443" --> Nginx["Nginx (Reverse Proxy)"]
+    Nginx -- "FastCGI :9000" --> PHP["PHP-FPM<br/>(Container: civis-app)"]
+    PHP -- "SQL :5432" --> DB[(PostgreSQL)]
+    PHP -- "HTTP Response (JSON)" --> Nginx
+    Nginx -- "HTTP Response (JSON)" --> User
 
 
 
