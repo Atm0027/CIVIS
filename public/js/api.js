@@ -326,6 +326,7 @@ function requireAuth() {
  * @param {HTMLElement} container - Contenedor donde mostrar el loader
  */
 function showLoader(container) {
+    if (!container) return; // Evitar error si el contenedor no existe
     container.innerHTML = `
         <div class="flex justify-center items-center py-12">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -339,5 +340,6 @@ function showLoader(container) {
  * @param {string} message - Mensaje de error
  */
 function showError(container, message) {
+    if (!container) return; // Evitar error si el contenedor no existe
     container.innerHTML = ErrorMessage(message);
 }
