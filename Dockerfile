@@ -29,8 +29,9 @@ COPY deploy/nginx/conf.d/civis.conf /etc/nginx/conf.d/default.conf.template
 COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY deploy/php-fpm/zz-civis.conf /usr/local/etc/php-fpm.d/zz-civis.conf
 
-# Eliminar configs por defecto que puedan causar conflictos (como escuchar en 9000)
-RUN rm -f /usr/local/etc/php-fpm.d/zz-docker.conf \
+# Eliminar configs por defecto de Nginx y PHP que causan conflictos
+RUN rm -rf /etc/nginx/sites-enabled/* /etc/nginx/sites-available/* \
+    /usr/local/etc/php-fpm.d/zz-docker.conf \
     /usr/local/etc/php-fpm.d/www.conf.default
 
 # Limpiar archivos innecesarios

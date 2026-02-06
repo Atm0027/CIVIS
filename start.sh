@@ -37,16 +37,4 @@ chmod -R 775 /var/www/app/storage /var/www/app/bootstrap/cache
 
 # 3. Iniciar Supervisor (gestiona Nginx y PHP-FPM)
 echo "[CIVIS] ✅ Iniciando Supervisor (Nginx + PHP-FPM)..."
-
-# Autodiagnóstico en background tras 5 segundos
-(
-    sleep 5
-    echo "[CIVIS] 🔍 DIAGNÓSTICO INTERNO:"
-    echo "--- Puertos escuchando (ss -tuln) ---"
-    ss -tuln
-    echo "--- Prueba de conexión local (curl) ---"
-    curl -v http://127.0.0.1:${PORT}/check.html
-    echo "--- Fin Diagnóstico ---"
-) &
-
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
