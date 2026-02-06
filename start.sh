@@ -8,8 +8,7 @@ echo "[CIVIS] Configurando puerto Nginx: ${PORT}..."
 rm -f /etc/nginx/conf.d/*.conf
 envsubst '${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
-echo "[CIVIS] 🔍 Configuración Nginx generada:"
-cat /etc/nginx/conf.d/default.conf
+echo "[CIVIS] ✅ Configuración Nginx lista."
 
 # 2. Preparar entorno Laravel
 echo "[CIVIS] Preparando directorios..."
