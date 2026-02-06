@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\VideoController;
@@ -52,3 +54,17 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 });
 
 Route::middleware('auth:sanctum')->get('/uploads', [UploadController::class, 'index']);
+
+Route::get('/db-test', function () {
+    try {
+        DB::connection()->getPdo();
+        $count = DB::table('users')->count();
+
+        Log::info("✅ [TEST BBDD] CONEXIÓN EXITOSA: La base de datos responde y contiene {$count} usuarios.");
+
+        return response()->json(['status' => 'ok', 'message' => 'Check logs']);
+    } catch (\Exception $e) {
+        Log::error("❌ [TEST BBDD] ERROR: " . $e->getMessage());
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+    }
+});
