@@ -12,6 +12,10 @@
  */
 function getApiBaseUrl() {
     // 1. Usar configuración inyectada desde Docker si existe y no está vacía
+    if (window.CIVIS_ENV) {
+        console.log('[CIVIS] Injected Config detected:', window.CIVIS_ENV);
+    }
+
     if (window.CIVIS_ENV && window.CIVIS_ENV.API_BASE_URL && window.CIVIS_ENV.API_BASE_URL.trim() !== '') {
         return window.CIVIS_ENV.API_BASE_URL;
     }
