@@ -65,6 +65,24 @@
                         <a href="index.html" class="nav-link">Inicio</a>
                         <a href="calendario.html" class="nav-link">Calendario</a>
                         <a href="preguntasFrecuentes.html" class="nav-link">Preguntas Frecuentes</a>
+
+                        <div class="navbar-actions">
+                            <div class="notification-bell-wrapper" id="notification-bell">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                </svg>
+                                <span id="notification-dot" class="notification-dot"></span>
+                                <div id="notification-dropdown" class="notification-dropdown">
+                                    <div class="notification-header">
+                                        <h3>Avisos</h3><button id="mark-all-read"
+                                            class="text-xs text-blue-600 hover:underline">Marcar todo</button>
+                                    </div>
+                                    <ul id="notification-list" class="notification-list"></ul>
+                                </div>
+                            </div>
+                        </div>
                     </nav>
 
                 </div>
@@ -188,6 +206,8 @@
     <script src="js/config.env.js?v=3"></script>
     <script src="js/config.js?v=3"></script>
     <script src="js/api.js?v=6"></script>
+    <script src="js/toast.js?v=1"></script>
+    <script src="js/notifications.js?v=1"></script>
     <script src="js/auth.js?v=3"></script>
 
 

@@ -14,7 +14,6 @@ function initLoginPage() {
     const usernameOrEmailInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const submitButton = loginForm.querySelector('button[type="submit"]');
-    const errorContainer = document.getElementById('message');
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -24,24 +23,23 @@ function initLoginPage() {
 
         // Validación básica
         if (!usernameOrEmail || !password) {
-            showAuthError(errorContainer, 'Por favor, completa todos los campos');
+            Toast.show({ message: 'Por favor, completa todos los campos', type: 'warning' });
             return;
         }
 
         // Deshabilitar botón mientras se procesa
         submitButton.disabled = true;
-        submitButton.textContent = 'Iniciando sesión...';
-        errorContainer.classList.add('hidden');
+        submitButton.innerHTML = '<span class="spinner-sm"></span> Iniciando sesión...';
 
         try {
-            // Llamar a la API de login (ahora acepta usuario o email)
             await login(usernameOrEmail, password);
-
-            // Si llega aquí, el login fue exitoso
             window.location.href = 'index.html';
 
         } catch (error) {
-            showAuthError(errorContainer, error.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+            Toast.show({
+                message: error.message || 'Error al iniciar sesión. Verifica tus credenciales.',
+                type: 'error'
+            });
             submitButton.disabled = false;
             submitButton.textContent = 'Iniciar Sesión';
         }
@@ -57,6 +55,7 @@ function initRegisterPage() {
     }
 
     const registerForm = document.getElementById('register-form');
+
     // Mapear campos según los IDs en register.html
     const usernameInput = document.getElementById('username');
     const emailInput = document.getElementById('email');
@@ -73,13 +72,20 @@ function initRegisterPage() {
     const provinceInput = document.getElementById('province');
 
     const submitButton = registerForm.querySelector('button[type="submit"]');
-    const messageContainer = document.getElementById('message');
 
-    // validar email
-    const isValidEmail = (email) => {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
-    };
+    // Activar validación en tiempo real si el módulo está disponible
+    if (typeof FormValidator !== 'undefined') {
+        FormValidator.init(registerForm, {
+            username: { minLength: 3, pattern: /^[a-zA-Z0-9_]+$/, patternMsg: 'Solo letras, números y guion bajo' },
+            email: { isEmail: true },
+            password: { minLength: 6 },
+            'confirm-password': { matchField: 'password', matchMsg: 'Las contraseñas no coinciden' },
+            name: { required: true },
+            dni: { pattern: /^[0-9]{8}[A-Za-z]$/, patternMsg: 'Formato: 12345678A', optional: true },
+            phone: { pattern: /^[6789][0-9]{8}$/, patternMsg: 'Teléfono español de 9 dígitos', optional: true },
+            postalCode: { pattern: /^[0-9]{5}$/, patternMsg: '5 dígitos', optional: true },
+        });
+    }
 
     // obtener valor seguro de input
     const getVal = (input) => input ? input.value : '';
@@ -87,116 +93,98 @@ function initRegisterPage() {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        console.log('Formulario enviado'); // Debug
+        // Verificar validación en tiempo real si está activa
+        if (typeof FormValidator !== 'undefined' && !FormValidator.isValid(registerForm)) {
+            Toast.show({ message: 'Por favor, corrige los errores del formulario antes de continuar.', type: 'warning' });
+            return;
+        }
+
+        const username = getVal(usernameInput).trim();
+        const email = getVal(emailInput).trim();
+        const password = getVal(passwordInput);
+        const confirmPassword = getVal(confirmPasswordInput);
+        const name = getVal(nameInput).trim();
+
+        // Validaciones básicas (fallback si FormValidator no está activo)
+        if (!username || !name || !email || !password || !confirmPassword) {
+            Toast.show({ message: 'Por favor, completa todos los campos obligatorios', type: 'warning' });
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            Toast.show({ message: 'Por favor, ingresa un email válido', type: 'error' });
+            return;
+        }
+
+        if (password.length < 6) {
+            Toast.show({ message: 'La contraseña debe tener al menos 6 caracteres', type: 'error' });
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            Toast.show({ message: 'Las contraseñas no coinciden', type: 'error' });
+            return;
+        }
+
+        // Deshabilitar botón mientras se procesa
+        const originalButtonText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-sm"></span> Creando cuenta...';
 
         try {
-            const username = getVal(usernameInput).trim();
-            const email = getVal(emailInput).trim();
-            const password = getVal(passwordInput);
-            const confirmPassword = getVal(confirmPasswordInput);
-            const name = getVal(nameInput).trim();
+            const userData = {
+                username,
+                email,
+                password,
+                name,
+                surname: getVal(surnameInput).trim() || null,
+                dni: getVal(dniInput).trim() || null,
+                phone: getVal(phoneInput).trim() || null,
+                dateOfBirth: getVal(dateOfBirthInput) || null,
+                address: getVal(addressInput).trim() || null,
+                city: getVal(cityInput).trim() || null,
+                postalCode: getVal(postalCodeInput).trim() || null,
+                province: getVal(provinceInput).trim() || null
+            };
 
-            // Validaciones básicas
-            if (!username || !name || !email || !password || !confirmPassword) {
-                showAuthError(messageContainer, 'Por favor, completa todos los campos obligatorios');
-                return;
-            }
+            await register(userData);
 
-            if (!isValidEmail(email)) {
-                showAuthError(messageContainer, 'Por favor, ingresa un email válido');
-                return;
-            }
+            Toast.show({ message: '¡Cuenta creada con éxito! Redirigiendo...', type: 'success', duration: 3000 });
 
-            if (password.length < 6) {
-                showAuthError(messageContainer, 'La contraseña debe tener al menos 6 caracteres');
-                return;
-            }
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1200);
 
-            if (password !== confirmPassword) {
-                showAuthError(messageContainer, 'Las contraseñas no coinciden');
-                return;
-            }
-
-            // Deshabilitar botón mientras se procesa
-            submitButton.disabled = true;
-            const originalButtonText = submitButton.textContent;
-            submitButton.textContent = 'Creando cuenta...';
-            messageContainer.classList.add('hidden');
-
-            try {
-                // Preparar datos completos para la API
-                const userData = {
-                    username,
-                    email,
-                    password,
-                    name,
-                    surname: getVal(surnameInput).trim() || null,
-                    dni: getVal(dniInput).trim() || null,
-                    phone: getVal(phoneInput).trim() || null,
-                    dateOfBirth: getVal(dateOfBirthInput) || null,
-                    address: getVal(addressInput).trim() || null,
-                    city: getVal(cityInput).trim() || null,
-                    postalCode: getVal(postalCodeInput).trim() || null,
-                    province: getVal(provinceInput).trim() || null
-                };
-
-                // Llamar a la API de registro
-                await register(userData);
-
-                // Si llega aquí, el registro fue exitoso
-                messageContainer.textContent = '¡Registro exitoso! Iniciando sesión...';
-                messageContainer.classList.remove('hidden', 'message-error');
-                messageContainer.classList.add('message-success');
-
-                // Redirigir al index después de un breve delay
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1000);
-
-            } catch (error) {
-                console.error('API Error:', error);
-                showAuthError(messageContainer, error.message || 'Error al crear la cuenta. Intenta nuevamente.');
-                submitButton.disabled = false;
-                submitButton.textContent = originalButtonText;
-            }
-        } catch (err) {
-            console.error('Critical Error in Register Handler:', err);
-            alert('Error interno en el formulario: ' + err.message);
+        } catch (error) {
+            Toast.show({
+                message: error.message || 'Error al crear la cuenta. Intenta nuevamente.',
+                type: 'error'
+            });
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
         }
     });
-}
-
-// ===== FUNCIÓN AUXILIAR PARA MOSTRAR ERRORES =====
-function showAuthError(container, message) {
-    container.textContent = message;
-    container.classList.remove('hidden', 'message-success');
-    container.classList.add('message-error');
 }
 
 // ===== LOGOUT DEL USUARIO =====
 async function logoutUser() {
     try {
-        await logout(); // Llamar al endpoint de logout
+        await logout();
     } catch (error) {
-        console.error('Error al cerrar sesión:', error);
+        // Error silencioso en logout — siempre se redirige
     }
 
-    // Redirigir siempre al login
     window.location.href = 'login.html';
 }
 
-// ===== AUTO-INICIALIZACIÓN SEGÚN LA PÁGINA =====
 // ===== AUTO-INICIALIZACIÓN SEGÚN EXISTENCIA DE ELEMENTOS =====
 document.addEventListener('DOMContentLoaded', () => {
-    // Verificar si existe formulario de login
     if (document.getElementById('login-form')) {
-        console.log('Iniciando página de Login...');
         initLoginPage();
     }
 
-    // Verificar si existe formulario de registro
     if (document.getElementById('register-form')) {
-        console.log('Iniciando página de Registro...');
         initRegisterPage();
     }
 });

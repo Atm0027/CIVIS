@@ -12,15 +12,21 @@ function VideoCard(video) {
     // Verificar estado de selección (usando funciones globales de selection.js si existen)
     const isSelected = window.isVideoSelected ? window.isVideoSelected(video.id) : false;
 
+    // Estado de la librería personal (si el módulo ya está cargado)
+    const isFav = window.UserLibrary ? window.UserLibrary.isFavorite(video.id) : false;
+    const isWatched = window.UserLibrary ? window.UserLibrary.isWatched(video.id) : false;
+
     // Usamos handleVideoClick para decidir en tiempo de ejecución si seleccionar o navegar
     const clickAction = `window.handleVideoClick(event, ${video.id})`;
 
     const selectedClass = isSelected ? 'selected' : '';
     const checkboxChecked = isSelected ? 'checked' : '';
-
-    // Eliminamos la clase 'hidden' condicional. La visibilidad se controlará por CSS
-    // usando la clase .selection-mode-active en el body
     const checkboxHidden = '';
+
+    const favActiveClass = isFav ? 'active' : '';
+    const watchedActiveClass = isWatched ? 'active' : '';
+    const favTitle = isFav ? 'Quitar de favoritos' : 'Añadir a favoritos';
+    const watchedTitle = isWatched ? 'Marcar como no visto' : 'Marcar como visto';
 
     return `
         <div class="video-card bg-white rounded-lg shadow-md overflow-hidden cursor-pointer ${selectedClass}"
@@ -35,8 +41,26 @@ function VideoCard(video) {
             <div class="p-5">
                 <h3 class="text-lg font-bold text-gray-900 mb-2">${video.title}</h3>
                 <p class="text-sm text-gray-600 mb-4">${description}</p>
-                <div class="flex flex-wrap gap-2">
+                <div class="video-card-footer">
                     <span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">${categoryName}</span>
+                    <div class="video-card-actions" onclick="event.stopPropagation()">
+                        <button class="action-btn action-btn-fav ${favActiveClass}"
+                                data-video-id="${video.id}"
+                                title="${favTitle}"
+                                onclick="window.handleToggleFavorite(event, ${JSON.stringify(JSON.stringify(video))})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </button>
+                        <button class="action-btn action-btn-watched ${watchedActiveClass}"
+                                data-video-id="${video.id}"
+                                title="${watchedTitle}"
+                                onclick="window.handleToggleWatched(event, ${JSON.stringify(JSON.stringify(video))})">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

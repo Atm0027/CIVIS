@@ -65,6 +65,11 @@ function initializeApp() {
         renderAuthButtons(); // Mostrar botones Login/Registro
     }
 
+    // Inicializar Notificaciones si el usuario está logueado
+    if (currentUser) {
+        initNotificationsUI();
+    }
+
     // Cargar contenido específico de la página
     if (path.includes('calendario.html')) {
         // Ya verificado arriba que está logueado
@@ -257,10 +262,25 @@ function renderUserProfile() {
         <div class="user-avatar"></div>
         <p class="user-name">${currentUser.name || 'Usuario'}</p>
         <p class="user-email">${currentUser.email || ''}</p>
-        <button class="btn-edit-profile" onclick="window.location.href='usuario.html'">
-            Ver perfil
-        </button>
+        <div class="user-card-actions">
+            <button class="btn-edit-profile" onclick="window.location.href='usuario.html'">
+                Ver perfil
+            </button>
+            <button class="btn-logout-sidebar" id="logout-btn-sidebar">
+                Cerrar sesión
+            </button>
+        </div>
     `;
+
+    // Configurar listener para el nuevo botón de logout en la sidebar
+    const logoutBtnSidebar = document.getElementById('logout-btn-sidebar');
+    if (logoutBtnSidebar) {
+        logoutBtnSidebar.addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                logoutUser();
+            }
+        });
+    }
 
     // Mostrar sección de admin si el usuario tiene rol 'admin'
     const adminSection = document.getElementById('admin-section');
@@ -397,80 +417,127 @@ async function loadFaqPage() {
     }
 }
 
-// ===== LÓGICA DE NAVEGACIÓN Y ESTADO =====
+// ===== SISTEMA DE NOTIFICACIONES (UI) =====
 
-// Función para mostrar la página correcta y ocultar las demás
-function showPage(pageId) {
-    // Mapeo de IDs lógicos a IDs de DOM en index.html
-    const viewMap = {
-        'videoteca': 'view-videoteca',
-        'feed': 'view-videoteca', // Alias
-        'detail': 'view-detail'
-    };
+function initNotificationsUI() {
+    const bellBtn = document.getElementById('notification-bell');
+    const dropdown = document.getElementById('notification-dropdown');
+    const dot = document.getElementById('notification-dot');
+    const list = document.getElementById('notification-list');
+    const markAllBtn = document.getElementById('mark-all-read');
 
-    const targetViewId = viewMap[pageId] || pageId;
+    if (!bellBtn || !dropdown || !Notifications) return;
 
-    // Si estamos en otra página HTML (calendario, usuario), y piden 'videoteca', ir a index.html
-    const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
-    if (!isIndex && (pageId === 'videoteca' || pageId === 'feed')) {
-        window.location.href = 'index.html';
-        return;
-    }
+    // Toggle dropdown
+    bellBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('active');
 
-    // Protección de rutas
-    if ((pageId === 'calendar' || pageId === 'profile') && !currentUser) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    const views = document.querySelectorAll('.view');
-
-    // Ocultar todas las vistas
-    views.forEach(view => {
-        view.classList.remove('active');
-        // view.style.display = 'none'; // Dejar que CSS maneje display via .active
+        // Al abrir, si hay unread, podríamos querer marcarlas, pero mejor que el usuario lo vea primero
     });
 
-    // Mostrar la vista solicitada
-    const activeView = document.getElementById(targetViewId);
-    if (activeView) {
-        activeView.classList.add('active');
-        // activeView.style.display = 'block';
+    // Cerrar al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && e.target !== bellBtn) {
+            dropdown.classList.remove('active');
+        }
+    });
+
+    // Marcar todo como leído
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            Notifications.markAllAsRead();
+            renderNotificationList();
+        });
     }
 
-    // Lógica específica de la vista
-    if (pageId === 'videoteca' || pageId === 'feed') {
-        const feedTitle = document.getElementById('feed-title');
-        // Solo resetear si NO venimos de una búsqueda (esto se maneja en handleSearch)
-        // O si explicitamente queremos resetear.
-        // Por ahora, asumimos que si llamamos a showPage('videoteca') queremos ver el feed.
+    // Escuchar actualizaciones
+    document.addEventListener('notificationsUpdated', () => {
+        updateNotificationBadge();
+        renderNotificationList();
+    });
 
-        // Si el input de búsqueda está vacío, cargar feed normal
-        const searchInput = document.getElementById('search-input');
-        if (searchInput && searchInput.value.trim() === '') {
-            if (feedTitle) {
-                feedTitle.textContent = 'Videoteca de Trámites';
-                feedTitle.classList.remove('text-blue-600', 'text-red-600');
-            }
-            loadVideoFeed();
-        }
+    // Inicializar estado
+    updateNotificationBadge();
+    renderNotificationList();
+
+    // Chequear alertas del sistema (ej: DNI faltante)
+    if (currentUser) {
+        Notifications.checkSystemAlerts(currentUser);
     }
 }
 
-// Carga los datos del perfil en el formulario
-function loadProfileData() {
-    document.getElementById('profile-username').value = currentUser.username || '';
-    document.getElementById('profile-name').value = currentUser.name || '';
-    document.getElementById('profile-surname').value = currentUser.surname || '';
-    document.getElementById('profile-email').value = currentUser.email || '';
-    document.getElementById('profile-dni').value = currentUser.dni || '';
-    document.getElementById('profile-phone').value = currentUser.phone || '';
-    document.getElementById('profile-dateOfBirth').value = currentUser.dateOfBirth || '';
-    document.getElementById('profile-address').value = currentUser.address || '';
-    document.getElementById('profile-city').value = currentUser.city || '';
-    document.getElementById('profile-postalCode').value = currentUser.postalCode || '';
-    document.getElementById('profile-province').value = currentUser.province || '';
-    document.getElementById('profile-relevant-data').value = currentUser.relevantData || '';
+function updateNotificationBadge() {
+    const dot = document.getElementById('notification-dot');
+    if (!dot) return;
+
+    const count = Notifications.getUnreadCount();
+    if (count > 0) {
+        dot.classList.add('active');
+    } else {
+        dot.classList.remove('active');
+    }
+}
+
+function renderNotificationList() {
+    const list = document.getElementById('notification-list');
+    if (!list) return;
+
+    const notifications = Notifications.getAll();
+
+    if (notifications.length === 0) {
+        list.innerHTML = '<div class="notification-empty">No tienes avisos pendientes</div>';
+        return;
+    }
+
+    list.innerHTML = notifications.map(n => `
+        <li class="notification-item ${n.read ? '' : 'unread'}" onclick="handleNotificationClick(event, ${n.id})">
+            <div class="notification-title">${n.title}</div>
+            <div class="notification-msg">${n.message}</div>
+            <div class="notification-time">${new Date(n.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+        </li>
+    `).join('');
+}
+
+window.handleNotificationClick = (e, id) => {
+    e.stopPropagation();
+    Notifications.markAsRead(id);
+    const notifications = Notifications.getAll();
+    const n = notifications.find(item => item.id === id);
+    if (n && n.link) {
+        window.location.href = n.link;
+    } else {
+        renderNotificationList();
+        updateNotificationBadge();
+    }
+};
+
+// ===== LOGOUT DEL USUARIO =====
+async function logoutUser() {
+    try {
+        // Mostrar loader si estamos en una vista con botón
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.disabled = true;
+            logoutBtn.innerHTML = '<span class="spinner-sm"></span> Cerrando...';
+        }
+
+        // Si api.js tiene logout(), usarlo
+        if (typeof logout === 'function') {
+            await logout();
+        }
+    } catch (error) {
+        // Fail gracefully
+    } finally {
+        // Limpieza profunda de localStorage
+        removeToken();
+        removeCurrentUser();
+        // Opcional: limpiar también favoritos/notificaciones si se desea sesión limpia total
+        // Por ahora mantenemos favoritos locales.
+
+        window.location.href = 'login.html';
+    }
 }
 
 // ===== HANDLERS DE EVENTOS =====

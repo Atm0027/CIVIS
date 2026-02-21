@@ -1,0 +1,30 @@
+{
+  "name": "civis",
+  "version": "1.0.0",
+  "description": "> Plataforma digital que simplifica la burocracia en España, convirtiendo trámites complejos en procesos sencillos, visuales y accesibles 24/7 desde cualquier dispositivo.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Atm0027/CIVIS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Atm0027/CIVIS/issues"
+  },
+  "homepage": "https://github.com/Atm0027/CIVIS#readme",
+  "devDependencies": {
+    "jsdom": "^28.1.0",
+    "vitest": "^4.0.18"
+  }
+}

@@ -326,10 +326,10 @@ function requireAuth() {
  * @param {HTMLElement} container - Contenedor donde mostrar el loader
  */
 function showLoader(container) {
-    if (!container) return; // Evitar error si el contenedor no existe
+    if (!container) return;
     container.innerHTML = `
-        <div class="flex justify-center items-center py-12">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div class="spinner-container">
+            <div class="spinner" role="status" aria-label="Cargando..."></div>
         </div>
     `;
 }
