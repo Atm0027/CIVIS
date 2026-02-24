@@ -1717,6 +1717,104 @@ select.form-input {
     margin-top: 0.5rem;
 }
 
+/* ==========================================
+   VIDEO CARD ACTIONS (Favorito, Visto, Valoración)
+   ========================================== */
+
+.video-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.video-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: color 0.2s, background 0.2s, transform 0.15s;
+    padding: 0;
+}
+
+.action-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    transform: scale(1.15);
+}
+
+/* Favorito: rojo cuando activo */
+.action-btn-fav:hover,
+.action-btn-fav.active {
+    color: #ef4444;
+}
+
+/* Visto: azul cuando activo */
+.action-btn-watched:hover,
+.action-btn-watched.active {
+    color: #0ea5e9;
+}
+
+/* Me gusta: verde cuando activo */
+.action-btn-like:hover,
+.action-btn-like.active {
+    color: #22c55e;
+}
+
+/* No me gusta: naranja cuando activo */
+.action-btn-dislike:hover,
+.action-btn-dislike.active {
+    color: #f97316;
+}
+
+/* Separador visual entre fav/visto y like/dislike */
+.action-btn-like {
+    margin-left: 6px;
+    border-left: 1px solid #e5e7eb;
+    padding-left: 6px;
+    border-radius: 0 6px 6px 0;
+}
+
+/* Sidebar user-card: acciones del usuario */
+.user-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+.btn-logout-sidebar {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ef4444;
+    background: transparent;
+    color: #ef4444;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-logout-sidebar:hover {
+    background: #ef4444;
+    color: white;
+}
+
 .hidden {
     display: none !important;
 }

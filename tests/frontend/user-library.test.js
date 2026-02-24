@@ -163,14 +163,14 @@ describe('UserLibrary — independencia de listas', () => {
 describe('UserLibrary — getStats()', () => {
 
     it('devuelve { favorites: 0, watched: 0 } cuando todo está vacío', () => {
-        expect(UserLibrary.getStats()).toEqual({ favorites: 0, watched: 0 });
+        expect(UserLibrary.getStats()).toMatchObject({ favorites: 0, watched: 0 });
     });
 
     it('cuenta correctamente favoritos y vistos', () => {
         UserLibrary.toggleFavorite(VIDEO_1);
         UserLibrary.toggleFavorite(VIDEO_2);
         UserLibrary.toggleWatched(VIDEO_3);
-        expect(UserLibrary.getStats()).toEqual({ favorites: 2, watched: 1 });
+        expect(UserLibrary.getStats()).toMatchObject({ favorites: 2, watched: 1 });
     });
 });
 

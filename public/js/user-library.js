@@ -10,11 +10,13 @@ const UserLibrary = (() => {
     const KEYS = {
         favorites: 'civis_favorites',
         watched: 'civis_watched',
+        ratings: 'civis_ratings',
     };
 
     const EVENTS = {
         favoriteToggled: 'civis:favoriteToggled',
         watchedToggled: 'civis:watchedToggled',
+        ratingChanged: 'civis:ratingChanged',
     };
 
     // -----------------------------------------------------------------------
@@ -171,27 +173,97 @@ const UserLibrary = (() => {
     }
 
     // -----------------------------------------------------------------------
+    // API PÚBLICA — VALORACIONES (Me gusta / No me gusta)
+    // -----------------------------------------------------------------------
+
+    /**
+     * Lee el mapa de valoraciones: { [videoId]: 'like'|'dislike' }
+     * @returns {Object}
+     */
+    function _getRatingsMap() {
+        try {
+            const raw = localStorage.getItem(KEYS.ratings);
+            return raw ? JSON.parse(raw) : {};
+        } catch {
+            return {};
+        }
+    }
+
+    /**
+     * Devuelve la valoración actual de un vídeo: 'like', 'dislike' o null.
+     * @param {number|string} videoId
+     * @returns {'like'|'dislike'|null}
+     */
+    function getRating(videoId) {
+        const map = _getRatingsMap();
+        return map[String(videoId)] || null;
+    }
+
+    /**
+     * Alterna la valoración de un vídeo.
+     * - Si se vota lo mismo dos veces, se elimina la valoración (toggle).
+     * - Si se vota lo contrario, se cambia.
+     * @param {number|string} videoId
+     * @param {'like'|'dislike'} value
+     * @returns {{ videoId: string, rating: 'like'|'dislike'|null }}
+     */
+    function toggleRating(videoId, value) {
+        if (value !== 'like' && value !== 'dislike') {
+            throw new Error('El valor de rating debe ser "like" o "dislike"');
+        }
+
+        const map = _getRatingsMap();
+        const key = String(videoId);
+        const current = map[key] || null;
+
+        // Mismo voto → eliminar (toggle off)
+        if (current === value) {
+            delete map[key];
+        } else {
+            map[key] = value;
+        }
+
+        localStorage.setItem(KEYS.ratings, JSON.stringify(map));
+        const newRating = map[key] || null;
+        _dispatch(EVENTS.ratingChanged, { videoId: key, rating: newRating });
+        return { videoId: key, rating: newRating };
+    }
+
+    /**
+     * Elimina la valoración de un vídeo.
+     * @param {number|string} videoId
+     */
+    function removeRating(videoId) {
+        const map = _getRatingsMap();
+        delete map[String(videoId)];
+        localStorage.setItem(KEYS.ratings, JSON.stringify(map));
+        _dispatch(EVENTS.ratingChanged, { videoId: String(videoId), rating: null });
+    }
+
+    // -----------------------------------------------------------------------
     // API PÚBLICA — UTILIDADES
     // -----------------------------------------------------------------------
 
     /**
      * Devuelve estadísticas de la librería del usuario.
-     * @returns {{ favorites: number, watched: number }}
+     * @returns {{ favorites: number, watched: number, ratings: number }}
      */
     function getStats() {
         return {
             favorites: getFavorites().length,
             watched: getWatched().length,
+            ratings: Object.keys(_getRatingsMap()).length,
         };
     }
 
     /**
-     * Borra toda la librería personal (favoritos + vistos).
+     * Borra toda la librería personal (favoritos + vistos + valoraciones).
      * Útil para logout o reset.
      */
     function clearAll() {
         localStorage.removeItem(KEYS.favorites);
         localStorage.removeItem(KEYS.watched);
+        localStorage.removeItem(KEYS.ratings);
     }
 
     // Exponer constantes de eventos también
@@ -200,6 +272,7 @@ const UserLibrary = (() => {
     return {
         getFavorites, isFavorite, toggleFavorite, removeFavorite,
         getWatched, isWatched, toggleWatched, removeWatched,
+        getRating, toggleRating, removeRating,
         getStats, clearAll, events,
     };
 })();

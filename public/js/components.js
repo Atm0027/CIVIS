@@ -15,25 +15,31 @@ function VideoCard(video) {
     // Estado de la librería personal (si el módulo ya está cargado)
     const isFav = window.UserLibrary ? window.UserLibrary.isFavorite(video.id) : false;
     const isWatched = window.UserLibrary ? window.UserLibrary.isWatched(video.id) : false;
+    const rating = window.UserLibrary ? window.UserLibrary.getRating(video.id) : null;
 
     // Usamos handleVideoClick para decidir en tiempo de ejecución si seleccionar o navegar
     const clickAction = `window.handleVideoClick(event, ${video.id})`;
 
     const selectedClass = isSelected ? 'selected' : '';
     const checkboxChecked = isSelected ? 'checked' : '';
-    const checkboxHidden = '';
 
     const favActiveClass = isFav ? 'active' : '';
     const watchedActiveClass = isWatched ? 'active' : '';
+    const likeActiveClass = rating === 'like' ? 'active' : '';
+    const dislikeActiveClass = rating === 'dislike' ? 'active' : '';
+
     const favTitle = isFav ? 'Quitar de favoritos' : 'Añadir a favoritos';
     const watchedTitle = isWatched ? 'Marcar como no visto' : 'Marcar como visto';
+
+    // Serializar el vídeo una sola vez para los onclick
+    const videoJson = JSON.stringify(JSON.stringify(video));
 
     return `
         <div class="video-card bg-white rounded-lg shadow-md overflow-hidden cursor-pointer ${selectedClass}"
              data-video-id="${video.id}"
              onclick="${clickAction}">
 
-            <div class="video-card-overlay ${checkboxHidden}">
+            <div class="video-card-overlay">
                 <input type="checkbox" class="video-checkbox" ${checkboxChecked} readonly>
             </div>
 
@@ -44,20 +50,38 @@ function VideoCard(video) {
                 <div class="video-card-footer">
                     <span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">${categoryName}</span>
                     <div class="video-card-actions" onclick="event.stopPropagation()">
+                        <!-- Favorito -->
                         <button class="action-btn action-btn-fav ${favActiveClass}"
-                                data-video-id="${video.id}"
-                                title="${favTitle}"
-                                onclick="window.handleToggleFavorite(event, ${JSON.stringify(JSON.stringify(video))})">
+                                data-video-id="${video.id}" title="${favTitle}"
+                                onclick="window.handleToggleFavorite(event, ${videoJson})">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                             </svg>
                         </button>
+                        <!-- Visto -->
                         <button class="action-btn action-btn-watched ${watchedActiveClass}"
-                                data-video-id="${video.id}"
-                                title="${watchedTitle}"
-                                onclick="window.handleToggleWatched(event, ${JSON.stringify(JSON.stringify(video))})">
+                                data-video-id="${video.id}" title="${watchedTitle}"
+                                onclick="window.handleToggleWatched(event, ${videoJson})">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </button>
+                        <!-- Me gusta -->
+                        <button class="action-btn action-btn-like ${likeActiveClass}"
+                                data-video-id="${video.id}" title="Me gusta"
+                                onclick="window.handleToggleRating(event, ${video.id}, 'like')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${rating === 'like' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+                            </svg>
+                        </button>
+                        <!-- No me gusta -->
+                        <button class="action-btn action-btn-dislike ${dislikeActiveClass}"
+                                data-video-id="${video.id}" title="No me gusta"
+                                onclick="window.handleToggleRating(event, ${video.id}, 'dislike')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${rating === 'dislike' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                                <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/>
+                                <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
                             </svg>
                         </button>
                     </div>
