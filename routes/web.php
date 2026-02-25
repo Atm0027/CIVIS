@@ -8,5 +8,9 @@ Route::get('/health', function () {
 });
 
 Route::get('/', function () {
-    return view('welcome');
+    return response()->json([
+        'api' => 'CIVIS Backend API',
+        'status' => 'active',
+        'version' => '1.0'
+    ]);
 });
