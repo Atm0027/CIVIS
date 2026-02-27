@@ -144,8 +144,13 @@ function setupEventListeners(elements) {
     // Control de la Sidebar Móvil (solo si existen los elementos)
     if (elements.openSidebarBtn && elements.sidebar) {
         elements.openSidebarBtn.addEventListener('click', () => {
-            elements.sidebar.classList.add('sidebar-open');
-            if (elements.sidebarOverlay) elements.sidebarOverlay.classList.remove('hidden');
+            elements.sidebar.classList.toggle('sidebar-open');
+            if (elements.sidebarOverlay) {
+                elements.sidebarOverlay.classList.toggle(
+                    'hidden',
+                    !elements.sidebar.classList.contains('sidebar-open')
+                );
+            }
         });
     }
 
@@ -348,9 +353,12 @@ async function loadVideoFeed() {
     const videoFeedGrid = document.getElementById('tramites-grid');
     const noResultsEl = document.getElementById('no-results');
 
+    // Guardia: si no existe el contenedor de vídeos en esta página, no hacer nada
+    if (!videoFeedGrid) return;
+
     try {
         showLoader(videoFeedGrid);
-        noResultsEl.classList.add('hidden');
+        if (noResultsEl) noResultsEl.classList.add('hidden');
 
         const response = await getVideos();
         // Handle pagination structure (Laravel default) or direct array
@@ -358,7 +366,7 @@ async function loadVideoFeed() {
 
         if (!Array.isArray(videos) || videos.length === 0) {
             videoFeedGrid.innerHTML = '';
-            noResultsEl.classList.remove('hidden');
+            if (noResultsEl) noResultsEl.classList.remove('hidden');
             return;
         }
 
