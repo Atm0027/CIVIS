@@ -802,12 +802,7 @@ function loadMiCarpeta() {
         try { watched = JSON.parse(localStorage.getItem('civis_watched') || '[]'); } catch (e) { }
     }
 
-<<<<<<< Updated upstream
-    console.log('[MiCarpeta] Cargando favoritos...', favorites);
-    console.log('[MiCarpeta] Cargando vistos...', watched);
 
-=======
->>>>>>> Stashed changes
     // 2) Resolver vídeo completo: caché del feed → metadata guardada
     const resolveVideo = (savedItem) => {
         if (window._cachedVideos) {
