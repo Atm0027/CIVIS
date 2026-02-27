@@ -800,18 +800,41 @@ function loadMiCarpeta() {
         const empty = document.getElementById(emptyId);
         const count = document.getElementById(countId);
         if (!grid) return;
+
+        // Actualizar contador PRIMERO (aunque el render falle, el badge será correcto)
+        if (count) count.textContent = items.length;
+
         if (items.length === 0) {
             grid.innerHTML = '';
             if (empty) empty.classList.remove('hidden');
-        } else {
-            if (empty) empty.classList.add('hidden');
-            grid.innerHTML = items.map(item => VideoCard(resolveVideo(item))).join('');
+            return;
         }
-        if (count) count.textContent = items.length;
+
+        if (empty) empty.classList.add('hidden');
+
+        // Renderizar tarjetas con protección individual ante datos incompletos
+        const cards = items.map(item => {
+            try {
+                const videoData = resolveVideo(item);
+                // Garantizar campos mínimos que VideoCard necesita
+                if (!videoData.category) videoData.category = { name: 'Sin categoría' };
+                if (!videoData.url) videoData.url = '';
+                if (!videoData.description) videoData.description = '';
+                return VideoCard(videoData);
+            } catch (err) {
+                // Tarjeta mínima de fallback si hay error
+                return `<div class="video-card" data-video-id="${item.id || ''}">
+                    <div class="p-5"><h3 class="text-base font-bold">${item.title || 'Vídeo guardado'}</h3></div>
+                </div>`;
+            }
+        });
+
+        grid.innerHTML = cards.join('');
     };
 
     renderBlock(favorites, 'favorites-grid', 'favorites-empty', 'fav-count');
     renderBlock(watched, 'watched-grid', 'watched-empty', 'watched-count');
+
 }
 
 
