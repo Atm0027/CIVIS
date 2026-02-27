@@ -284,3 +284,5 @@ if (typeof window !== 'undefined') {
 
 // Exportar para tests (ESM - Vitest)
 export { UserLibrary };
+
+

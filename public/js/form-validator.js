@@ -250,4 +250,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Exportar para tests (ESM - Vitest)
+// eslint-disable-next-line no-undef
 export { FormValidator };
+
+
