@@ -14,7 +14,7 @@ function VideoCard(video) {
 
     // Estado de la librería personal (si el módulo ya está cargado)
     const isFav = window.UserLibrary ? window.UserLibrary.isFavorite(video.id) : false;
-    const isWatched = window.UserLibrary ? window.UserLibrary.isWatched(video.id) : false;
+
     const rating = window.UserLibrary ? window.UserLibrary.getRating(video.id) : null;
 
     // Usamos handleVideoClick para decidir en tiempo de ejecución si seleccionar o navegar
@@ -24,12 +24,12 @@ function VideoCard(video) {
     const checkboxChecked = isSelected ? 'checked' : '';
 
     const favActiveClass = isFav ? 'active' : '';
-    const watchedActiveClass = isWatched ? 'active' : '';
+
     const likeActiveClass = rating === 'like' ? 'active' : '';
     const dislikeActiveClass = rating === 'dislike' ? 'active' : '';
 
     const favTitle = isFav ? 'Quitar de favoritos' : 'Añadir a favoritos';
-    const watchedTitle = isWatched ? 'Marcar como no visto' : 'Marcar como visto';
+
 
     // El ID es siempre un valor seguro en atributos HTML.
     // Los datos completos se obtienen en el handler desde window._cachedVideos.
@@ -58,14 +58,7 @@ function VideoCard(video) {
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                             </svg>
                         </button>
-                        <!-- Visto -->
-                        <button class="action-btn action-btn-watched ${watchedActiveClass}"
-                                data-video-id="${video.id}" title="${watchedTitle}"
-                                onclick="window.handleToggleWatched(event, '${video.id}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                        </button>
+
                         <!-- Me gusta -->
                         <button class="action-btn action-btn-like ${likeActiveClass}"
                                 data-video-id="${video.id}" title="Me gusta"
