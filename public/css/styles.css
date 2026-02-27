@@ -1762,11 +1762,6 @@ select.form-input {
     color: #ef4444;
 }
 
-/* Visto: azul cuando activo */
-.action-btn-watched:hover,
-.action-btn-watched.active {
-    color: #0ea5e9;
-}
 
 /* Me gusta: verde cuando activo */
 .action-btn-like:hover,
@@ -1780,7 +1775,7 @@ select.form-input {
     color: #f97316;
 }
 
-/* Separador visual entre fav/visto y like/dislike */
+/* Separador visual entre fav y like/dislike */
 .action-btn-like {
     margin-left: 6px;
     border-left: 1px solid #e5e7eb;

@@ -565,7 +565,7 @@ async function logoutUser() {
 
 // ===== HANDLERS DE EVENTOS =====
 
-// ===== LIBRERÍA PERSONAL: FAVORITOS, VISTOS Y VALORACIONES =====
+// ===== LIBRERÍA PERSONAL: FAVORITOS Y VALORACIONES =====
 
 window.handleToggleFavorite = (e, videoId) => {
     e.stopPropagation();
@@ -582,20 +582,7 @@ window.handleToggleFavorite = (e, videoId) => {
     rerenderVideoCard(videoId);
 };
 
-window.handleToggleWatched = (e, videoId) => {
-    e.stopPropagation();
-    if (!window.UserLibrary || !window._cachedVideos) return;
-    const video = window._cachedVideos.find(v => String(v.id) === String(videoId));
-    if (!video) return;
-    const result = window.UserLibrary.toggleWatched(video);
 
-    if (result.action === 'added') {
-        window.Toast && window.Toast.show({ message: '✓ Marcado como visto', type: 'success', duration: 2000 });
-    } else {
-        window.Toast && window.Toast.show({ message: 'Marcado como no visto', type: 'info', duration: 2000 });
-    }
-    rerenderVideoCard(videoId);
-};
 
 window.handleToggleRating = (e, videoId, value) => {
     e.stopPropagation();
@@ -777,22 +764,18 @@ function loadProfileData() {
     loadMiCarpeta();
 }
 
-// ===== MI CARPETA: FAVORITOS Y VISTOS =====
+// ===== MI CARPETA: FAVORITOS =====
 function loadMiCarpeta() {
     // 1) Leer datos: UserLibrary si está listo, o localStorage directamente como fallback
     let favorites = [];
-    let watched = [];
 
     if (window.UserLibrary) {
         favorites = window.UserLibrary.getFavorites();
-        watched = window.UserLibrary.getWatched();
     } else {
         try { favorites = JSON.parse(localStorage.getItem('civis_favorites') || '[]'); } catch (e) { }
-        try { watched = JSON.parse(localStorage.getItem('civis_watched') || '[]'); } catch (e) { }
     }
 
     console.log('[MiCarpeta] Cargando favoritos...', favorites);
-    console.log('[MiCarpeta] Cargando vistos...', watched);
 
     // 2) Resolver vídeo completo: caché del feed → metadata guardada
     const resolveVideo = (savedItem) => {
@@ -842,7 +825,6 @@ function loadMiCarpeta() {
     };
 
     renderBlock(favorites, 'favorites-grid', 'favorites-empty', 'fav-count');
-    renderBlock(watched, 'watched-grid', 'watched-empty', 'watched-count');
 
 }
 
