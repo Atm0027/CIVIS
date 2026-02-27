@@ -557,14 +557,13 @@ window.handleToggleFavorite = (e, videoJson) => {
     e.stopPropagation();
     if (!window.UserLibrary) return;
     const video = typeof videoJson === 'string' ? JSON.parse(videoJson) : videoJson;
-    const result = UserLibrary.toggleFavorite(video);
+    const result = window.UserLibrary.toggleFavorite(video);
 
     if (result.action === 'added') {
-        Toast.show({ message: '❤️ Añadido a favoritos', type: 'success', duration: 2000 });
+        window.Toast && window.Toast.show({ message: '❤️ Añadido a favoritos', type: 'success', duration: 2000 });
     } else {
-        Toast.show({ message: 'Eliminado de favoritos', type: 'info', duration: 2000 });
+        window.Toast && window.Toast.show({ message: 'Eliminado de favoritos', type: 'info', duration: 2000 });
     }
-    // Re-renderizar la card para reflejar el nuevo estado
     rerenderVideoCard(video.id);
 };
 
@@ -572,12 +571,12 @@ window.handleToggleWatched = (e, videoJson) => {
     e.stopPropagation();
     if (!window.UserLibrary) return;
     const video = typeof videoJson === 'string' ? JSON.parse(videoJson) : videoJson;
-    const result = UserLibrary.toggleWatched(video);
+    const result = window.UserLibrary.toggleWatched(video);
 
     if (result.action === 'added') {
-        Toast.show({ message: '✓ Marcado como visto', type: 'success', duration: 2000 });
+        window.Toast && window.Toast.show({ message: '✓ Marcado como visto', type: 'success', duration: 2000 });
     } else {
-        Toast.show({ message: 'Marcado como no visto', type: 'info', duration: 2000 });
+        window.Toast && window.Toast.show({ message: 'Marcado como no visto', type: 'info', duration: 2000 });
     }
     rerenderVideoCard(video.id);
 };
@@ -585,31 +584,30 @@ window.handleToggleWatched = (e, videoJson) => {
 window.handleToggleRating = (e, videoId, value) => {
     e.stopPropagation();
     if (!window.UserLibrary) return;
-    const result = UserLibrary.toggleRating(videoId, value);
+    const result = window.UserLibrary.toggleRating(videoId, value);
 
     if (result.rating !== null) {
-        Toast.show({ message: '¡Gracias por tu valoración!', type: 'success', duration: 2500 });
+        window.Toast && window.Toast.show({ message: '¡Gracias por tu valoración!', type: 'success', duration: 2500 });
     } else {
-        Toast.show({ message: 'Valoración eliminada', type: 'info', duration: 2000 });
+        window.Toast && window.Toast.show({ message: 'Valoración eliminada', type: 'info', duration: 2000 });
     }
     rerenderVideoCard(videoId);
 };
 
 /**
  * Re-renderiza una tarjeta de vídeo en el grid para reflejar cambios de estado.
- * Busca el vídeo en el DOM, luego lo regenera desde el array global si está disponible.
+ * Usa insertAdjacentHTML + remove() para reemplazar el elemento de forma fiable.
  */
 function rerenderVideoCard(videoId) {
     const card = document.querySelector(`[data-video-id="${videoId}"]`);
-    if (!card) return;
+    if (!card || !window._cachedVideos) return;
 
-    // Intentar obtener datos del vídeo desde el dataset de la card o el estado global
-    if (window._cachedVideos && Array.isArray(window._cachedVideos)) {
-        const video = window._cachedVideos.find(v => String(v.id) === String(videoId));
-        if (video) {
-            card.outerHTML = VideoCard(video);
-        }
-    }
+    const video = window._cachedVideos.find(v => String(v.id) === String(videoId));
+    if (!video) return;
+
+    // Insertar la nueva card justo antes de la actual, luego eliminar la antigua
+    card.insertAdjacentHTML('beforebegin', VideoCard(video));
+    card.remove();
 }
 
 
