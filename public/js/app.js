@@ -142,17 +142,17 @@ function getElements() {
 // ===== CONFIGURAR EVENT LISTENERS =====
 function setupEventListeners(elements) {
     // Control de la Sidebar Móvil (solo si existen los elementos)
-    if (elements.openSidebarBtn && elements.sidebar && elements.sidebarOverlay) {
+    if (elements.openSidebarBtn && elements.sidebar) {
         elements.openSidebarBtn.addEventListener('click', () => {
-            elements.sidebar.classList.remove('-translate-x-full');
-            elements.sidebarOverlay.classList.remove('hidden');
+            elements.sidebar.classList.add('sidebar-open');
+            if (elements.sidebarOverlay) elements.sidebarOverlay.classList.remove('hidden');
         });
     }
 
-    if (elements.closeSidebarBtn && elements.sidebar && elements.sidebarOverlay) {
+    if (elements.closeSidebarBtn && elements.sidebar) {
         elements.closeSidebarBtn.addEventListener('click', () => {
-            elements.sidebar.classList.add('-translate-x-full');
-            elements.sidebarOverlay.classList.add('hidden');
+            elements.sidebar.classList.remove('sidebar-open');
+            if (elements.sidebarOverlay) elements.sidebarOverlay.classList.add('hidden');
         });
     }
 
@@ -765,48 +765,45 @@ function loadProfileData() {
 
 // ===== MI CARPETA: FAVORITOS Y VISTOS =====
 function loadMiCarpeta() {
-    if (!window.UserLibrary) return;
+    // 1) Leer datos: UserLibrary si está listo, o localStorage directamente como fallback
+    let favorites = [];
+    let watched = [];
 
-    const favorites = window.UserLibrary.getFavorites();
-    const watched = window.UserLibrary.getWatched();
+    if (window.UserLibrary) {
+        favorites = window.UserLibrary.getFavorites();
+        watched = window.UserLibrary.getWatched();
+    } else {
+        try { favorites = JSON.parse(localStorage.getItem('civis_favorites') || '[]'); } catch (e) { }
+        try { watched = JSON.parse(localStorage.getItem('civis_watched') || '[]'); } catch (e) { }
+    }
 
-    // Resuelve datos completos: primero en _cachedVideos, si no, usa lo que guardó UserLibrary
+    // 2) Resolver vídeo completo: caché del feed → metadata guardada
     const resolveVideo = (savedItem) => {
         if (window._cachedVideos) {
             const cached = window._cachedVideos.find(v => String(v.id) === String(savedItem.id));
             if (cached) return cached;
         }
-        return savedItem; // Fallback: metadata guardada por UserLibrary
+        return savedItem;
     };
 
-    // --- Favoritos ---
-    const favGrid = document.getElementById('favorites-grid');
-    const favEmpty = document.getElementById('favorites-empty');
-    const favCount = document.getElementById('fav-count');
-    if (favGrid) {
-        if (favorites.length === 0) {
-            favGrid.innerHTML = '';
-            favEmpty && favEmpty.classList.remove('hidden');
+    // 3) Helper para renderizar un bloque (favoritos o vistos)
+    const renderBlock = (items, gridId, emptyId, countId) => {
+        const grid = document.getElementById(gridId);
+        const empty = document.getElementById(emptyId);
+        const count = document.getElementById(countId);
+        if (!grid) return;
+        if (items.length === 0) {
+            grid.innerHTML = '';
+            if (empty) empty.classList.remove('hidden');
         } else {
-            favEmpty && favEmpty.classList.add('hidden');
-            favGrid.innerHTML = favorites.map(item => VideoCard(resolveVideo(item))).join('');
+            if (empty) empty.classList.add('hidden');
+            grid.innerHTML = items.map(item => VideoCard(resolveVideo(item))).join('');
         }
-    }
-    if (favCount) favCount.textContent = favorites.length;
+        if (count) count.textContent = items.length;
+    };
 
-    // --- Vistos ---
-    const watchedGrid = document.getElementById('watched-grid');
-    const watchedEmpty = document.getElementById('watched-empty');
-    const watchedCount = document.getElementById('watched-count');
-    if (watchedGrid) {
-        if (watched.length === 0) {
-            watchedGrid.innerHTML = '';
-            watchedEmpty && watchedEmpty.classList.remove('hidden');
-        } else {
-            watchedEmpty && watchedEmpty.classList.add('hidden');
-            watchedGrid.innerHTML = watched.map(item => VideoCard(resolveVideo(item))).join('');
-        }
-    }
-    if (watchedCount) watchedCount.textContent = watched.length;
+    renderBlock(favorites, 'favorites-grid', 'favorites-empty', 'fav-count');
+    renderBlock(watched, 'watched-grid', 'watched-empty', 'watched-count');
 }
+
 
