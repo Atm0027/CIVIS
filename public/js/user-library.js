@@ -1,4 +1,4 @@
-// ===== MÓDULO: LIBRERÍA PERSONAL DEL USUARIO (Favoritos + Vistos) =====
+// ===== MÓDULO: LIBRERÍA PERSONAL DEL USUARIO (Favoritos + Valoraciones) =====
 // Persiste en localStorage para acceso inmediato sin necesidad de autenticación.
 // Listo para sincronizar con API cuando los endpoints estén disponibles.
 
@@ -9,13 +9,11 @@ const UserLibrary = (() => {
     // -----------------------------------------------------------------------
     const KEYS = {
         favorites: 'civis_favorites',
-        watched: 'civis_watched',
         ratings: 'civis_ratings',
     };
 
     const EVENTS = {
         favoriteToggled: 'civis:favoriteToggled',
-        watchedToggled: 'civis:watchedToggled',
         ratingChanged: 'civis:ratingChanged',
     };
 
@@ -115,62 +113,7 @@ const UserLibrary = (() => {
         _dispatch(EVENTS.favoriteToggled, { id: videoId, action: 'removed' });
     }
 
-    // -----------------------------------------------------------------------
-    // API PÚBLICA — VÍDEOS VISTOS
-    // -----------------------------------------------------------------------
 
-    /**
-     * Devuelve todos los vídeos marcados como vistos.
-     * @returns {Array<Object>}
-     */
-    function getWatched() {
-        return _read(KEYS.watched);
-    }
-
-    /**
-     * Comprueba si un vídeo ha sido visto.
-     * @param {number|string} videoId
-     * @returns {boolean}
-     */
-    function isWatched(videoId) {
-        return getWatched().some(item => String(item.id) === String(videoId));
-    }
-
-    /**
-     * Añade o elimina un vídeo de la lista de vistos (toggle).
-     * @param {Object} video - Debe tener al menos { id, title }
-     * @returns {{ action: 'added'|'removed', id: number|string }}
-     */
-    function toggleWatched(video) {
-        const normalized = _normalizeItem(video);
-        if (!normalized || !normalized.id) throw new Error('El vídeo no tiene ID válido');
-
-        const list = getWatched();
-        const existingIndex = list.findIndex(item => String(item.id) === String(normalized.id));
-
-        let action;
-        if (existingIndex !== -1) {
-            list.splice(existingIndex, 1);
-            action = 'removed';
-        } else {
-            list.push(normalized);
-            action = 'added';
-        }
-
-        _write(KEYS.watched, list);
-        _dispatch(EVENTS.watchedToggled, { id: normalized.id, action });
-        return { action, id: normalized.id };
-    }
-
-    /**
-     * Elimina un vídeo de la lista de vistos por ID.
-     * @param {number|string} videoId
-     */
-    function removeWatched(videoId) {
-        const list = getWatched().filter(item => String(item.id) !== String(videoId));
-        _write(KEYS.watched, list);
-        _dispatch(EVENTS.watchedToggled, { id: videoId, action: 'removed' });
-    }
 
     // -----------------------------------------------------------------------
     // API PÚBLICA — VALORACIONES (Me gusta / No me gusta)
@@ -246,23 +189,21 @@ const UserLibrary = (() => {
 
     /**
      * Devuelve estadísticas de la librería del usuario.
-     * @returns {{ favorites: number, watched: number, ratings: number }}
+     * @returns {{ favorites: number, ratings: number }}
      */
     function getStats() {
         return {
             favorites: getFavorites().length,
-            watched: getWatched().length,
             ratings: Object.keys(_getRatingsMap()).length,
         };
     }
 
     /**
-     * Borra toda la librería personal (favoritos + vistos + valoraciones).
+     * Borra toda la librería personal (favoritos + valoraciones).
      * Útil para logout o reset.
      */
     function clearAll() {
         localStorage.removeItem(KEYS.favorites);
-        localStorage.removeItem(KEYS.watched);
         localStorage.removeItem(KEYS.ratings);
     }
 
@@ -271,7 +212,6 @@ const UserLibrary = (() => {
 
     return {
         getFavorites, isFavorite, toggleFavorite, removeFavorite,
-        getWatched, isWatched, toggleWatched, removeWatched,
         getRating, toggleRating, removeRating,
         getStats, clearAll, events,
     };

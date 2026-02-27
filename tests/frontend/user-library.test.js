@@ -96,81 +96,21 @@ describe('UserLibrary — Favoritos', () => {
     });
 });
 
-// -----------------------------------------------------------------------
-// VÍDEOS VISTOS
-// -----------------------------------------------------------------------
-describe('UserLibrary — Vistos', () => {
 
-    it('getWatched() devuelve [] cuando no hay vídeos vistos', () => {
-        expect(UserLibrary.getWatched()).toEqual([]);
-    });
-
-    it('toggleWatched() añade un vídeo a la lista de vistos', () => {
-        UserLibrary.toggleWatched(VIDEO_1);
-        expect(UserLibrary.getWatched()).toHaveLength(1);
-    });
-
-    it('toggleWatched() elimina el vídeo si ya está en vistos', () => {
-        UserLibrary.toggleWatched(VIDEO_1);
-        UserLibrary.toggleWatched(VIDEO_1);
-        expect(UserLibrary.getWatched()).toHaveLength(0);
-    });
-
-    it('isWatched() devuelve true si ya ha sido visto', () => {
-        UserLibrary.toggleWatched(VIDEO_2);
-        expect(UserLibrary.isWatched(2)).toBe(true);
-    });
-
-    it('isWatched() devuelve false si NO ha sido visto', () => {
-        expect(UserLibrary.isWatched(99)).toBe(false);
-    });
-
-    it('removeWatched() elimina un visto por ID', () => {
-        UserLibrary.toggleWatched(VIDEO_1);
-        UserLibrary.toggleWatched(VIDEO_2);
-        UserLibrary.removeWatched(1);
-        expect(UserLibrary.isWatched(1)).toBe(false);
-        expect(UserLibrary.isWatched(2)).toBe(true);
-    });
-});
-
-// -----------------------------------------------------------------------
-// FAVORITOS y VISTOS son independientes
-// -----------------------------------------------------------------------
-describe('UserLibrary — independencia de listas', () => {
-
-    it('marcar como favorito NO lo añade a vistos', () => {
-        UserLibrary.toggleFavorite(VIDEO_1);
-        expect(UserLibrary.isWatched(1)).toBe(false);
-    });
-
-    it('marcar como visto NO lo añade a favoritos', () => {
-        UserLibrary.toggleWatched(VIDEO_1);
-        expect(UserLibrary.isFavorite(1)).toBe(false);
-    });
-
-    it('un vídeo puede estar en ambas listas simultáneamente', () => {
-        UserLibrary.toggleFavorite(VIDEO_1);
-        UserLibrary.toggleWatched(VIDEO_1);
-        expect(UserLibrary.isFavorite(1)).toBe(true);
-        expect(UserLibrary.isWatched(1)).toBe(true);
-    });
-});
 
 // -----------------------------------------------------------------------
 // ESTADÍSTICAS
 // -----------------------------------------------------------------------
 describe('UserLibrary — getStats()', () => {
 
-    it('devuelve { favorites: 0, watched: 0 } cuando todo está vacío', () => {
-        expect(UserLibrary.getStats()).toMatchObject({ favorites: 0, watched: 0 });
+    it('devuelve { favorites: 0 } cuando todo está vacío', () => {
+        expect(UserLibrary.getStats()).toMatchObject({ favorites: 0 });
     });
 
-    it('cuenta correctamente favoritos y vistos', () => {
+    it('cuenta correctamente favoritos', () => {
         UserLibrary.toggleFavorite(VIDEO_1);
         UserLibrary.toggleFavorite(VIDEO_2);
-        UserLibrary.toggleWatched(VIDEO_3);
-        expect(UserLibrary.getStats()).toMatchObject({ favorites: 2, watched: 1 });
+        expect(UserLibrary.getStats()).toMatchObject({ favorites: 2 });
     });
 });
 
@@ -179,12 +119,10 @@ describe('UserLibrary — getStats()', () => {
 // -----------------------------------------------------------------------
 describe('UserLibrary — clearAll()', () => {
 
-    it('borra tanto favoritos como vistos', () => {
+    it('borra los favoritos', () => {
         UserLibrary.toggleFavorite(VIDEO_1);
-        UserLibrary.toggleWatched(VIDEO_2);
         UserLibrary.clearAll();
         expect(UserLibrary.getFavorites()).toEqual([]);
-        expect(UserLibrary.getWatched()).toEqual([]);
     });
 });
 
@@ -198,15 +136,6 @@ describe('UserLibrary — custom events', () => {
         document.addEventListener('civis:favoriteToggled', handler);
         UserLibrary.toggleFavorite(VIDEO_1);
         document.removeEventListener('civis:favoriteToggled', handler);
-        expect(handler).toHaveBeenCalledOnce();
-        expect(handler.mock.calls[0][0].detail).toMatchObject({ id: 1, action: 'added' });
-    });
-
-    it('toggleWatched() dispara el evento civis:watchedToggled', () => {
-        const handler = vi.fn();
-        document.addEventListener('civis:watchedToggled', handler);
-        UserLibrary.toggleWatched(VIDEO_1);
-        document.removeEventListener('civis:watchedToggled', handler);
         expect(handler).toHaveBeenCalledOnce();
         expect(handler.mock.calls[0][0].detail).toMatchObject({ id: 1, action: 'added' });
     });
