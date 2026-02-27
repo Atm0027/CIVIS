@@ -69,7 +69,8 @@ function VideoCard(video) {
                         <!-- Me gusta -->
                         <button class="action-btn action-btn-like ${likeActiveClass}"
                                 data-video-id="${video.id}" title="Me gusta"
-                                onclick="window.handleToggleRating(event, ${video.id}, 'like')">
+                                onclick="window.handleToggleRating(event, '${video.id}', 'like')">
+
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${rating === 'like' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
                                 <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
                                 <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
@@ -78,7 +79,8 @@ function VideoCard(video) {
                         <!-- No me gusta -->
                         <button class="action-btn action-btn-dislike ${dislikeActiveClass}"
                                 data-video-id="${video.id}" title="No me gusta"
-                                onclick="window.handleToggleRating(event, ${video.id}, 'dislike')">
+                                onclick="window.handleToggleRating(event, '${video.id}', 'dislike')">
+
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${rating === 'dislike' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
                                 <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/>
                                 <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
