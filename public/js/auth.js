@@ -33,8 +33,25 @@ function initLoginPage() {
     const submitButton = loginForm.querySelector('button[type="submit"]');
     const originalText = submitButton.textContent;
 
+    // Reglas de validación en tiempo real para login
+    const loginRules = {
+        username: { required: true },
+        password: { required: true },
+    };
+
+    // Activar validación en tiempo real si el módulo está disponible
+    if (typeof FormValidator !== 'undefined') {
+        FormValidator.init(loginForm, loginRules);
+    }
+
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Verificar validación en tiempo real si está activa
+        if (typeof FormValidator !== 'undefined' && !FormValidator.isValid(loginForm, loginRules)) {
+            _showWarning('Por favor, completa todos los campos');
+            return;
+        }
 
         const usernameOrEmail = usernameOrEmailInput.value.trim();
         const password = passwordInput.value;
@@ -88,18 +105,26 @@ function initRegisterPage() {
 
     const submitButton = registerForm.querySelector('button[type="submit"]');
 
+    // Reglas de validación en tiempo real para el formulario de registro
+    const registerRules = {
+        username: { minLength: 3, maxLength: 30, pattern: /^[a-zA-Z0-9_]+$/, patternMsg: 'Solo letras, números y guion bajo' },
+        email: { isEmail: true, maxLength: 100 },
+        password: { minLength: 8, maxLength: 64, pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, patternMsg: 'Debe incluir mayúscula, minúscula y número' },
+        'confirm-password': { matchField: 'password', matchMsg: 'Las contraseñas no coinciden' },
+        name: { required: true, maxLength: 50 },
+        surname: { optional: true, maxLength: 80 },
+        dni: { pattern: /^[0-9]{8}[A-Za-z]$/, patternMsg: 'Formato: 12345678A', optional: true },
+        phone: { pattern: /^[6789][0-9]{8}$/, patternMsg: 'Teléfono español de 9 dígitos', optional: true },
+        dateOfBirth: { optional: true },
+        address: { optional: true, maxLength: 150 },
+        city: { optional: true, maxLength: 60 },
+        postalCode: { pattern: /^[0-9]{5}$/, patternMsg: '5 dígitos', optional: true },
+        province: { optional: true, maxLength: 60 },
+    };
+
     // Activar validación en tiempo real si el módulo está disponible
     if (typeof FormValidator !== 'undefined') {
-        FormValidator.init(registerForm, {
-            username: { minLength: 3, pattern: /^[a-zA-Z0-9_]+$/, patternMsg: 'Solo letras, números y guion bajo' },
-            email: { isEmail: true },
-            password: { minLength: 6 },
-            'confirm-password': { matchField: 'password', matchMsg: 'Las contraseñas no coinciden' },
-            name: { required: true },
-            dni: { pattern: /^[0-9]{8}[A-Za-z]$/, patternMsg: 'Formato: 12345678A', optional: true },
-            phone: { pattern: /^[6789][0-9]{8}$/, patternMsg: 'Teléfono español de 9 dígitos', optional: true },
-            postalCode: { pattern: /^[0-9]{5}$/, patternMsg: '5 dígitos', optional: true },
-        });
+        FormValidator.init(registerForm, registerRules);
     }
 
     // obtener valor seguro de input
@@ -109,7 +134,7 @@ function initRegisterPage() {
         e.preventDefault();
 
         // Verificar validación en tiempo real si está activa
-        if (typeof FormValidator !== 'undefined' && !FormValidator.isValid(registerForm)) {
+        if (typeof FormValidator !== 'undefined' && !FormValidator.isValid(registerForm, registerRules)) {
             Toast.show({ message: 'Por favor, corrige los errores del formulario antes de continuar.', type: 'warning' });
             return;
         }
@@ -132,8 +157,13 @@ function initRegisterPage() {
             return;
         }
 
-        if (password.length < 6) {
-            Toast.show({ message: 'La contraseña debe tener al menos 6 caracteres', type: 'error' });
+        if (password.length < 8) {
+            Toast.show({ message: 'La contraseña debe tener al menos 8 caracteres', type: 'error' });
+            return;
+        }
+
+        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/.test(password)) {
+            Toast.show({ message: 'La contraseña debe incluir mayúscula, minúscula y número', type: 'error' });
             return;
         }
 

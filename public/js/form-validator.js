@@ -18,6 +18,11 @@ const FormValidator = (() => {
                 ? `Mínimo ${min} caracteres`
                 : null,
 
+        maxLength: (value, _all, max) =>
+            value.trim().length > 0 && value.trim().length > max
+                ? `Máximo ${max} caracteres`
+                : null,
+
         isEmail: (value) =>
             value.trim().length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
                 ? 'Introduce un email válido'
@@ -129,6 +134,11 @@ const FormValidator = (() => {
 
         if (rules.minLength) {
             const err = validators.minLength(value, allValues, rules.minLength);
+            if (err) return err;
+        }
+
+        if (rules.maxLength) {
+            const err = validators.maxLength(value, allValues, rules.maxLength);
             if (err) return err;
         }
 

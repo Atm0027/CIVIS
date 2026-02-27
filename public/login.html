@@ -23,19 +23,21 @@
       <h2 class="auth-card-title">Iniciar Sesión</h2>
 
       <!-- Formulario -->
-      <form id="login-form" class="auth-form">
+      <form id="login-form" class="auth-form" novalidate>
 
         <!-- Usuario o Email -->
         <div class="form-group">
           <label for="username" class="form-label">Usuario o Email</label>
           <input type="text" id="username" name="username" class="form-input" required
             placeholder="tu_usuario o email@ejemplo.com">
+          <span class="field-hint" id="hint-username"></span>
         </div>
 
         <!-- Contraseña -->
         <div class="form-group">
           <label for="password" class="form-label">Contraseña</label>
           <input type="password" id="password" name="password" class="form-input" required placeholder="••••••••">
+          <span class="field-hint" id="hint-password"></span>
         </div>
 
         <!-- Recordar sesión -->
@@ -73,6 +75,7 @@
   <script src="js/config.js?v=2"></script>
   <script src="js/api.js?v=2"></script>
   <script src="js/toast.js?v=1" type="module"></script>
+  <script src="js/form-validator.js?v=1" type="module"></script>
   <script src="js/auth.js?v=2"></script>
 </body>
 
