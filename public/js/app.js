@@ -553,10 +553,11 @@ async function logoutUser() {
 
 // ===== LIBRERÍA PERSONAL: FAVORITOS, VISTOS Y VALORACIONES =====
 
-window.handleToggleFavorite = (e, videoJson) => {
+window.handleToggleFavorite = (e, videoId) => {
     e.stopPropagation();
-    if (!window.UserLibrary) return;
-    const video = typeof videoJson === 'string' ? JSON.parse(videoJson) : videoJson;
+    if (!window.UserLibrary || !window._cachedVideos) return;
+    const video = window._cachedVideos.find(v => String(v.id) === String(videoId));
+    if (!video) return;
     const result = window.UserLibrary.toggleFavorite(video);
 
     if (result.action === 'added') {
@@ -564,13 +565,14 @@ window.handleToggleFavorite = (e, videoJson) => {
     } else {
         window.Toast && window.Toast.show({ message: 'Eliminado de favoritos', type: 'info', duration: 2000 });
     }
-    rerenderVideoCard(video.id);
+    rerenderVideoCard(videoId);
 };
 
-window.handleToggleWatched = (e, videoJson) => {
+window.handleToggleWatched = (e, videoId) => {
     e.stopPropagation();
-    if (!window.UserLibrary) return;
-    const video = typeof videoJson === 'string' ? JSON.parse(videoJson) : videoJson;
+    if (!window.UserLibrary || !window._cachedVideos) return;
+    const video = window._cachedVideos.find(v => String(v.id) === String(videoId));
+    if (!video) return;
     const result = window.UserLibrary.toggleWatched(video);
 
     if (result.action === 'added') {
@@ -578,7 +580,7 @@ window.handleToggleWatched = (e, videoJson) => {
     } else {
         window.Toast && window.Toast.show({ message: 'Marcado como no visto', type: 'info', duration: 2000 });
     }
-    rerenderVideoCard(video.id);
+    rerenderVideoCard(videoId);
 };
 
 window.handleToggleRating = (e, videoId, value) => {

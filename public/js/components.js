@@ -31,8 +31,8 @@ function VideoCard(video) {
     const favTitle = isFav ? 'Quitar de favoritos' : 'Añadir a favoritos';
     const watchedTitle = isWatched ? 'Marcar como no visto' : 'Marcar como visto';
 
-    // Serializar el vídeo una sola vez para los onclick
-    const videoJson = JSON.stringify(JSON.stringify(video));
+    // El ID es siempre un valor seguro en atributos HTML.
+    // Los datos completos se obtienen en el handler desde window._cachedVideos.
 
     return `
         <div class="video-card bg-white rounded-lg shadow-md overflow-hidden cursor-pointer ${selectedClass}"
@@ -53,7 +53,7 @@ function VideoCard(video) {
                         <!-- Favorito -->
                         <button class="action-btn action-btn-fav ${favActiveClass}"
                                 data-video-id="${video.id}" title="${favTitle}"
-                                onclick="window.handleToggleFavorite(event, ${videoJson})">
+                                onclick="window.handleToggleFavorite(event, '${video.id}')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                             </svg>
@@ -61,7 +61,7 @@ function VideoCard(video) {
                         <!-- Visto -->
                         <button class="action-btn action-btn-watched ${watchedActiveClass}"
                                 data-video-id="${video.id}" title="${watchedTitle}"
-                                onclick="window.handleToggleWatched(event, ${videoJson})">
+                                onclick="window.handleToggleWatched(event, '${video.id}')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <polyline points="20 6 9 17 4 12"/>
                             </svg>
