@@ -146,3 +146,5 @@ if (typeof window !== 'undefined') {
 
 // Exportar para tests
 export { Notifications };
+
+

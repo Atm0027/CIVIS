@@ -6,10 +6,19 @@ let currentUser = null;
 
 // Espera a que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', async () => {
-    // Intentar cargar usuario desde localStorage o API
+    const path = window.location.pathname;
+    const isIndex = !path.includes('.html') || path.includes('index.html');
+
+    // OPTIMIZACIÓN: En index.html, arrancar el feed de vídeos DE INMEDIATO
+    // mientras cargamos la sesión en paralelo (evita pantalla en blanco tras login)
+    if (isIndex) {
+        loadVideoFeed(); // No awaited → arranca en paralelo
+    }
+
+    // Cargar usuario (puede implicar llamada a /auth/me)
     await loadCurrentUser();
 
-    // Inicializar la aplicación
+    // Inicializar la UI (sidebar, plazos, notificaciones, etc.)
     initializeApp();
 
     // Escuchar evento de videos eliminados para recargar la lista
@@ -31,9 +40,7 @@ async function loadCurrentUser() {
         }
 
     } catch (error) {
-        console.error('Error cargando usuario:', error);
         // Si falla (token inválido), limpiamos sesión pero NO redirigimos aquí
-        // La redirección se manejará según la página que se intente visitar
         removeToken();
         removeCurrentUser();
         currentUser = null;
@@ -72,22 +79,21 @@ function initializeApp() {
 
     // Cargar contenido específico de la página
     if (path.includes('calendario.html')) {
-        // Ya verificado arriba que está logueado
         loadCalendarPage();
     } else if (path.includes('preguntasFrecuentes.html')) {
         loadFaqPage();
     } else if (path.includes('usuario.html')) {
         loadProfileData();
     } else {
-        // Por defecto (index.html o raíz) cargamos deadlines (si hay usuario) y videos
+        // index.html: el feed de vídeos ya está cargando en paralelo (ver DOMContentLoaded).
+        // Aquí solo añadimos lo que depende de saber si hay usuario logueado.
         if (currentUser) {
             loadUpcomingDeadlines();
         } else {
-            // Ocultar sección de plazos si es invitado
             const deadlinesEl = document.getElementById('deadlines-list');
             if (deadlinesEl) deadlinesEl.innerHTML = '<p class="text-sm text-slate-400">Inicia sesión para ver tus plazos.</p>';
         }
-        loadVideoFeed();
+        // NO llamamos loadVideoFeed() aquí porque ya se lanzó en DOMContentLoaded en paralelo
     }
 }
 

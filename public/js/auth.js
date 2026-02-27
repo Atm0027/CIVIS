@@ -2,6 +2,23 @@
 // ===== SISTEMA DE AUTENTICACIÓN - CIVIS =====
 // Este archivo maneja la lógica de autenticación en las páginas de login/register
 
+// ===== HELPER: mostrar error con Toast o alert como fallback =====
+function _showError(message) {
+    if (typeof window.Toast !== 'undefined') {
+        Toast.show({ message, type: 'error' });
+    } else {
+        alert(message);
+    }
+}
+
+function _showWarning(message) {
+    if (typeof window.Toast !== 'undefined') {
+        Toast.show({ message, type: 'warning' });
+    } else {
+        alert(message);
+    }
+}
+
 // ===== INICIALIZACIÓN DE PÁGINA DE LOGIN =====
 function initLoginPage() {
     // Verificar si ya está autenticado
@@ -14,6 +31,7 @@ function initLoginPage() {
     const usernameOrEmailInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const submitButton = loginForm.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -21,13 +39,11 @@ function initLoginPage() {
         const usernameOrEmail = usernameOrEmailInput.value.trim();
         const password = passwordInput.value;
 
-        // Validación básica
         if (!usernameOrEmail || !password) {
-            Toast.show({ message: 'Por favor, completa todos los campos', type: 'warning' });
+            _showWarning('Por favor, completa todos los campos');
             return;
         }
 
-        // Deshabilitar botón mientras se procesa
         submitButton.disabled = true;
         submitButton.innerHTML = '<span class="spinner-sm"></span> Iniciando sesión...';
 
@@ -36,12 +52,11 @@ function initLoginPage() {
             window.location.href = 'index.html';
 
         } catch (error) {
-            Toast.show({
-                message: error.message || 'Error al iniciar sesión. Verifica tus credenciales.',
-                type: 'error'
-            });
+            _showError(error.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+        } finally {
+            // Siempre restaurar el botón, salvo que hayamos redirigido ya
             submitButton.disabled = false;
-            submitButton.textContent = 'Iniciar Sesión';
+            submitButton.textContent = originalText;
         }
     });
 }
@@ -150,17 +165,14 @@ function initRegisterPage() {
 
             await register(userData);
 
-            Toast.show({ message: '¡Cuenta creada con éxito! Redirigiendo...', type: 'success', duration: 3000 });
-
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1200);
+            if (typeof window.Toast !== 'undefined') {
+                Toast.show({ message: '¡Cuenta creada con éxito! Redirigiendo...', type: 'success', duration: 3000 });
+            }
+            setTimeout(() => { window.location.href = 'index.html'; }, 1200);
 
         } catch (error) {
-            Toast.show({
-                message: error.message || 'Error al crear la cuenta. Intenta nuevamente.',
-                type: 'error'
-            });
+            _showError(error.message || 'Error al crear la cuenta. Intenta nuevamente.');
+        } finally {
             submitButton.disabled = false;
             submitButton.textContent = originalButtonText;
         }
