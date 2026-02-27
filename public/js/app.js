@@ -725,3 +725,88 @@ async function handleProfileSubmit(e) {
         submitButton.textContent = 'Guardar Cambios';
     }
 }
+
+// ===== PERFIL: CARGAR DATOS EN EL FORMULARIO =====
+function loadProfileData() {
+    if (!currentUser) return;
+
+    const fields = {
+        'profile-username': currentUser.username || '',
+        'profile-name': currentUser.name || '',
+        'profile-surname': currentUser.surname || '',
+        'profile-email': currentUser.email || '',
+        'profile-dni': currentUser.dni || '',
+        'profile-phone': currentUser.phone || '',
+        'profile-dateOfBirth': currentUser.dateOfBirth || '',
+        'profile-address': currentUser.address || '',
+        'profile-city': currentUser.city || '',
+        'profile-postalCode': currentUser.postalCode || '',
+        'profile-province': currentUser.province || '',
+    };
+    Object.entries(fields).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
+    });
+
+    const nameEl = document.getElementById('user-name');
+    const emailEl = document.getElementById('user-email');
+    if (nameEl) nameEl.textContent = currentUser.name || currentUser.username || 'Usuario';
+    if (emailEl) emailEl.textContent = currentUser.email || '';
+
+    const form = document.getElementById('profile-edit-form');
+    if (form) form.addEventListener('submit', handleProfileSubmit);
+
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) logoutBtn.addEventListener('click', logoutUser);
+
+    // Cargar Mi Carpeta
+    loadMiCarpeta();
+}
+
+// ===== MI CARPETA: FAVORITOS Y VISTOS =====
+function loadMiCarpeta() {
+    if (!window.UserLibrary) return;
+
+    const favorites = window.UserLibrary.getFavorites();
+    const watched = window.UserLibrary.getWatched();
+
+    // Resuelve datos completos: primero en _cachedVideos, si no, usa lo que guardó UserLibrary
+    const resolveVideo = (savedItem) => {
+        if (window._cachedVideos) {
+            const cached = window._cachedVideos.find(v => String(v.id) === String(savedItem.id));
+            if (cached) return cached;
+        }
+        return savedItem; // Fallback: metadata guardada por UserLibrary
+    };
+
+    // --- Favoritos ---
+    const favGrid = document.getElementById('favorites-grid');
+    const favEmpty = document.getElementById('favorites-empty');
+    const favCount = document.getElementById('fav-count');
+    if (favGrid) {
+        if (favorites.length === 0) {
+            favGrid.innerHTML = '';
+            favEmpty && favEmpty.classList.remove('hidden');
+        } else {
+            favEmpty && favEmpty.classList.add('hidden');
+            favGrid.innerHTML = favorites.map(item => VideoCard(resolveVideo(item))).join('');
+        }
+    }
+    if (favCount) favCount.textContent = favorites.length;
+
+    // --- Vistos ---
+    const watchedGrid = document.getElementById('watched-grid');
+    const watchedEmpty = document.getElementById('watched-empty');
+    const watchedCount = document.getElementById('watched-count');
+    if (watchedGrid) {
+        if (watched.length === 0) {
+            watchedGrid.innerHTML = '';
+            watchedEmpty && watchedEmpty.classList.remove('hidden');
+        } else {
+            watchedEmpty && watchedEmpty.classList.add('hidden');
+            watchedGrid.innerHTML = watched.map(item => VideoCard(resolveVideo(item))).join('');
+        }
+    }
+    if (watchedCount) watchedCount.textContent = watched.length;
+}
+
