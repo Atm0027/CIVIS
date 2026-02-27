@@ -111,7 +111,7 @@ const Notifications = (() => {
     function checkSystemAlerts(user) {
         if (!user) return;
 
-        // Ejemplo: Aviso si no tiene el DNI completado
+        // Aviso si no tiene el DNI completado
         if (!user.dni) {
             const hasDniAlert = _getAll().some(n => n.type === 'warning' && n.message.includes('DNI'));
             if (!hasDniAlert) {
@@ -123,8 +123,69 @@ const Notifications = (() => {
                 });
             }
         }
+    }
 
-        // Aquí se podrían añadir chequeos de fechas de caducidad si existieran en el modelo
+    /**
+     * Comprueba eventos del calendario y genera notificaciones
+     * para aquellos cuya fecha esté dentro del umbral configurado.
+     * @param {Array} events - Eventos del calendario (desde la API /calendar o /calendar/upcoming)
+     */
+    function checkDeadlineAlerts(events) {
+        if (!Array.isArray(events) || events.length === 0) return;
+
+        // Obtener el umbral de días desde la configuración (fallback: 7 días)
+        const daysThreshold = (typeof CONFIG !== 'undefined' && CONFIG.notifications)
+            ? CONFIG.notifications.daysBeforeDeadline
+            : 7;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const limitDate = new Date(today);
+        limitDate.setDate(limitDate.getDate() + daysThreshold);
+
+        const allNotifications = _getAll();
+
+        events.forEach(event => {
+            // Comprobar fecha de inicio (date) y fecha de fin (end_date)
+            const datesToCheck = [];
+            if (event.date) datesToCheck.push({ dateStr: event.date, label: 'inicio' });
+            if (event.end_date) datesToCheck.push({ dateStr: event.end_date, label: 'fin' });
+
+            datesToCheck.forEach(({ dateStr, label }) => {
+                // Normalizar la fecha (puede llegar como 'YYYY-MM-DD HH:mm:ss' o ISO)
+                const eventDate = new Date(dateStr.split(' ')[0].split('T')[0]);
+
+                // Solo alertar si la fecha está entre hoy y el límite (inclusive)
+                if (eventDate >= today && eventDate <= limitDate) {
+                    // Crear un identificador único para evitar duplicados
+                    const alertKey = `deadline-${event.id}-${label}`;
+                    const alreadyExists = allNotifications.some(
+                        n => n.message && n.message.includes(alertKey)
+                    );
+
+                    if (!alreadyExists) {
+                        const formattedDate = eventDate.toLocaleDateString('es-ES', {
+                            day: 'numeric', month: 'long', year: 'numeric'
+                        });
+                        const daysRemaining = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
+                        const daysText = daysRemaining === 0
+                            ? 'Hoy'
+                            : daysRemaining === 1
+                                ? 'Mañana'
+                                : `En ${daysRemaining} días`;
+
+                        add({
+                            title: `📅 Plazo próximo: ${event.title}`,
+                            message: `${daysText} (${formattedDate}) — ${label === 'inicio' ? 'Fecha de inicio' : 'Fecha límite'} [${alertKey}]`,
+                            type: 'warning',
+                            date: dateStr,
+                            link: 'calendario.html'
+                        });
+                    }
+                }
+            });
+        });
     }
 
     return {
@@ -135,7 +196,8 @@ const Notifications = (() => {
         markAllAsRead,
         remove,
         clear,
-        checkSystemAlerts
+        checkSystemAlerts,
+        checkDeadlineAlerts
     };
 })();
 

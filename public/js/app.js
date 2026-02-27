@@ -442,7 +442,7 @@ async function loadFaqPage() {
 
 // ===== SISTEMA DE NOTIFICACIONES (UI) =====
 
-function initNotificationsUI() {
+async function initNotificationsUI() {
     const bellBtn = document.getElementById('notification-bell');
     const dropdown = document.getElementById('notification-dropdown');
     const dot = document.getElementById('notification-dot');
@@ -488,6 +488,14 @@ function initNotificationsUI() {
     // Chequear alertas del sistema (ej: DNI faltante)
     if (currentUser) {
         Notifications.checkSystemAlerts(currentUser);
+
+        // Chequear alertas de plazos próximos del calendario
+        try {
+            const events = await getCalendar();
+            Notifications.checkDeadlineAlerts(events);
+        } catch (err) {
+            // No bloquear la UI si falla la carga del calendario
+        }
     }
 }
 
