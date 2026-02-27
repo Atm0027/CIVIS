@@ -82,13 +82,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadVideoDetails(id) {
-    console.log('--- DEPURACIÓN VIDEO ---');
-    console.log('ID solicitado:', id);
-
     // Fetch video data
     const video = await getVideoById(id);
-    console.log('Datos del video recibidos:', video);
-    console.log('URL del video:', video.url);
 
     // Update DOM
     document.title = `Civis · ${video.title}`;

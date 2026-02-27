@@ -13,7 +13,7 @@
 function getApiBaseUrl() {
     // 1. Usar configuración inyectada desde Docker si existe y no está vacía
     if (window.CIVIS_ENV) {
-        console.log('[CIVIS] Injected Config detected:', window.CIVIS_ENV);
+        // [CIVIS] Injected Config detected
     }
 
     if (window.CIVIS_ENV && window.CIVIS_ENV.API_BASE_URL && window.CIVIS_ENV.API_BASE_URL.trim() !== '') {
@@ -186,13 +186,13 @@ function isProduction() {
  */
 function debugLog(...args) {
     if (CONFIG.app.debug && isDevelopment()) {
-        console.log('[CIVIS DEBUG]', ...args);
+        // console.log('[CIVIS DEBUG]', ...args);
     }
 }
 
-// Log de configuración en desarrollo
+// Log de configuración
 if (isDevelopment()) {
-    console.log('[CIVIS] Modo Desarrollo - API Base URL:', CONFIG.api.baseUrl);
+    // API Base URL (Dev): CONFIG.api.baseUrl
 } else {
-    console.log('[CIVIS] Modo Producción - API Base URL:', CONFIG.api.baseUrl);
+    // API Base URL (Prod): CONFIG.api.baseUrl
 }

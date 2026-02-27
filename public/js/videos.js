@@ -147,7 +147,6 @@ async function enableEditMode(id) {
         // Desvincular handlers anteriores (aunque onclick sobrescribe, es buena práctica si usamos addEventListener)
         // Usar un handler limpio
         deleteBtn.onclick = (e) => {
-            console.log('Click en eliminar video');
             e.preventDefault();
             e.stopPropagation(); // Detener propagación
             handleDeleteVideo(id);
@@ -185,7 +184,6 @@ async function enableEditMode(id) {
 let currentVideoIdToDelete = null;
 
 function handleDeleteVideo(videoId) {
-    console.log('Abriendo modal para eliminar video', videoId);
     currentVideoIdToDelete = videoId;
     const modal = document.getElementById('delete-modal');
     if (modal) {
@@ -248,7 +246,6 @@ function setupDeleteModal() {
     // Cerrar modal al hacer clic fuera (en el overlay)
     modal.onclick = (e) => {
         if (e.target === modal) {
-            console.log('Click en background del modal -> cerrar');
             closeModal();
         }
     };

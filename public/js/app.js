@@ -551,7 +551,18 @@ async function logoutUser() {
             await logout();
         }
     } catch (error) {
-        // Fail gracefully
+        // Mostrar mensaje de error al usuario si el modal/botón aún existe
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.innerHTML = 'Error al cerrar sesión';
+            logoutBtn.classList.add('text-red-500');
+            setTimeout(() => {
+                logoutBtn.disabled = false;
+                logoutBtn.innerHTML = 'Cerrar sesión';
+                logoutBtn.classList.remove('text-red-500');
+            }, 3000);
+        }
+        console.error('Logout error:', error);
     } finally {
         // Limpieza profunda de localStorage
         removeToken();
@@ -791,9 +802,12 @@ function loadMiCarpeta() {
         try { watched = JSON.parse(localStorage.getItem('civis_watched') || '[]'); } catch (e) { }
     }
 
+<<<<<<< Updated upstream
     console.log('[MiCarpeta] Cargando favoritos...', favorites);
     console.log('[MiCarpeta] Cargando vistos...', watched);
 
+=======
+>>>>>>> Stashed changes
     // 2) Resolver vídeo completo: caché del feed → metadata guardada
     const resolveVideo = (savedItem) => {
         if (window._cachedVideos) {
