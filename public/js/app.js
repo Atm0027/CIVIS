@@ -8,9 +8,9 @@ let currentUser = null;
 document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
     const isIndex = !path.includes('.html') || path.includes('index.html');
+    const isProfile = path.includes('usuario.html');
 
     // OPTIMIZACIÓN: En index.html, arrancar el feed de vídeos DE INMEDIATO
-    // mientras cargamos la sesión en paralelo (evita pantalla en blanco tras login)
     if (isIndex) {
         loadVideoFeed(); // No awaited → arranca en paralelo
     }
@@ -20,6 +20,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Inicializar la UI (sidebar, plazos, notificaciones, etc.)
     initializeApp();
+
+    // GARANTÍA ADICIONAL: Si estamos en el perfil, pintar Mi Carpeta
+    // incluso si loadProfileData() falla internamente antes de llamarla
+    if (isProfile) {
+        loadMiCarpeta();
+    }
 
     // Escuchar evento de videos eliminados para recargar la lista
     document.addEventListener('videosDeleted', () => {
@@ -784,6 +790,9 @@ function loadMiCarpeta() {
         try { favorites = JSON.parse(localStorage.getItem('civis_favorites') || '[]'); } catch (e) { }
         try { watched = JSON.parse(localStorage.getItem('civis_watched') || '[]'); } catch (e) { }
     }
+
+    console.log('[MiCarpeta] Cargando favoritos...', favorites);
+    console.log('[MiCarpeta] Cargando vistos...', watched);
 
     // 2) Resolver vídeo completo: caché del feed → metadata guardada
     const resolveVideo = (savedItem) => {
