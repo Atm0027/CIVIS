@@ -4,16 +4,19 @@ Esta es la guía paso a paso para poner en marcha tu proyecto con el ecosistema 
 
 ---
 
-## 🔥 PASO 1: La Base de Datos (Neon.tech)
+## 🔥 PASO 1: La Base de Datos (Supabase)
 
-Como Render ya no da bases de datos de forma permanente, utilizaremos **Neon**, que te regala un servidor PostgreSQL ultrarrápido sin requerir tarjeta de crédito.
+Supabase es una extraordinaria alternativa de código abierto a Firebase y ofrece una base de datos PostgreSQL alojada y robusta en su capa gratuita (para siempre).
 
-1. Entra a [Neon.tech](https://neon.tech) y regístrate con GitHub o correo.
-2. Crea un nuevo proyecto. Llámalo `civis-db`.
-3. Elige la región más cercana a ti (o a tu servidor de Render, por ejemplo, US East o Frankfurt).
-4. Dale a **Create Project**.
-5. Se abrirá una pantalla con un resumen. Busca la cadena de conexión en el panel `Connection Details`.
-6. Tiene formato `postgres://[usuario]:[contraseña]@[servidor].aws.neon.tech/neondb?sslmode=require`. **Cópiala completa y guárdala.**
+1. Entra a [Supabase.com](https://supabase.com) y regístrate con GitHub.
+2. Crea un nuevo proyecto. Introduce un nombre (ej. `civis-db`) y una **contraseña fuerte**. *(Guarda bien esa contraseña, Supabase no te la mostrará nuevamente jamás).*
+3. Elige la región de tu servidor (idealmente la más cercana a donde ubicarás el backend en Render).
+4. Espera de 1 a 2 minutos a que Inicialice la base de datos.
+5. Ve a **Project Settings (Engranaje) -> Database**.
+6. En la parte superior, busca la sección de **Connection string (URI)**.
+7. Asegúrate de tener seleccionado Node.js/URI y **usar el esquema de Pooling (Puerto 6543)** si lo marca (esto evita que el servidor llegue al límite). Tu URI lucirá más o menos así:
+   `postgresql://postgres:[TU-PASSWORD]@db.xxxxxx.supabase.co:5432/postgres` (O con puerto 6543).
+8. Reemplaza `[YOUR-PASSWORD]` por la contraseña que escogiste y **copia toda la URL**.
 
 ---
 

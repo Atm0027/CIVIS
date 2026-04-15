@@ -797,8 +797,7 @@ function loadProfileData() {
     const form = document.getElementById('profile-edit-form');
     if (form) form.addEventListener('submit', handleProfileSubmit);
 
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) logoutBtn.addEventListener('click', logoutUser);
+    // Se elimina el listener duplicado de logout-btn aquí porque ya se asigna en setupEventListeners y esto causaba deslogueo incondicional
 
     // Cargar Mi Carpeta
     loadMiCarpeta();
