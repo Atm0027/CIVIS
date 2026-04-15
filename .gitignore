@@ -95,3 +95,9 @@ user-data/
 ANALISIS_PROYECTO.md
 
 public/js/config.env.js
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
