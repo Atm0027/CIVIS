@@ -45,17 +45,19 @@ services:
       # =========================================
       # CORS - Orígenes permitidos
       # =========================================
-      - CORS_ALLOWED_ORIGINS=http://localhost,http://127.0.0.1,http://civis.local
+      # Se incluye *.pages.dev para permitir peticiones desde Cloudflare Pages
+      - CORS_ALLOWED_ORIGINS=http://localhost,http://127.0.0.1,http://civis.local,https://tu-proyecto.pages.dev,https://*.pages.dev
 
       # =========================================
       # FRONTEND - URL de la API
       # =========================================
-      - FRONTEND_API_URL=http://localhost/api
+      - FRONTEND_API_URL=https://api.civis.com/api
 
       # =========================================
       # SANCTUM/SESSION
       # =========================================
-      - SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,civis.local
+      # Se autoriza a pages.dev para mantener la sesión de autenticación
+      - SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,civis.local,tu-proyecto.pages.dev
       - SESSION_DRIVER=database
 
     ports:

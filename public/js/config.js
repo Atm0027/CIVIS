@@ -29,7 +29,13 @@ function getApiBaseUrl() {
         return 'http://localhost:8000/api';
     }
 
-    // 3. Producción/Docker: mismo dominio, ruta /api
+    // 3. Frontend en Cloudflare Pages (.pages.dev): Apuntar al Backend (Oracle/VPS)
+    if (hostname.endsWith('.pages.dev')) {
+        // [IMPORTANTE]: Cambia 'api.civis.com' por el dominio real de tu backend.
+        return 'https://api.civis.com/api';
+    }
+
+    // 4. Producción/Docker en un solo servidor: mismo dominio, ruta /api
     // Ejemplo: http://civis.local/api o https://civis.com/api
     return `${protocol}//${hostname}${port ? ':' + port : ''}/api`;
 }

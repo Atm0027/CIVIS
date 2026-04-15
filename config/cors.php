@@ -17,11 +17,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'https://civis.pages.dev',
-        'http://localhost',
-        'http://localhost:8000',
-    ],
+    'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost')),
 
     'allowed_origins_patterns' => [],
 
