@@ -15,8 +15,7 @@ Supabase es una extraordinaria alternativa de código abierto a Firebase y ofrec
 5. Ve a **Project Settings (Engranaje) -> Database**.
 6. En la parte superior, busca la sección de **Connection string (URI)**.
 7. Asegúrate de tener seleccionado Node.js/URI y **usar el esquema de Pooling (Puerto 6543)** si lo marca (esto evita que el servidor llegue al límite). Tu URI lucirá más o menos así:
-   `postgresql://postgres:[TU-PASSWORD]@db.xxxxxx.supabase.co:5432/postgres` (O con puerto 6543).
-8. Reemplaza `[YOUR-PASSWORD]` por la contraseña que escogiste y **copia toda la URL**.
+   `postgresql://postgres.hdkvjpgxtztaduidgtwq:D6FYG*sby6%NEm_@aws-1-eu-north-1.pooler.supabase.com:6543/postgres`.
 
 ---
 
@@ -29,13 +28,13 @@ Render será el cerebro de la aplicación. Cargará tu `Dockerfile` y expondrá 
 3. Conecta tu cuenta y selecciona el repositorio de GitHub donde acabas de guardar los archivos de CIVIS.
 4. Al detectarlo, Render leerá el archivo `render.yaml` que incluí en tu código. Inmediatamente te mostrará unas casillas en blanco para llenar las "Variables de Entorno Secretas". 
 5. Llénalas de la siguiente manera:
-   - `DATABASE_URL` -> *(Pega aquí la URL larguísima del Paso 1)*.
-   - `APP_KEY` -> *(Pega tu clave generada con base64 local, ej: `base64:...`)*
-   - `APP_URL` -> Escribe al azar un nombre asumiendo cómo te nombrará Render. Ej: `https://civis-backend.onrender.com`
-   - `CORS_ALLOWED_ORIGINS` -> Escribe al azar el nombre que tendrá Cloudflare. Ej: `https://civis-frontend.pages.dev`
+   - `DATABASE_URL` -> *(postgresql://postgres.hdkvjpgxtztaduidgtwq:D6FYG*sby6%NEm_@aws-1-eu-north-1.pooler.supabase.com:6543/postgres)*.
+   - `APP_KEY` -> *(base64:nSviGSC8VQeAsA13TSIjUQ9DszFz0IRtHGuFrDLyhVk=)*
+   - `APP_URL` -> `https://civis-backend-eyak.onrender.com`
+   - `CORS_ALLOWED_ORIGINS` -> `https://civis.pages.dev`
    - *(Nota: Todos estos nombres podrás editarlos desde el panel después de que se despliegue y te den los nombres definitivos)*.
 6. Pulsa en **Apply**. Render empezará a clonar el proyecto, instalar Docker, PHP, lanzar las migraciones automáticas (`start.sh`) y en un par de minutos estará online. 
-7. **IMPORTANTE:** Cuando el despliegue termine con éxito, Render te dará arriba tu URL pública oficial (ej. `https://civis-app-5x8d.onrender.com`). Cópiala.
+7. **IMPORTANTE:** Cuando el despliegue termine con éxito, Render te dará arriba tu URL pública oficial: `https://civis-backend-eyak.onrender.com`. Cópiala.
 
 ---
 
@@ -45,10 +44,10 @@ Tu backend ya está en línea esperando recibir llamadas. Ahora hay que colgar l
 
 1. Abre de nuevo el código de tu proyecto local en tu editor (VS Code, Cursor, etc.).
 2. Abre el archivo `public/js/config.js`.
-3. Busca la línea: `return 'https://civis-backend.onrender.com/api';` y reemplázala por la URL **exacta y oficial** que te dio Render en el Paso 2:
+3. Busca la línea: `return 'https://civis-backend-eyak.onrender.com/api';` y verifica que es la URL **oficial** que te dio Render:
    ```javascript
    // Debería quedar así:
-   return 'https://civis-app-5x8d.onrender.com/api'; 
+   return 'https://civis-backend-eyak.onrender.com/api'; 
    ```
 4. Sube la carpeta `/public` y lánzala:
    - Entra a [Cloudflare Dashboard](https://dash.cloudflare.com) -> **Páginas (Pages)** -> **Upload Assets** (Atajo directo).
@@ -59,7 +58,7 @@ Tu backend ya está en línea esperando recibir llamadas. Ahora hay que colgar l
 Lo último que resta es avisarle a tu backend (Render) que autorice ese enlace de tu frontend (Cloudflare).
 1. Entra a tu app en **Render**.
 2. Ve a la pestaña lateral **"Environment"** (Entorno).
-3. Busca el campo `CORS_ALLOWED_ORIGINS` y modifica su valor actual por la URL final de `pages.dev` que te dio Cloudflare. También asegúrate de en `FRONTEND_API_URL` poner esa ruta (ej. `https://civis-app-5x8d.onrender.com/api`).
+3. Busca el campo `CORS_ALLOWED_ORIGINS` y modifica su valor actual por la URL final de `pages.dev` que te dio Cloudflare (ej. `https://civis.pages.dev`). También asegúrate de en `FRONTEND_API_URL` poner la ruta de tu API (`https://civis-backend-eyak.onrender.com/api`).
 4. Pulsa guardar cambios.
 
 ¡Abre tu enlace de Cloudflare Pages y verás cómo el Frontend carga instantáneamente, conectándose perfecto con el motor y la base PostgreSQL de Render!
