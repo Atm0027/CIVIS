@@ -30,60 +30,36 @@ services:
       - DB_DATABASE=civis
       - DB_USERNAME=civis
       - DB_PASSWORD=civis_password_example
+      - DATABASE_URL=postgres://civis:civis_password_example@db:5432/civis
 
       # =========================================
       # LARAVEL CORE
       # =========================================
-      # ¡Crítico! generar con docker exec civis-app php artisan key:generate --show
+      - PORT=8080
       - APP_KEY=${APP_KEY:-base64:nSviGSC8VQeAsA13TSIjUQ9DszFz0IRtHGuFrDLyhVk=}
       - APP_NAME=CIVIS
-      - APP_ENV=local                   # local | production
-      - APP_DEBUG=true                  # true para dev, false para prod
-      - APP_URL=http://civis.local      # URL base del backend
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost
 
       # =========================================
-      # CORS - Orígenes permitidos (separados por coma)
+      # CORS - Orígenes permitidos
       # =========================================
-      # Cambia esto para permitir otros dominios
-      - CORS_ALLOWED_ORIGINS=http://civis.local,http://localhost,http://127.0.0.1
+      - CORS_ALLOWED_ORIGINS=http://localhost,http://127.0.0.1,http://civis.local
 
       # =========================================
-      # FRONTEND - URL de la API para JavaScript
+      # FRONTEND - URL de la API
       # =========================================
-      # Se inyecta en public/js/config.env.js al iniciar
-      - FRONTEND_API_URL=http://civis.local/api
+      - FRONTEND_API_URL=http://localhost/api
 
       # =========================================
       # SANCTUM/SESSION
       # =========================================
-      - SANCTUM_STATEFUL_DOMAINS=civis.local,localhost,127.0.0.1
+      - SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,civis.local
       - SESSION_DRIVER=database
 
     ports:
-      - "9000"
-
-  # =========================================
-  # Nginx (proxy y servidor estático)
-  # =========================================
-  nginx:
-    image: nginx:1.29.4-alpine
-    container_name: civis-nginx
-    restart: unless-stopped
-
-    ports:
-      - "80:80"  # Accede en http://civis.local
-
-    volumes:
-      # Vincular el contenido local para desarrollo
-      - ./:/var/www/app
-      # app_laravel:/var/www/app
-      # Configuración de nginx
-      - ./deploy/nginx/conf.d:/etc/nginx/conf.d
-
-    networks:
-      - laravel
-    depends_on:
-      - app
+      - "80:8080"
 
   # =========================================
   # PostgreSQL

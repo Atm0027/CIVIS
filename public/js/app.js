@@ -588,9 +588,19 @@ async function logoutUser() {
 
 window.handleToggleFavorite = (e, videoId) => {
     e.stopPropagation();
-    if (!window.UserLibrary || !window._cachedVideos) return;
-    const video = window._cachedVideos.find(v => String(v.id) === String(videoId));
+    if (!window.UserLibrary) return;
+
+    // Obtener video de la caché (en index.html) o de localStorage (en usuario.html)
+    let video = null;
+    if (window._cachedVideos) {
+        video = window._cachedVideos.find(v => String(v.id) === String(videoId));
+    }
+    if (!video) {
+        video = window.UserLibrary.getFavorites().find(v => String(v.id) === String(videoId));
+    }
+
     if (!video) return;
+
     const result = window.UserLibrary.toggleFavorite(video);
 
     if (result.action === 'added') {
@@ -598,7 +608,13 @@ window.handleToggleFavorite = (e, videoId) => {
     } else {
         window.Toast && window.Toast.show({ message: 'Eliminado de favoritos', type: 'info', duration: 2000 });
     }
-    rerenderVideoCard(videoId);
+    
+    // Si estamos en perfil, recargar vista entera para quitar la card visualmente
+    if (window.location.pathname.includes('usuario.html') && typeof loadMiCarpeta === 'function') {
+        loadMiCarpeta();
+    } else {
+        rerenderVideoCard(videoId);
+    }
 };
 
 
@@ -622,9 +638,14 @@ window.handleToggleRating = (e, videoId, value) => {
  */
 function rerenderVideoCard(videoId) {
     const card = document.querySelector(`[data-video-id="${videoId}"]`);
-    if (!card || !window._cachedVideos) return;
+    if (!card) return;
 
-    const video = window._cachedVideos.find(v => String(v.id) === String(videoId));
+    let video = null;
+    if (window._cachedVideos) {
+        video = window._cachedVideos.find(v => String(v.id) === String(videoId));
+    }
+    // No intentamos buscarlo en UserLibrary.getFavorites si ya se eliminó
+    
     if (!video) return;
 
     // Insertar la nueva card justo antes de la actual, luego eliminar la antigua

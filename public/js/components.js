@@ -25,9 +25,6 @@ function VideoCard(video) {
 
     const favActiveClass = isFav ? 'active' : '';
 
-    const likeActiveClass = rating === 'like' ? 'active' : '';
-    const dislikeActiveClass = rating === 'dislike' ? 'active' : '';
-
     const favTitle = isFav ? 'Quitar de favoritos' : 'Añadir a favoritos';
 
 
@@ -56,27 +53,6 @@ function VideoCard(video) {
                                 onclick="window.handleToggleFavorite(event, '${video.id}')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                            </svg>
-                        </button>
-
-                        <!-- Me gusta -->
-                        <button class="action-btn action-btn-like ${likeActiveClass}"
-                                data-video-id="${video.id}" title="Me gusta"
-                                onclick="window.handleToggleRating(event, '${video.id}', 'like')">
-
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${rating === 'like' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
-                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
-                            </svg>
-                        </button>
-                        <!-- No me gusta -->
-                        <button class="action-btn action-btn-dislike ${dislikeActiveClass}"
-                                data-video-id="${video.id}" title="No me gusta"
-                                onclick="window.handleToggleRating(event, '${video.id}', 'dislike')">
-
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${rating === 'dislike' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                                <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/>
-                                <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
                             </svg>
                         </button>
                     </div>
