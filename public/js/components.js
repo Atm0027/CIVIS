@@ -99,7 +99,7 @@ function getVideoThumbnail(url) {
  * @returns {string} - HTML del item
  */
 function DeadlineItem(deadline) {
-    const itemDate = new Date(deadline.start_date);
+    const itemDate = new Date(deadline.end_date || deadline.start_date);
     const formattedDate = itemDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
 
     return `

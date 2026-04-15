@@ -8,7 +8,7 @@ use App\Models\Deadline;
 
 class DeadlineController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $deadlines = Deadline::query()->orderBy('start_date', 'asc')->get();
         $videos = \App\Models\Video::whereNotNull('process_start_date')->get();
@@ -35,6 +35,24 @@ class DeadlineController extends Controller
             ]);
         }
 
+        $favoriteIds = $request->input('favorites', []);
+        if (!empty($favoriteIds) && is_array($favoriteIds)) {
+            $favoriteVideos = \App\Models\Video::whereIn('id', $favoriteIds)->get();
+            foreach ($favoriteVideos as $fv) {
+                // Avoid duplicating if they are already in the array as 'video'
+                /* Optionally check: if (!$events->contains('id', $fv->id)) ... 
+                   But we can just add them and frontend processes them or we can distinguish them. Let's add them. */
+                $date = $fv->process_start_date ?? $fv->created_at->format('Y-m-d H:i:s');
+                $events->push([
+                    'id' => 'fav_' . $fv->id,
+                    'title' => '⭐ Favorito: ' . $fv->title,
+                    'date' => $date,
+                    'end_date' => $fv->process_end_date,
+                    'type' => 'favorite_video'
+                ]);
+            }
+        }
+
         return response()->json($events->sortBy('date')->values());
     }
 
@@ -42,13 +60,10 @@ class DeadlineController extends Controller
     {
         $limit = $request->query('limit', 2);
 
-        // Asumiendo que start_date o end_date son el criterio
-        // Simplemente ordenamos por fecha de inicio más próxima.
-        // Como no tenemos structure completa, asumimos 'start_date' existe por migraciones previas
         return response()->json(
             Deadline::query()
-                ->where('start_date', '>=', now())
-                ->orderBy('start_date', 'asc')
+                ->where('end_date', '>=', now())
+                ->orderBy('end_date', 'asc')
                 ->limit($limit)
                 ->get()
         );

@@ -2850,3 +2850,5 @@ select.form-input {
         grid-template-columns: 1fr !important;
     }
 }
+
+.event-dot.favorite { background-color: #ffd700; }

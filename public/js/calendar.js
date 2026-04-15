@@ -9,8 +9,19 @@ const calendarState = {
 
 async function loadCalendarEvents() {
     try {
-        // Usar el endpoint configurado
-        const events = await fetchAPI(CONFIG.api.endpoints.calendar);
+        let url = CONFIG.api.endpoints.calendar;
+        
+        // Cargar favoritos locales
+        if (window.UserLibrary) {
+            const favorites = window.UserLibrary.getFavorites();
+            if (favorites && favorites.length > 0) {
+                const queryStr = favorites.map(f => `favorites[]=${f.id}`).join('&');
+                url += url.includes('?') ? `&${queryStr}` : `?${queryStr}`;
+            }
+        }
+
+        // Usar el endpoint configurado con parámetros
+        const events = await fetchAPI(url);
         calendarState.events = events;
         renderCalendar();
     } catch (error) {
@@ -178,6 +189,7 @@ function createDayElement(dayNumber, isOtherMonth, isToday = false, dateStr = nu
                 if (eEndDate === dateStr) dotClass += ' end-date'; // Rojo/Diferente
 
                 if (event.type === 'urgent') dotClass += ' urgent';
+                if (event.type === 'favorite_video') dotClass += ' favorite';
 
                 dot.className = dotClass;
                 dotsContainer.appendChild(dot);
