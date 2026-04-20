@@ -4,34 +4,99 @@
 // Variable global para el usuario actual (null si no está logueado)
 let currentUser = null;
 
+
+// ===== SPLASH SCREEN =====
+const Splash = {
+    _el: null,
+    _bar: null,
+    _status: null,
+    _progress: 0,
+    _safetyTimer: null,
+
+    init() {
+        this._el     = document.getElementById('app-splash');
+        this._bar    = document.getElementById('splash-progress');
+        this._status = document.getElementById('splash-status');
+
+        if (!this._el) return;
+
+        // Timeout de seguridad: ocultar splash pase lo que pase tras 8 segundos
+        this._safetyTimer = setTimeout(() => this.hide(), 8000);
+    },
+
+    setProgress(pct, label) {
+        this._progress = Math.min(100, pct);
+        if (this._bar)    this._bar.style.width = this._progress + '%';
+        if (this._status && label) this._status.textContent = label;
+    },
+
+    hide() {
+        if (this._safetyTimer) clearTimeout(this._safetyTimer);
+        if (!this._el) return;
+
+        // Llevar la barra al 100% antes del fade
+        this.setProgress(100, 'Listo');
+
+        // Fade-out suave (duración definida en CSS: 0.5s)
+        this._el.classList.add('splash-hidden');
+
+        // Eliminar del DOM tras la animación para no bloquear clicks
+        this._el.addEventListener('transitionend', () => {
+            if (this._el && this._el.parentNode) this._el.parentNode.removeChild(this._el);
+        }, { once: true });
+    }
+};
+
+// Inicializar splash INMEDIATAMENTE (antes de cualquier fetch)
+Splash.init();
+
 // Espera a que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
     const isIndex = !path.includes('.html') || path.includes('index.html');
     const isProfile = path.includes('usuario.html');
+    const isCalendar = path.includes('calendario.html');
+    const isFaq = path.includes('preguntasFrecuentes.html');
 
-    // OPTIMIZACIÓN: En index.html, arrancar el feed de vídeos DE INMEDIATO
-    if (isIndex) {
-        loadVideoFeed(); // No awaited → arranca en paralelo
-    }
+    Splash.setProgress(10, 'Verificando sesión...');
 
-    // Cargar usuario (puede implicar llamada a /auth/me)
+    // Cargar usuario
     await loadCurrentUser();
+    Splash.setProgress(35, 'Preparando interfaz...');
 
     // Inicializar la UI (sidebar, plazos, notificaciones, etc.)
     initializeApp();
+    Splash.setProgress(55, 'Cargando contenido...');
 
-    // GARANTÍA ADICIONAL: Si estamos en el perfil, pintar Mi Carpeta
-    // incluso si loadProfileData() falla internamente antes de llamarla
+    // En index.html cargar videos y esperar
+    if (isIndex) {
+        const videoPromise = loadVideoFeed();
+        Splash.setProgress(65, 'Cargando vídeos...');
+        await videoPromise;
+        Splash.setProgress(85, 'Casi listo...');
+    }
+
+    // En perfil, cargar carpeta
     if (isProfile) {
         loadMiCarpeta();
+        Splash.setProgress(85, 'Cargando tu carpeta...');
     }
+
+    // En calendario o FAQ el contenido ya carga dentro de initializeApp → loadCalendarPage / loadFaqPage
+    if (isCalendar || isFaq) {
+        Splash.setProgress(85, 'Cargando datos...');
+    }
+
+    // Pequeña pausa para que la UI se pinte antes de ocultar el splash
+    await new Promise(resolve => setTimeout(resolve, 300));
+    Splash.hide();
 
     // Escuchar evento de videos eliminados para recargar la lista
     document.addEventListener('videosDeleted', () => {
         loadVideoFeed();
     });
 });
+
 
 // ===== CARGAR USUARIO ACTUAL =====
 async function loadCurrentUser() {

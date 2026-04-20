@@ -11,6 +11,22 @@
 
 <body>
 
+    <!-- ===== SPLASH SCREEN / PANTALLA DE CARGA ===== -->
+    <div id="app-splash" role="status" aria-label="Cargando aplicación">
+        <div class="splash-content">
+            <div class="splash-logo-wrapper">
+                <div class="splash-logo-ring"></div>
+                <div class="splash-logo-ring-2"></div>
+                <span class="splash-logo-text">C<span>i</span>vis</span>
+            </div>
+            <p class="splash-tagline">Trámites al alcance de todos</p>
+            <div class="splash-progress-track">
+                <div class="splash-progress-bar" id="splash-progress"></div>
+            </div>
+            <p class="splash-status" id="splash-status">Iniciando...</p>
+        </div>
+    </div>
+
     <!-- LAYOUT PRINCIPAL -->
     <div class="layout-wrapper">
 
@@ -174,9 +190,9 @@
     <script src="js/config.env.js?v=2"></script>
     <script src="js/config.js?v=3"></script>
     <script src="js/api.js?v=6"></script>
-    <script src="js/toast.js?v=1" type="module"></script>
+    <script src="js/toast.js?v=2"></script>
 
-    <script src="js/notifications.js?v=1" type="module"></script>
+    <script src="js/notifications.js?v=2"></script>
 
     <script src="js/auth.js?v=3"></script>
     <script>
