@@ -58,15 +58,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isCalendar = path.includes('calendario.html');
     const isFaq = path.includes('preguntasFrecuentes.html');
 
+    Splash.setProgress(5, 'Conectando con el servidor...');
+
+    // Wakeup ping: despierta al servidor Render antes de pedir datos
+    // Se hace en background (sin await) para no bloquear, pero sí da tiempo al servidor
+    const wakeupPromise = fetch(`${CONFIG.api.baseUrl}/ping`, { method: 'GET' }).catch(() => null);
+
     Splash.setProgress(10, 'Verificando sesión...');
 
-    // Cargar usuario
+    // Cargar usuario (en paralelo al wakeup para ganar tiempo)
     await loadCurrentUser();
     Splash.setProgress(35, 'Preparando interfaz...');
 
     // Inicializar la UI (sidebar, plazos, notificaciones, etc.)
     initializeApp();
     Splash.setProgress(55, 'Cargando contenido...');
+
+    // Esperar a que el wakeup ping termine (máx. lo que tarde loadCurrentUser + initializeApp)
+    // Si ya terminó, este await es instantáneo
+    await wakeupPromise;
 
     // En index.html cargar videos y esperar
     if (isIndex) {
@@ -419,7 +429,7 @@ async function loadUpcomingDeadlines() {
     }
 }
 
-// Carga y renderiza el feed de videos desde API
+// Carga y renderiza el feed de videos desde API (con reintentos para Cold Start de Render)
 async function loadVideoFeed() {
     const videoFeedGrid = document.getElementById('tramites-grid');
     const noResultsEl = document.getElementById('no-results');
@@ -427,25 +437,80 @@ async function loadVideoFeed() {
     // Guardia: si no existe el contenedor de vídeos en esta página, no hacer nada
     if (!videoFeedGrid) return;
 
-    try {
-        showLoader(videoFeedGrid);
-        if (noResultsEl) noResultsEl.classList.add('hidden');
+    const MAX_RETRIES = 3;
+    const RETRY_DELAYS = [0, 2000, 5000]; // Inmediato, 2s, 5s (para cold start)
 
-        const response = await getVideos();
-        // Handle pagination structure (Laravel default) or direct array
-        const videos = response.data || response;
+    showLoader(videoFeedGrid);
+    if (noResultsEl) noResultsEl.classList.add('hidden');
 
-        if (!Array.isArray(videos) || videos.length === 0) {
-            videoFeedGrid.innerHTML = '';
-            if (noResultsEl) noResultsEl.classList.remove('hidden');
-            return;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        if (attempt > 0) {
+            // Esperar antes de reintentar
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS[attempt]));
+            // Actualizar splash si sigue visible
+            if (typeof Splash !== 'undefined') {
+                Splash.setProgress(65, `Reconectando... (intento ${attempt + 1}/${MAX_RETRIES})`);
+            }
+            showLoader(videoFeedGrid);
         }
 
-        renderVideos(videos);
+        try {
+            const response = await getVideos();
 
-    } catch (error) {
-        console.error('Error cargando videos:', error);
-        videoFeedGrid.innerHTML = ErrorMessage('Error al cargar los videos. Intenta nuevamente.');
+            // Laravel paginate() devuelve: { current_page, data: [...], total, ... }
+            // pero fetchAPI lo recibe envuelto en otro nivel si el controller usa response()->json()
+            // Estructura real: response = { current_page, data: [...], total, ... } 
+            // o response = { data: { current_page, data: [...] } } según versión
+            let videos;
+            if (Array.isArray(response)) {
+                // Array directo
+                videos = response;
+            } else if (Array.isArray(response.data)) {
+                // Laravel paginate sin wrapper extra: { data: [...], current_page, total }
+                videos = response.data;
+            } else if (response.data && Array.isArray(response.data.data)) {
+                // Doble anidado: { data: { data: [...], current_page } }
+                videos = response.data.data;
+            } else {
+                // Fallback: intentar extraer cualquier array del objeto
+                videos = Object.values(response).find(v => Array.isArray(v)) || [];
+            }
+
+            if (!Array.isArray(videos) || videos.length === 0) {
+                videoFeedGrid.innerHTML = '';
+                if (noResultsEl) noResultsEl.classList.remove('hidden');
+                return;
+            }
+
+            renderVideos(videos);
+            return; // Éxito, salir del bucle de reintentos
+
+        } catch (error) {
+            console.warn(`[loadVideoFeed] Intento ${attempt + 1} fallido:`, error.message);
+
+            if (attempt === MAX_RETRIES - 1) {
+                // Último intento fallido: mostrar error con botón de reintento
+                console.error('Error cargando videos tras todos los reintentos:', error);
+                videoFeedGrid.innerHTML = `
+                    <div class="error-retry-container" style="grid-column: 1/-1; text-align:center; padding: 3rem 1rem;">
+                        <p style="color:#ef4444; font-size:1rem; margin-bottom:1rem;">
+                            ⚠️ No se pudieron cargar los vídeos. El servidor puede estar iniciando.
+                        </p>
+                        <p style="color:#6b7280; font-size:0.875rem; margin-bottom:1.5rem;">
+                            Render (plan gratuito) puede tardar hasta 60 segundos en arrancar.
+                        </p>
+                        <button onclick="loadVideoFeed()" style="
+                            background: #2563eb; color: white; border: none; border-radius: 8px;
+                            padding: 0.6rem 1.5rem; font-size:0.9rem; cursor:pointer;
+                            transition: background 0.2s;
+                        " onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                            🔄 Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+            // Si no es el último intento, continuar el bucle
+        }
     }
 }
 
@@ -725,7 +790,12 @@ async function handleSearch(e) {
 
         // Buscar en la API
         const response = await searchVideos(searchTerm);
-        const videos = response.data || response;
+        // Mismo parsing multi-nivel que loadVideoFeed
+        let videos;
+        if (Array.isArray(response))                           videos = response;
+        else if (Array.isArray(response.data))                 videos = response.data;
+        else if (response.data && Array.isArray(response.data.data)) videos = response.data.data;
+        else videos = Object.values(response).find(v => Array.isArray(v)) || [];
 
         // Actualizar título con contador de resultados
         const resultCount = videos.length;

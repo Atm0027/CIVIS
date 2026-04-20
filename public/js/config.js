@@ -53,7 +53,7 @@ const CONFIG = {
     // La URL se detecta automáticamente según el entorno
     api: {
         baseUrl: getApiBaseUrl(), // URL automática según entorno
-        timeout: 10000, // 10 segundos
+        timeout: 30000, // 30 segundos (necesario para cold start de Render free tier)
 
         // Endpoints de la API
         // Deben coincidir con las rutas definidas en Laravel (routes/api.php)

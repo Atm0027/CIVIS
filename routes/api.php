@@ -1,13 +1,40 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\DeadlineController;
 
-// públicas
+// ===== ENDPOINTS DE DIAGNÓSTICO =====
+
+// Ping ultraligero para despertar el servidor (sin DB, respuesta inmediata)
+Route::get('/ping', function () {
+    return response()->json(['pong' => true, 'ts' => time()]);
+});
+
+// Status con comprobación real de base de datos
+Route::get('/status', function () {
+    $dbOk = false;
+    $videoCount = 0;
+    $dbError = null;
+    try {
+        DB::connection()->getPdo();
+        $dbOk = true;
+        $videoCount = DB::table('videos')->count();
+    } catch (\Exception $e) {
+        $dbError = $e->getMessage();
+    }
+    return response()->json([
+        'api'         => 'ok',
+        'database'    => $dbOk ? 'connected' : 'error',
+        'db_error'    => $dbError,
+        'video_count' => $videoCount,
+    ], $dbOk ? 200 : 503);
+});
+
 // públicas
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/videos', [VideoController::class, 'index']);
