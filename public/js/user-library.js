@@ -222,7 +222,5 @@ if (typeof window !== 'undefined') {
     window.UserLibrary = UserLibrary;
 }
 
-// Exportar para tests (ESM - Vitest)
-export { UserLibrary };
-
-
+// Nota: export eliminado para compatibilidad con scripts clásicos del browser.
+// Para tests Vitest, importar mediante una copia-wrapper o usar window.UserLibrary.

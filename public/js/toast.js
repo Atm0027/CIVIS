@@ -91,7 +91,4 @@ if (typeof window !== 'undefined') {
     window.Toast = Toast;
 }
 
-// Exportar para tests (ESM - Vitest)
-export { Toast };
-
-
+// Nota: export eliminado para compatibilidad con scripts clásicos del browser.

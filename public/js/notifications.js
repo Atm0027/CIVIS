@@ -206,7 +206,4 @@ if (typeof window !== 'undefined') {
     window.Notifications = Notifications;
 }
 
-// Exportar para tests
-export { Notifications };
-
-
+// Nota: export eliminado para compatibilidad con scripts clásicos del browser.
