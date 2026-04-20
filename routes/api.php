@@ -36,21 +36,6 @@ Route::get('/status', function () {
     ], $dbOk ? 200 : 503);
 });
 
-// Debug: captura el error exacto que causa el 500 en rutas normales
-Route::get('/debug-error', function () {
-    try {
-        $videos = \App\Models\Video::with('category')->paginate(1);
-        return response()->json(['ok' => true, 'count' => $videos->total()]);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'error'   => $e->getMessage(),
-            'class'   => get_class($e),
-            'file'    => $e->getFile(),
-            'line'    => $e->getLine(),
-            'trace'   => collect(explode("\n", $e->getTraceAsString()))->take(10)->values(),
-        ], 500);
-    }
-});
 
 // públicas
 Route::get('/categories', [CategoryController::class, 'index']);
