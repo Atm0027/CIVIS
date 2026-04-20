@@ -34,7 +34,10 @@ class User extends Authenticatable
 
     public function favoriteVideos()
     {
-        return $this->belongsToMany(Video::class, 'user_favorites')->with('category')->withTimestamps('created_at', 'created_at');
+        return $this->belongsToMany(Video::class, 'user_favorites')
+                    ->with('category')
+                    ->withPivot('created_at')
+                    ->orderByPivot('created_at', 'desc');
     }
 }
 

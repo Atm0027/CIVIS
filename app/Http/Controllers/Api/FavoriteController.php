@@ -14,11 +14,7 @@ class FavoriteController extends Controller
      */
     public function index(Request $request)
     {
-        $favorites = $request->user()
-            ->favoriteVideos()
-            ->orderByPivot('created_at', 'desc')
-            ->get();
-
+        $favorites = $request->user()->favoriteVideos()->get();
         return response()->json($favorites);
     }
 
