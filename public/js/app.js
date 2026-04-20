@@ -78,17 +78,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Si ya terminó, este await es instantáneo
     await wakeupPromise;
 
-    // En index.html cargar videos y esperar
+    // En index.html cargar favoritos y videos en paralelo
     if (isIndex) {
+        // Cargar favoritos en paralelo con los videos para tener los iconos correctos
+        const favPromise   = currentUser ? loadFavoritesCache() : Promise.resolve();
         const videoPromise = loadVideoFeed();
         Splash.setProgress(65, 'Cargando vídeos...');
-        await videoPromise;
+        await Promise.all([favPromise, videoPromise]);
+        // Rerenderizar el feed para que los corazones reflejen el estado real de la API
+        if (currentUser && window._cachedVideos) renderVideos(window._cachedVideos);
         Splash.setProgress(85, 'Casi listo...');
     }
 
-    // En perfil, cargar carpeta
+    // En perfil, cargar la carpeta desde la API
     if (isProfile) {
-        loadMiCarpeta();
+        await loadMiCarpeta();
         Splash.setProgress(85, 'Cargando tu carpeta...');
     }
 
@@ -692,42 +696,77 @@ async function logoutUser() {
     window.location.href = 'login.html';
 }
 
-// ===== HANDLERS DE EVENTOS =====
+// ===== LIBRERÍA PERSONAL: FAVORITOS =====
 
-// ===== LIBRERÍA PERSONAL: FAVORITOS Y VALORACIONES =====
+// Cache en memoria de los IDs de favoritos del usuario actual
+window._favoritesSet = new Set();
 
-window.handleToggleFavorite = (e, videoId) => {
+/** Carga favoritos desde la API y llena el Set en memoria */
+async function loadFavoritesCache() {
+    if (!hasToken()) return;
+    try {
+        const favs = await getFavoritesApi();
+        window._favoritesSet = new Set((favs || []).map(v => String(v.id)));
+    } catch (e) {
+        // Si falla (sin conexión), dejamos el Set vacío
+        window._favoritesSet = new Set();
+    }
+}
+
+/** Devuelve true si el vídeo está en favoritos del usuario */
+function isFavoriteApi(videoId) {
+    return window._favoritesSet.has(String(videoId));
+}
+
+window.handleToggleFavorite = async (e, videoId) => {
     e.stopPropagation();
-    if (!window.UserLibrary) return;
 
-    // Obtener video de la caché (en index.html) o de localStorage (en usuario.html)
-    let video = null;
-    if (window._cachedVideos) {
-        video = window._cachedVideos.find(v => String(v.id) === String(videoId));
-    }
-    if (!video) {
-        video = window.UserLibrary.getFavorites().find(v => String(v.id) === String(videoId));
+    // Requiere sesión
+    if (!hasToken()) {
+        window.Toast && window.Toast.show({ message: 'Inicia sesión para guardar favoritos', type: 'info', duration: 3000 });
+        return;
     }
 
-    if (!video) return;
-
-    const result = window.UserLibrary.toggleFavorite(video);
-
-    if (result.action === 'added') {
-        window.Toast && window.Toast.show({ message: '❤️ Añadido a favoritos', type: 'success', duration: 2000 });
+    // Optimistic UI: actualizar el icono inmediatamente antes de esperar la API
+    const wasAlreadyFav = isFavoriteApi(videoId);
+    if (wasAlreadyFav) {
+        window._favoritesSet.delete(String(videoId));
     } else {
-        window.Toast && window.Toast.show({ message: 'Eliminado de favoritos', type: 'info', duration: 2000 });
+        window._favoritesSet.add(String(videoId));
     }
-    
-    // Si estamos en perfil, recargar vista entera para quitar la card visualmente
+    rerenderVideoCard(videoId);
+
+    try {
+        const result = await toggleFavoriteApi(videoId);
+
+        // Sincronizar Set con respuesta real del servidor
+        if (result.is_favorite) {
+            window._favoritesSet.add(String(videoId));
+            window.Toast && window.Toast.show({ message: '❤️ Añadido a favoritos', type: 'success', duration: 2000 });
+        } else {
+            window._favoritesSet.delete(String(videoId));
+            window.Toast && window.Toast.show({ message: 'Eliminado de favoritos', type: 'info', duration: 2000 });
+        }
+
+    } catch (err) {
+        // Revertir optimistic update si falla la API
+        if (wasAlreadyFav) {
+            window._favoritesSet.add(String(videoId));
+        } else {
+            window._favoritesSet.delete(String(videoId));
+        }
+        window.Toast && window.Toast.show({ message: 'Error al guardar favorito. Inténtalo de nuevo.', type: 'error', duration: 3000 });
+        console.error('[favorites] Error toggle:', err);
+    }
+
+    // Rerenderizar para reflejar el estado final correcto
+    rerenderVideoCard(videoId);
+
+    // Si estamos en perfil, recargar la sección Mi Carpeta
     if (window.location.pathname.includes('usuario.html') && typeof loadMiCarpeta === 'function') {
         loadMiCarpeta();
-    } else {
-        rerenderVideoCard(videoId);
     }
 };
-
-
 
 window.handleToggleRating = (e, videoId, value) => {
     e.stopPropagation();
@@ -918,39 +957,27 @@ function loadProfileData() {
     loadMiCarpeta();
 }
 
-// ===== MI CARPETA: FAVORITOS =====
-function loadMiCarpeta() {
-    // 1) Leer datos: UserLibrary si está listo, o localStorage directamente como fallback
-    let favorites = [];
+// ===== MI CARPETA: FAVORITOS DESDE LA API =====
+async function loadMiCarpeta() {
+    const grid  = document.getElementById('favorites-grid');
+    const empty = document.getElementById('favorites-empty');
+    const count = document.getElementById('fav-count');
 
-    if (window.UserLibrary) {
-        favorites = window.UserLibrary.getFavorites();
-    } else {
-        try { favorites = JSON.parse(localStorage.getItem('civis_favorites') || '[]'); } catch (e) { }
-    }
+    if (!grid) return;
 
+    // Mostrar spinner mientras carga
+    grid.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
+    if (empty) empty.classList.add('hidden');
 
+    try {
+        const favorites = await getFavoritesApi();
 
-    // 2) Resolver vídeo completo: caché del feed → metadata guardada
-    const resolveVideo = (savedItem) => {
-        if (window._cachedVideos) {
-            const cached = window._cachedVideos.find(v => String(v.id) === String(savedItem.id));
-            if (cached) return cached;
-        }
-        return savedItem;
-    };
+        // Actualizar el Set en memoria para mantener consistencia con los botones
+        window._favoritesSet = new Set((favorites || []).map(v => String(v.id)));
 
-    // 3) Helper para renderizar un bloque (favoritos o vistos)
-    const renderBlock = (items, gridId, emptyId, countId) => {
-        const grid = document.getElementById(gridId);
-        const empty = document.getElementById(emptyId);
-        const count = document.getElementById(countId);
-        if (!grid) return;
+        if (count) count.textContent = favorites.length;
 
-        // Actualizar contador PRIMERO (aunque el render falle, el badge será correcto)
-        if (count) count.textContent = items.length;
-
-        if (items.length === 0) {
+        if (!favorites || favorites.length === 0) {
             grid.innerHTML = '';
             if (empty) empty.classList.remove('hidden');
             return;
@@ -958,28 +985,24 @@ function loadMiCarpeta() {
 
         if (empty) empty.classList.add('hidden');
 
-        // Renderizar tarjetas con protección individual ante datos incompletos
-        const cards = items.map(item => {
+        const cards = favorites.map(video => {
             try {
-                const videoData = resolveVideo(item);
-                // Garantizar campos mínimos que VideoCard necesita
-                if (!videoData.category) videoData.category = { name: 'Sin categoría' };
-                if (!videoData.url) videoData.url = '';
-                if (!videoData.description) videoData.description = '';
-                return VideoCard(videoData);
+                if (!video.category) video.category = { name: 'Sin categoría' };
+                if (!video.url) video.url = '';
+                if (!video.description) video.description = '';
+                return VideoCard(video);
             } catch (err) {
-                // Tarjeta mínima de fallback si hay error
-                return `<div class="video-card" data-video-id="${item.id || ''}">
-                    <div class="p-5"><h3 class="text-base font-bold">${item.title || 'Vídeo guardado'}</h3></div>
+                return `<div class="video-card" data-video-id="${video.id || ''}">
+                    <div class="p-5"><h3 class="text-base font-bold">${video.title || 'Vídeo guardado'}</h3></div>
                 </div>`;
             }
         });
 
         grid.innerHTML = cards.join('');
-    };
 
-    renderBlock(favorites, 'favorites-grid', 'favorites-empty', 'fav-count');
-
+    } catch (err) {
+        console.error('[loadMiCarpeta] Error:', err);
+        grid.innerHTML = '<p style="color:#ef4444;padding:1rem;">Error al cargar favoritos. Inténtalo de nuevo.</p>';
+    }
 }
-
 

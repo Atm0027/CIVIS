@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\DeadlineController;
+use App\Http\Controllers\Api\FavoriteController;
 
 // ===== ENDPOINTS DE DIAGNÓSTICO =====
 
@@ -65,6 +66,13 @@ Route::prefix('auth')->group(function () {
 // Calendar / Deadlines
 Route::get('/calendar', [DeadlineController::class, 'index']);
 Route::get('/calendar/upcoming', [DeadlineController::class, 'upcoming']);
+
+// ===== FAVORITOS (requiere autenticación) =====
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/favorites', [FavoriteController::class, 'index']);
+    Route::post('/favorites/{videoId}/toggle', [FavoriteController::class, 'toggle']);
+    Route::get('/favorites/{videoId}/check', [FavoriteController::class, 'check']);
+});
 
 use App\Http\Controllers\Api\UploadController;
 

@@ -343,3 +343,31 @@ function showError(container, message) {
     if (!container) return; // Evitar error si el contenedor no existe
     container.innerHTML = ErrorMessage(message);
 }
+
+// ===== FAVORITOS =====
+
+/**
+ * Obtiene los favoritos del usuario autenticado desde la API
+ * @returns {Promise<Array>} - Lista de vídeos favoritos con sus datos completos
+ */
+async function getFavoritesApi() {
+    return await fetchAPI('/favorites');
+}
+
+/**
+ * Alterna el estado de favorito de un vídeo (add/remove)
+ * @param {number|string} videoId - ID del vídeo
+ * @returns {Promise<Object>} - { action: 'added'|'removed', video_id, is_favorite }
+ */
+async function toggleFavoriteApi(videoId) {
+    return await fetchAPI(`/favorites/${videoId}/toggle`, { method: 'POST' });
+}
+
+/**
+ * Comprueba si un vídeo está en favoritos del usuario
+ * @param {number|string} videoId - ID del vídeo
+ * @returns {Promise<Object>} - { is_favorite: boolean }
+ */
+async function checkFavoriteApi(videoId) {
+    return await fetchAPI(`/favorites/${videoId}/check`);
+}

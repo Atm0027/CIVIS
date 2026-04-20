@@ -12,4 +12,9 @@ class Video extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'user_favorites')->withTimestamps('created_at', 'created_at');
+    }
 }

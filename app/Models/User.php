@@ -31,4 +31,10 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function favoriteVideos()
+    {
+        return $this->belongsToMany(Video::class, 'user_favorites')->with('category')->withTimestamps('created_at', 'created_at');
+    }
 }
+

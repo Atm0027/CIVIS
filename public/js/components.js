@@ -12,8 +12,9 @@ function VideoCard(video) {
     // Verificar estado de selección (usando funciones globales de selection.js si existen)
     const isSelected = window.isVideoSelected ? window.isVideoSelected(video.id) : false;
 
-    // Estado de la librería personal (si el módulo ya está cargado)
-    const isFav = window.UserLibrary ? window.UserLibrary.isFavorite(video.id) : false;
+    // Estado de la librería personal — usa el Set de favoritos cargado desde la API
+    const isFav = (typeof isFavoriteApi === 'function') ? isFavoriteApi(video.id)
+                 : (window.UserLibrary ? window.UserLibrary.isFavorite(video.id) : false);
 
     const rating = window.UserLibrary ? window.UserLibrary.getRating(video.id) : null;
 
