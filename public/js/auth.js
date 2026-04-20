@@ -211,10 +211,13 @@ function initRegisterPage() {
 
 // ===== LOGOUT DEL USUARIO =====
 async function logoutUser() {
-    try {
-        await logout();
-    } catch (error) {
-        // Error silencioso en logout — siempre se redirige
+    // Limpiar sesión local de forma INMEDIATA
+    if (typeof removeToken === 'function') removeToken();
+    if (typeof removeCurrentUser === 'function') removeCurrentUser();
+
+    // Notificar al backend en background (fire-and-forget)
+    if (typeof fetchAPI === 'function') {
+        fetchAPI('/auth/logout', { method: 'POST' }).catch(() => {});
     }
 
     window.location.href = 'login.html';

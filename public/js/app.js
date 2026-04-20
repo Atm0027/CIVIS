@@ -546,40 +546,20 @@ window.handleNotificationClick = (e, id) => {
 
 // ===== LOGOUT DEL USUARIO =====
 async function logoutUser() {
-    try {
-        // Mostrar loader si estamos en una vista con botón
-        const logoutBtn = document.getElementById('logout-btn');
-        if (logoutBtn) {
-            logoutBtn.disabled = true;
-            logoutBtn.innerHTML = '<span class="spinner-sm"></span> Cerrando...';
-        }
+    // Limpiar sesión local de forma INMEDIATA para no bloquear al usuario.
+    // La llamada al backend se hace en background (fire-and-forget).
+    // Esto evita que el botón quede colgado si el backend tarda en responder.
+    removeToken();
+    removeCurrentUser();
 
-        // Si api.js tiene logout(), usarlo
-        if (typeof logout === 'function') {
-            await logout();
-        }
-    } catch (error) {
-        // Mostrar mensaje de error al usuario si el modal/botón aún existe
-        const logoutBtn = document.getElementById('logout-btn');
-        if (logoutBtn) {
-            logoutBtn.innerHTML = 'Error al cerrar sesión';
-            logoutBtn.classList.add('text-red-500');
-            setTimeout(() => {
-                logoutBtn.disabled = false;
-                logoutBtn.innerHTML = 'Cerrar sesión';
-                logoutBtn.classList.remove('text-red-500');
-            }, 3000);
-        }
-        console.error('Logout error:', error);
-    } finally {
-        // Limpieza profunda de localStorage
-        removeToken();
-        removeCurrentUser();
-        // Opcional: limpiar también favoritos/notificaciones si se desea sesión limpia total
-        // Por ahora mantenemos favoritos locales.
-
-        window.location.href = 'login.html';
+    // Notificar al backend en background (sin await, no bloqueamos)
+    if (typeof fetchAPI === 'function') {
+        fetchAPI('/auth/logout', { method: 'POST' }).catch(() => {
+            // Error silencioso — la sesión local ya está limpia
+        });
     }
+
+    window.location.href = 'login.html';
 }
 
 // ===== HANDLERS DE EVENTOS =====
