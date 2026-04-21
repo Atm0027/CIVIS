@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class FavoriteController extends Controller
 {
@@ -32,8 +33,8 @@ class FavoriteController extends Controller
         $isNowFavorite = count($result['attached']) > 0;
 
         return response()->json([
-            'action'     => $isNowFavorite ? 'added' : 'removed',
-            'video_id'   => $video->id,
+            'action'      => $isNowFavorite ? 'added' : 'removed',
+            'video_id'    => $video->id,
             'is_favorite' => $isNowFavorite,
         ]);
     }
@@ -49,5 +50,64 @@ class FavoriteController extends Controller
             ->exists();
 
         return response()->json(['is_favorite' => $isFavorite]);
+    }
+
+    /**
+     * Devuelve los vídeos favoritos del usuario formateados como eventos de calendario.
+     * Solo incluye vídeos que tengan process_start_date.
+     */
+    public function calendar(Request $request)
+    {
+        $favorites = $request->user()
+            ->favoriteVideos()
+            ->whereNotNull('process_start_date')
+            ->get();
+
+        $events = $favorites->map(function ($video) {
+            return [
+                'id'       => $video->id,
+                'title'    => $video->title,
+                'date'     => $video->process_start_date,
+                'end_date' => $video->process_end_date,
+                'type'     => 'favorite_video',
+                'url'      => $video->url,
+            ];
+        })->sortBy('date')->values();
+
+        return response()->json($events);
+    }
+
+    /**
+     * Devuelve los próximos vídeos favoritos (por process_start_date).
+     * Se usa en el widget de "Fechas próximas" del sidebar.
+     */
+    public function upcoming(Request $request)
+    {
+        $limit = $request->query('limit', 3);
+        $today = Carbon::today()->toDateString();
+
+        $upcoming = $request->user()
+            ->favoriteVideos()
+            ->where(function ($q) use ($today) {
+                $q->where('process_start_date', '>=', $today)
+                  ->orWhere('process_end_date', '>=', $today);
+            })
+            ->orderByRaw('COALESCE(process_start_date, process_end_date) ASC')
+            ->limit($limit)
+            ->get();
+
+        // Formatear igual que el DeadlineItem del frontend espera
+        $formatted = $upcoming->map(function ($video) {
+            return [
+                'id'         => $video->id,
+                'title'      => $video->title,
+                'end_date'   => $video->process_end_date ?? $video->process_start_date,
+                'start_date' => $video->process_start_date,
+                'type'       => 'favorite_video',
+                'url'        => $video->url,
+            ];
+        });
+
+        return response()->json($formatted);
     }
 }

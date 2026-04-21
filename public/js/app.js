@@ -411,25 +411,32 @@ function renderAuthButtons() {
     }
 }
 
-// Carga y renderiza los plazos cercanos desde API
+// Carga y renderiza las fechas próximas de los favoritos del usuario
 async function loadUpcomingDeadlines() {
     const upcomingDeadlinesEl = document.getElementById('deadlines-list');
+    if (!upcomingDeadlinesEl) return;
+
+    // Sin sesión: mostrar mensaje genérico
+    if (!hasToken()) {
+        upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-slate-400">Inicia sesión para ver tus fechas próximas.</p>';
+        return;
+    }
 
     try {
         showLoader(upcomingDeadlinesEl);
 
-        const deadlines = await getUpcomingDeadlines(2);
+        const upcoming = await fetchAPI(`${CONFIG.api.endpoints.favoritesUpcoming}?limit=3`);
 
-        if (deadlines.length === 0) {
-            upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-slate-400">No hay plazos cercanos.</p>';
+        if (!upcoming || upcoming.length === 0) {
+            upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-slate-400">No tienes trámites favoritos con fechas próximas.</p>';
             return;
         }
 
-        upcomingDeadlinesEl.innerHTML = deadlines.map(deadline => DeadlineItem(deadline)).join('');
+        upcomingDeadlinesEl.innerHTML = upcoming.map(item => DeadlineItem(item)).join('');
 
     } catch (error) {
-        console.error('Error cargando plazos:', error);
-        upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-red-400">Error al cargar plazos</p>';
+        console.error('[Upcoming] Error cargando fechas de favoritos:', error);
+        upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-red-400">Error al cargar fechas próximas.</p>';
     }
 }
 

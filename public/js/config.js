@@ -75,9 +75,13 @@ const CONFIG = {
             // Uploads
             uploads: "/uploads",
 
-            // Calendario
+            // Calendario general (público)
             calendar: "/calendar",
             upcomingDeadlines: "/calendar/upcoming",
+
+            // Calendario y próximas fechas PERSONALIZADAS (solo favoritos del usuario)
+            favoritesCalendar: "/favorites/calendar",
+            favoritesUpcoming: "/favorites/upcoming",
 
             // FAQs
             faqs: "/faqs",

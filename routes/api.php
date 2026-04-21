@@ -70,9 +70,13 @@ Route::get('/calendar/upcoming', [DeadlineController::class, 'upcoming']);
 
 // ===== FAVORITOS (requiere autenticación) =====
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/favorites', [FavoriteController::class, 'index']);
+    // Rutas estáticas PRIMERO (antes de las dinámicas con {videoId})
+    Route::get('/favorites',                   [FavoriteController::class, 'index']);
+    Route::get('/favorites/calendar',          [FavoriteController::class, 'calendar']);
+    Route::get('/favorites/upcoming',          [FavoriteController::class, 'upcoming']);
+    // Rutas dinámicas después
     Route::post('/favorites/{videoId}/toggle', [FavoriteController::class, 'toggle']);
-    Route::get('/favorites/{videoId}/check', [FavoriteController::class, 'check']);
+    Route::get('/favorites/{videoId}/check',   [FavoriteController::class, 'check']);
 });
 
 use App\Http\Controllers\Api\UploadController;
