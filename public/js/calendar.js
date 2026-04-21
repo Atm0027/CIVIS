@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-    initCalendar();
-});
+// calendar.js — La inicialización la controla app.js
+// (para coordinar con el splash screen)
+// initCalendar() se llama desde app.js cuando la página del calendario está activa
 
 const calendarState = {
     currentDate: new Date(),

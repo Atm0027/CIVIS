@@ -12,6 +12,7 @@ const Splash = {
     _status: null,
     _progress: 0,
     _safetyTimer: null,
+    _crawlTimer: null,
 
     init() {
         this._el     = document.getElementById('app-splash');
@@ -20,22 +21,60 @@ const Splash = {
 
         if (!this._el) return;
 
-        // Timeout de seguridad: ocultar splash pase lo que pase tras 8 segundos
-        this._safetyTimer = setTimeout(() => this.hide(), 8000);
+        // Safety timer: 120s cubre 3 reintentos × 30s (cold start de Render)
+        this._safetyTimer = setTimeout(() => this.hide(), 120000);
     },
 
+    /**
+     * Salta inmediatamente a un porcentaje exacto (cuando llega una respuesta real).
+     * Cancela cualquier crawl en curso.
+     */
     setProgress(pct, label) {
+        this._cancelCrawl();
         this._progress = Math.min(100, pct);
-        if (this._bar)    this._bar.style.width = this._progress + '%';
+        if (this._bar)   this._bar.style.width = this._progress + '%';
         if (this._status && label) this._status.textContent = label;
     },
 
+    /**
+     * Avanza lentamente 1% cada `msPerStep` ms hacia `targetPct`.
+     * Se usa mientras la app espera una respuesta del servidor.
+     * Se cancela automáticamente cuando llega setProgress().
+     */
+    crawlTo(targetPct, label, msPerStep = 600) {
+        if (label && this._status) this._status.textContent = label;
+        this._targetPct = Math.min(targetPct, 99); // Nunca llegar al 100% artificialmente
+        this._tick(msPerStep);
+    },
+
+    _tick(msPerStep) {
+        this._cancelCrawl();
+        if (this._progress >= this._targetPct) return;
+        this._crawlTimer = setTimeout(() => {
+            if (this._progress < this._targetPct) {
+                this._progress += 1;
+                if (this._bar) this._bar.style.width = this._progress + '%';
+                this._tick(msPerStep);
+            }
+        }, msPerStep);
+    },
+
+    _cancelCrawl() {
+        if (this._crawlTimer) {
+            clearTimeout(this._crawlTimer);
+            this._crawlTimer = null;
+        }
+    },
+
     hide() {
+        this._cancelCrawl();
         if (this._safetyTimer) clearTimeout(this._safetyTimer);
         if (!this._el) return;
 
         // Llevar la barra al 100% antes del fade
-        this.setProgress(100, 'Listo');
+        this._progress = 100;
+        if (this._bar) this._bar.style.width = '100%';
+        if (this._status) this._status.textContent = '¡Listo!';
 
         // Fade-out suave (duración definida en CSS: 0.5s)
         this._el.classList.add('splash-hidden');
@@ -53,56 +92,77 @@ Splash.init();
 // Espera a que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
-    const isIndex = !path.includes('.html') || path.includes('index.html');
-    const isProfile = path.includes('usuario.html');
+    const isIndex    = !path.includes('.html') || path.includes('index.html');
+    const isProfile  = path.includes('usuario.html');
     const isCalendar = path.includes('calendario.html');
-    const isFaq = path.includes('preguntasFrecuentes.html');
+    const isFaq      = path.includes('preguntasFrecuentes.html');
 
-    Splash.setProgress(5, 'Conectando con el servidor...');
-
-    // Wakeup ping: despierta al servidor Render antes de pedir datos
-    // Se hace en background (sin await) para no bloquear, pero sí da tiempo al servidor
+    // PASO 1: Conectar con el servidor (wakeup ping en background)
+    Splash.setProgress(3, 'Conectando con el servidor...');
     const wakeupPromise = fetch(`${CONFIG.api.baseUrl}/ping`, { method: 'GET' }).catch(() => null);
 
-    Splash.setProgress(10, 'Verificando sesión...');
+    // Crawl lento 3→25% mientras esperamos la respuesta del servidor
+    // (~600ms/% → si el server tarda 12s llegará al ~23%)
+    Splash.crawlTo(25, 'Conectando con el servidor...', 600);
 
-    // Cargar usuario (en paralelo al wakeup para ganar tiempo)
+    // PASO 2: Verificar sesión (en paralelo al ping)
+    // Cuando resuelva, setProgress() cancela el crawl y salta al valor real
     await loadCurrentUser();
-    Splash.setProgress(35, 'Preparando interfaz...');
+    Splash.setProgress(30, 'Sesión verificada ✓');
 
-    // Inicializar la UI (sidebar, plazos, notificaciones, etc.)
+    // PASO 3: Inicializar interfaz (síncrono, rápido)
     initializeApp();
-    Splash.setProgress(55, 'Cargando contenido...');
+    Splash.setProgress(40, 'Interfaz lista ✓');
 
-    // Esperar a que el wakeup ping termine (máx. lo que tarde loadCurrentUser + initializeApp)
-    // Si ya terminó, este await es instantáneo
+    // Esperar a que el wakeup ping termine antes de pedir datos
+    // Si el servidor tardó mucho, crawl lento 40→55% mientras esperamos
+    Splash.crawlTo(55, 'Preparando contenido...', 400);
     await wakeupPromise;
+    Splash.setProgress(55, 'Servidor listo ✓');
 
-    // En index.html cargar favoritos y videos en paralelo
+    // PASO 4: Cargar contenido específico de cada página
     if (isIndex) {
-        // Cargar favoritos en paralelo con los videos para tener los iconos correctos
+        // Crawl 55→82% mientras esperamos vídeos + favoritos del servidor
+        // Cold start de Render: puede tardar 30-50s → ~600ms/% cubre bien ese rango
+        Splash.crawlTo(82, 'Cargando vídeos...', 500);
+
         const favPromise   = currentUser ? loadFavoritesCache() : Promise.resolve();
         const videoPromise = loadVideoFeed();
-        Splash.setProgress(65, 'Cargando vídeos...');
         await Promise.all([favPromise, videoPromise]);
-        // Rerenderizar el feed para que los corazones reflejen el estado real de la API
+
+        // Cuando llegan los datos, saltar al valor real
+        Splash.setProgress(88, 'Vídeos cargados ✓');
+
+        // Rerenderizar para que los corazones muestren el estado correcto
         if (currentUser && window._cachedVideos) renderVideos(window._cachedVideos);
-        Splash.setProgress(85, 'Casi listo...');
     }
 
-    // En perfil, cargar la carpeta desde la API
     if (isProfile) {
+        Splash.crawlTo(82, 'Cargando tu carpeta...', 500);
         await loadMiCarpeta();
-        Splash.setProgress(85, 'Cargando tu carpeta...');
+        Splash.setProgress(88, 'Carpeta cargada ✓');
     }
 
-    // En calendario o FAQ el contenido ya carga dentro de initializeApp → loadCalendarPage / loadFaqPage
-    if (isCalendar || isFaq) {
-        Splash.setProgress(85, 'Cargando datos...');
+    if (isCalendar) {
+        Splash.crawlTo(82, 'Cargando calendario...', 500);
+        // Inicializar UI del calendario (síncrono) y luego cargar eventos (async)
+        if (typeof setupEventListeners === 'function') setupEventListeners();
+        if (typeof renderCalendar === 'function') renderCalendar();
+        if (typeof loadCalendarEvents === 'function') {
+            await loadCalendarEvents();
+        }
+        Splash.setProgress(88, 'Calendario listo ✓');
     }
 
-    // Pequeña pausa para que la UI se pinte antes de ocultar el splash
-    await new Promise(resolve => setTimeout(resolve, 300));
+    if (isFaq) {
+        Splash.crawlTo(82, 'Cargando preguntas...', 500);
+        Splash.setProgress(88, 'Contenido listo ✓');
+    }
+
+    // PASO 5: Breve crawl 88→100% + ocultar
+    // Da tiempo a que el DOM se pinte antes del fade-out
+    Splash.crawlTo(99, '¡Listo!', 80);
+    await new Promise(resolve => setTimeout(resolve, 400));
     Splash.hide();
 
     // Escuchar evento de videos eliminados para recargar la lista
