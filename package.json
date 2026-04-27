@@ -10,7 +10,9 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "repository": {
     "type": "git",
@@ -25,6 +27,7 @@
   "homepage": "https://github.com/Atm0027/CIVIS#readme",
   "devDependencies": {
     "jsdom": "^28.1.0",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "wrangler": "^4.83.0"
   }
 }
