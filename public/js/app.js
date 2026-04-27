@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isCalendar) {
         Splash.crawlTo(82, 'Cargando calendario...', 500);
         // Inicializar UI del calendario (síncrono) y luego cargar eventos (async)
-        if (typeof setupEventListeners === 'function') setupEventListeners();
+        if (typeof setupCalendarEventListeners === 'function') setupCalendarEventListeners();
         if (typeof renderCalendar === 'function') renderCalendar();
         if (typeof loadCalendarEvents === 'function') {
             await loadCalendarEvents();

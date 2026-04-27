@@ -2766,9 +2766,10 @@ select.form-input {
         box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
     }
 
-    /* Botones visibles en m�vil */
+    /* Botones visibles en mvil */
     .hamburger-btn {
         display: flex;
+        align-self: center;
     }
 
     .sidebar-close-btn {
@@ -2870,4 +2871,118 @@ select.form-input {
 
 .event-dot.favorite {
     background-color: #ffd700;
+}
+
+/* ==========================================
+   SPLASH SCREEN
+   ========================================== */
+#app-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background-color: var(--color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease;
+}
+
+#app-splash.splash-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: splashFadeIn 0.8s ease-out forwards;
+}
+
+.splash-logo-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.splash-logo-ring {
+    position: absolute;
+    inset: 0;
+    border: 4px solid transparent;
+    border-top-color: var(--color-blue);
+    border-right-color: var(--color-yellow);
+    border-radius: 50%;
+    animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+.splash-logo-ring-2 {
+    position: absolute;
+    inset: 10px;
+    border: 4px solid transparent;
+    border-bottom-color: var(--color-blue);
+    border-left-color: var(--color-red);
+    border-radius: 50%;
+    animation: spin-reverse 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+.splash-logo-text {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-text);
+    z-index: 2;
+    letter-spacing: -1px;
+}
+
+.splash-logo-text span {
+    color: var(--color-red);
+}
+
+.splash-tagline {
+    font-size: 1.1rem;
+    color: var(--color-text-light);
+    margin-bottom: 2rem;
+    font-weight: 500;
+}
+
+.splash-progress-track {
+    width: 250px;
+    height: 6px;
+    background-color: var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.splash-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--color-blue), var(--color-yellow));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.splash-status {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    min-height: 1.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-reverse {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes splashFadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
 }

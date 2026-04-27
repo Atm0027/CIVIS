@@ -46,10 +46,10 @@ function showCalendarGuestMessage() {
 function initCalendar() {
     loadCalendarEvents();
     renderCalendar();
-    setupEventListeners();
+    setupCalendarEventListeners();
 }
 
-function setupEventListeners() {
+function setupCalendarEventListeners() {
     const prevBtn = document.getElementById('prev-month');
     if (prevBtn) prevBtn.onclick = () => changeMonth(-1);
 
