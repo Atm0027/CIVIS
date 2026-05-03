@@ -1,33 +1,53 @@
 /* ==========================================
    VARIABLES Y RESET
+   Todas las constantes del tema en un solo lugar.
+   Cambia aquí y afecta a toda la app.
    ========================================== */
 
 :root {
+    /* Paleta de color */
     --color-yellow: #FEC544;
+    /* acento principal, botones y bordes destacados */
     --color-red: #CF2D33;
+    /* acción destructiva, activos en nav, logo */
     --color-blue: #2563EB;
+    /* enlaces, botones primarios */
     --color-white: #FFFFFF;
     --color-bg: #F9FAFB;
+    /* fondo general de la app */
     --color-sidebar: #1F2937;
+    /* fondo oscuro del sidebar */
     --color-text: #1F2937;
+    /* texto principal */
     --color-text-light: #6B7280;
+    /* texto secundario, placeholders */
     --color-border: #E5E7EB;
+    /* bordes de inputs, separadores */
 
+    /* Sombras reutilizables (de menor a mayor elevación) */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.15);
 
     --radius: 8px;
+    /* radio de borde estándar para tarjetas e inputs */
     --transition: all 0.3s ease;
+    /* transición genérica para hover/focus */
     --sidebar-width: 280px;
+    /* ancho del sidebar en desktop; se sobreescribe en breakpoints */
 
+    /* Stack de z-index — orden de capas de menor a mayor:
+       base → navbar → overlay (fondo oscuro) → sidebar → modal → toast */
     --z-base: 1;
     --z-navbar: 200;
     --z-overlay: 400;
+    /* fondo semitransparente al abrir el sidebar en móvil */
     --z-sidebar: 500;
+    /* sidebar siempre encima del overlay */
     --z-modal: 1000;
     --z-toast: 9999;
+    /* toasts siempre visibles por encima de todo */
 }
 
 * {
@@ -46,6 +66,10 @@ body {
 
 /* ==========================================
    LAYOUT PRINCIPAL
+   Estructura raíz: sidebar fijo a la izquierda
+   + main-wrapper ocupa el resto del ancho.
+   En móvil (≤900px) el sidebar pasa a off-canvas
+   y el main-wrapper ocupa el 100%.
    ========================================== */
 
 .layout-wrapper {
@@ -55,13 +79,22 @@ body {
 
 .main-wrapper {
     margin-left: var(--sidebar-width);
+    /* empuja el contenido para no quedar bajo el sidebar fijo */
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    /* evita desbordamiento en contenedor flex */
+    overflow-x: hidden;
+    /* corta cualquier overflow horizontal residual */
 }
 
 /* ==========================================
    SIDEBAR
+   Panel izquierdo fijo. Contiene logo, perfil
+   de usuario, plazos cercanos y acciones admin.
+   En ≤900px se convierte en un menú off-canvas
+   que se desliza desde la izquierda.
    ========================================== */
 
 .sidebar {
@@ -72,8 +105,10 @@ body {
     flex-direction: column;
     gap: 2rem;
     position: fixed;
+    /* se mantiene al hacer scroll */
     height: 100vh;
     overflow: hidden;
+    /* la lista de plazos tiene su propio scroll interno */
     box-shadow: var(--shadow-lg);
 }
 
@@ -123,7 +158,13 @@ body {
 .user-email {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.7);
+    opacity: 0.8;
     margin-bottom: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
 }
 
 .user-card-actions {
@@ -176,6 +217,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    /* necesario para que overflow-y funcione dentro de un flex */
     overflow: hidden;
 }
 
@@ -187,6 +229,7 @@ body {
     padding-bottom: 0.5rem;
     border-bottom: 2px solid rgba(254, 197, 68, 0.3);
     flex-shrink: 0;
+    /* evita que el título se encoja cuando la lista es larga */
 }
 
 .deadlines-list {
@@ -195,14 +238,28 @@ body {
     flex-direction: column;
     gap: 0.75rem;
     overflow-y: auto;
+    /* scroll solo en esta lista, no en todo el sidebar */
     min-height: 0;
     padding-right: 5px;
 }
 
-.deadlines-list::-webkit-scrollbar { width: 6px; }
-.deadlines-list::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
-.deadlines-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
-.deadlines-list::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+.deadlines-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.deadlines-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.deadlines-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.deadlines-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
 
 .deadline-item {
     background-color: rgba(255, 255, 255, 0.05);
@@ -305,7 +362,7 @@ body {
     line-height: 1.4;
 }
 
-/* Sidebar controles móvil */
+/* Botón ✕ para cerrar el sidebar en móvil (oculto en desktop) */
 .sidebar-close-btn {
     display: none;
     position: absolute;
@@ -326,25 +383,35 @@ body {
     color: var(--color-text, #1e293b);
 }
 
+/* Fondo oscuro semitransparente que aparece al abrir el sidebar en móvil.
+   El JS añade/quita la clase .hidden para mostrarlo/ocultarlo. */
 .sidebar-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.45);
     z-index: var(--z-overlay);
+    /* por debajo del sidebar pero encima del contenido */
     backdrop-filter: blur(2px);
     transition: opacity 0.25s ease;
 }
 
-.sidebar-overlay.hidden { display: none; }
+.sidebar-overlay.hidden {
+    display: none;
+}
 
 /* ==========================================
    NAVBAR SUPERIOR
+   Barra sticky con buscador, links de navegación
+   y campana de notificaciones. En ≤900px muestra
+   el botón hamburguesa y los links bajan a una
+   segunda fila (flex-wrap).
    ========================================== */
 
 .navbar {
     background-color: var(--color-white);
     box-shadow: var(--shadow-md);
     position: sticky;
+    /* se queda pegada arriba al hacer scroll */
     top: 0;
     z-index: var(--z-navbar);
     border-bottom: 3px solid var(--color-yellow);
@@ -357,6 +424,7 @@ body {
     gap: 2rem;
     justify-content: space-between;
     flex-wrap: nowrap;
+    /* en desktop todo cabe en una línea */
 }
 
 .navbar-actions {
@@ -365,6 +433,7 @@ body {
     gap: 1rem;
 }
 
+/* Botón hamburguesa: oculto en desktop, visible en ≤900px */
 .hamburger-btn {
     display: none;
     flex-direction: column;
@@ -390,18 +459,23 @@ body {
     transition: all 0.25s ease;
 }
 
-.hamburger-btn:hover span { background: var(--color-primary, #3b82f6); }
+.hamburger-btn:hover span {
+    background: var(--color-primary, #3b82f6);
+}
 
 .search-box {
     flex: 1;
     max-width: 600px;
     min-width: 250px;
+    /* en desktop nunca baja de 250px; se reduce en breakpoints */
     display: flex;
     gap: 0.5rem;
 }
 
 .search-input {
     flex: 1;
+    min-width: 0;
+    width: 100%;
     padding: 0.75rem 1rem;
     border: 2px solid var(--color-border);
     border-radius: var(--radius);
@@ -435,8 +509,10 @@ body {
     display: flex;
     gap: 1.5rem;
     margin-left: auto;
+    /* empuja los links al extremo derecho */
     flex-wrap: nowrap;
     flex-shrink: 0;
+    /* no se comprime en desktop; en ≤900px esto cambia */
 }
 
 .nav-link {
@@ -462,6 +538,8 @@ body {
 
 /* ==========================================
    NOTIFICACIONES
+   Campana con badge rojo y dropdown desplegable.
+   El JS añade/quita la clase .active para abrir/cerrar.
    ========================================== */
 
 .notification-bell-wrapper {
@@ -500,6 +578,8 @@ body {
     top: 100%;
     right: 0;
     width: 320px;
+    max-width: calc(100vw - 1.5rem);
+    /* no desborda en móvil */
     background: white;
     border-radius: 12px;
     box-shadow: var(--shadow-xl);
@@ -544,9 +624,17 @@ body {
     transition: background 0.2s;
 }
 
-.notification-item:hover { background: #f9fafb; }
-.notification-item.unread { background: #eff6ff; }
-.notification-item:last-child { border-bottom: none; }
+.notification-item:hover {
+    background: #f9fafb;
+}
+
+.notification-item.unread {
+    background: #eff6ff;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
 
 .notification-title {
     font-weight: 600;
@@ -574,6 +662,9 @@ body {
 
 /* ==========================================
    ÁREA DE CONTENIDO Y VISTAS
+   El sistema de vistas funciona por visibilidad:
+   solo el elemento con .view.active se muestra.
+   El JS intercambia la clase .active entre vistas.
    ========================================== */
 
 .content-area {
@@ -586,7 +677,9 @@ body {
     animation: fadeIn 0.4s ease;
 }
 
-.view.active { display: block; }
+.view.active {
+    display: block;
+}
 
 .view-header {
     display: flex;
@@ -646,7 +739,9 @@ body {
     flex-wrap: wrap;
 }
 
-.welcome-actions .btn { min-width: 180px; }
+.welcome-actions .btn {
+    min-width: 180px;
+}
 
 .public-preview {
     background-color: var(--color-white);
@@ -684,7 +779,9 @@ body {
     font-size: 0.95rem;
 }
 
-.btn-full { width: 100%; }
+.btn-full {
+    width: 100%;
+}
 
 .btn-small {
     padding: 0.5rem 0.75rem;
@@ -708,7 +805,9 @@ body {
     border: 1px solid var(--color-border);
 }
 
-.btn-secondary:hover { background-color: var(--color-border); }
+.btn-secondary:hover {
+    background-color: var(--color-border);
+}
 
 .btn-danger {
     background-color: var(--color-red);
@@ -815,7 +914,10 @@ body {
    FORMULARIOS
    ========================================== */
 
-.profile-container { max-width: 900px; margin: 0 auto; }
+.profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
 
 .profile-form,
 .upload-form {
@@ -831,7 +933,9 @@ body {
     border-bottom: 1px solid var(--color-border);
 }
 
-.form-section:last-of-type { border-bottom: none; }
+.form-section:last-of-type {
+    border-bottom: none;
+}
 
 .form-section-title {
     font-size: 1.2rem;
@@ -852,14 +956,18 @@ body {
     gap: 1rem;
 }
 
-.form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-row-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+}
 
 .form-group {
     display: flex;
     flex-direction: column;
 }
 
-.form-full { grid-column: 1 / -1; }
+.form-full {
+    grid-column: 1 / -1;
+}
 
 .form-label {
     font-weight: 500;
@@ -932,7 +1040,9 @@ select.form-input {
     margin: -0.5rem 0;
 }
 
-.form-terms { margin: -0.5rem 0; }
+.form-terms {
+    margin: -0.5rem 0;
+}
 
 .checkbox-label {
     display: flex;
@@ -950,7 +1060,9 @@ select.form-input {
     accent-color: var(--color-red);
 }
 
-.required { color: var(--color-red); }
+.required {
+    color: var(--color-red);
+}
 
 .form-input.input-valid {
     border-color: #10B981;
@@ -971,9 +1083,17 @@ select.form-input {
     transition: color 0.2s ease, opacity 0.2s ease;
 }
 
-.field-hint:empty { min-height: 0; }
-.hint-error { color: #DC2626; }
-.hint-success { color: #059669; }
+.field-hint:empty {
+    min-height: 0;
+}
+
+.hint-error {
+    color: #DC2626;
+}
+
+.hint-success {
+    color: #059669;
+}
 
 /* Selector de categorías */
 .category-selector {
@@ -982,7 +1102,9 @@ select.form-input {
     align-items: stretch;
 }
 
-.category-selector .form-input { flex: 1; }
+.category-selector .form-input {
+    flex: 1;
+}
 
 .new-category-input {
     display: flex;
@@ -995,7 +1117,9 @@ select.form-input {
     border: 1px dashed var(--color-yellow);
 }
 
-.new-category-input .form-input { flex: 1; }
+.new-category-input .form-input {
+    flex: 1;
+}
 
 /* Mensajes */
 .message {
@@ -1045,7 +1169,9 @@ select.form-input {
     margin: 0 auto;
 }
 
-.auth-container-large { max-width: 700px; }
+.auth-container-large {
+    max-width: 700px;
+}
 
 .auth-header {
     text-align: center;
@@ -1132,15 +1258,21 @@ select.form-input {
     font-weight: 500;
 }
 
-.link-inline:hover { text-decoration: underline; }
+.link-inline:hover {
+    text-decoration: underline;
+}
 
 /* ==========================================
    VIDEOTECA - TARJETAS
+   Grid auto-fill: en desktop mete tantas columnas
+   de 300px como quepan; en ≤768px colapsa a 1 col.
+   Las tarjetas tienen estado de selección múltiple
+   (admin) controlado por JS con la clase .selected.
    ========================================== */
 
 .tramites-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-top: 2rem;
 }
@@ -1172,7 +1304,9 @@ select.form-input {
     z-index: 1;
 }
 
-.video-card::before { display: none; }
+.video-card::before {
+    display: none;
+}
 
 .video-card:hover {
     transform: translateY(-8px);
@@ -1189,7 +1323,27 @@ select.form-input {
     display: block;
 }
 
-.video-card:hover img { transform: scale(1.03); }
+.video-card h3,
+.video-card .video-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    /* Limita a 2 líneas para navegadores actuales */
+    line-clamp: 2;
+    /* Propiedad estándar para compatibilidad futura */
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* Opcional: Altura mínima para que todas las tarjetas se vean alineadas */
+    min-height: 3rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.video-card:hover img {
+    transform: scale(1.03);
+}
 
 .video-card .p-5 {
     position: relative;
@@ -1212,7 +1366,9 @@ select.form-input {
     display: none;
 }
 
-.selection-mode-active .video-card-overlay { display: block; }
+.selection-mode-active .video-card-overlay {
+    display: block;
+}
 
 .selection-mode-active .video-card:not(.selected):hover {
     outline: 2px solid rgba(207, 45, 51, 0.5);
@@ -1263,13 +1419,19 @@ select.form-input {
 }
 
 .action-btn-fav:hover,
-.action-btn-fav.active { color: #ef4444; }
+.action-btn-fav.active {
+    color: #ef4444;
+}
 
 .action-btn-like:hover,
-.action-btn-like.active { color: #22c55e; }
+.action-btn-like.active {
+    color: #22c55e;
+}
 
 .action-btn-dislike:hover,
-.action-btn-dislike.active { color: #f97316; }
+.action-btn-dislike.active {
+    color: #f97316;
+}
 
 .action-btn-like {
     margin-left: 6px;
@@ -1295,6 +1457,8 @@ select.form-input {
     z-index: 9990;
     animation: slideUp 0.3s ease-out;
     border: 2px solid var(--color-yellow);
+    width: max-content;
+    max-width: 90vw;
 }
 
 .selection-info {
@@ -1314,6 +1478,7 @@ select.form-input {
 .tramite-detail {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    /* video a la izquierda, guía a la derecha */
     gap: 2rem;
     margin-top: 2rem;
 }
@@ -1346,7 +1511,9 @@ select.form-input {
     margin: 2rem auto 0;
 }
 
-.plantilla-header { margin-bottom: 2rem; }
+.plantilla-header {
+    margin-bottom: 2rem;
+}
 
 .plantilla-title {
     font-size: 2.5rem;
@@ -1373,7 +1540,9 @@ select.form-input {
     border: 1px solid var(--color-border);
 }
 
-.plantilla-video { margin-bottom: 2rem; }
+.plantilla-video {
+    margin-bottom: 2rem;
+}
 
 .video-player {
     background-color: var(--color-white);
@@ -1382,6 +1551,7 @@ select.form-input {
     overflow: hidden;
     position: relative;
     padding-bottom: 56.25%;
+    /* truco CSS para ratio 16:9 sin JS */
     height: 0;
 }
 
@@ -1427,7 +1597,9 @@ select.form-input {
     padding-left: 1.5rem;
 }
 
-.section-text li { margin-bottom: 0.5rem; }
+.section-text li {
+    margin-bottom: 0.5rem;
+}
 
 .section-links {
     display: flex;
@@ -1457,6 +1629,11 @@ select.form-input {
 
 /* ==========================================
    CALENDARIO
+   Grid de 7 columnas fijas (L-D). Las celdas tienen
+   altura mínima para mostrar los puntos de evento.
+   En móvil la altura se reduce y el texto se achica;
+   en pantallas ≤380px los headers muestran solo
+   la inicial del día.
    ========================================== */
 
 .calendar-container {
@@ -1504,7 +1681,9 @@ select.form-input {
     font-size: 0.9rem;
 }
 
-.calendar-input { width: 80px; }
+.calendar-input {
+    width: 80px;
+}
 
 .nav-divider {
     color: var(--color-border);
@@ -1515,8 +1694,10 @@ select.form-input {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    /* 7 columnas fijas = días de la semana */
     gap: 1px;
     background-color: var(--color-border);
+    /* el color de fondo actúa como "gap coloreado" */
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
     overflow: hidden;
@@ -1544,7 +1725,9 @@ select.form-input {
     cursor: pointer;
 }
 
-.calendar-day:hover { background-color: #fafafa; }
+.calendar-day:hover {
+    background-color: #fafafa;
+}
 
 .calendar-day.other-month {
     background-color: #f9fafb;
@@ -1552,7 +1735,9 @@ select.form-input {
     cursor: default;
 }
 
-.calendar-day.today { background-color: rgba(254, 197, 68, 0.05); }
+.calendar-day.today {
+    background-color: rgba(254, 197, 68, 0.05);
+}
 
 .calendar-day-number {
     font-weight: 500;
@@ -1588,12 +1773,25 @@ select.form-input {
 }
 
 .event-dot.urgent,
-.event-dot.end-date { background-color: var(--color-red); }
-.event-dot.start-date { background-color: var(--color-blue); }
-.event-dot.favorite { background-color: #ffd700; }
+.event-dot.end-date {
+    background-color: var(--color-red);
+}
+
+.event-dot.start-date {
+    background-color: var(--color-blue);
+}
+
+.event-dot.favorite {
+    background-color: #ffd700;
+}
 
 /* ==========================================
    MODAL UNIFICADO
+   Usado para confirmaciones de borrado y detalle
+   de eventos del calendario. El JS añade la clase
+   .active para mostrarlo y anima la opacidad.
+   Por defecto opacity:0 + pointer-events:none
+   para que no bloquee clics cuando está oculto.
    ========================================== */
 
 .modal-overlay {
@@ -1607,9 +1805,12 @@ select.form-input {
     backdrop-filter: blur(4px);
     opacity: 0;
     pointer-events: none;
+    /* inaccesible mientras está oculto */
     transition: opacity 0.25s ease;
 }
 
+/* Dos formas de activar el modal: clase .active (JS dinámico)
+   o ausencia de .hidden (modales estáticos de confirmación) */
 .modal-overlay.active,
 .modal-overlay:not(.hidden) {
     opacity: 1;
@@ -1639,7 +1840,9 @@ select.form-input {
     margin: 0;
 }
 
-.modal-body { padding: 1.5rem; }
+.modal-body {
+    padding: 1.5rem;
+}
 
 .modal-body p {
     margin: 0 0 0.5rem 0;
@@ -1844,13 +2047,17 @@ select.form-input {
     transition: all 0.2s ease;
 }
 
-.btn-notebooklm-secondary:hover { background-color: #475569; }
+.btn-notebooklm-secondary:hover {
+    background-color: #475569;
+}
 
 /* ==========================================
    MI CARPETA
    ========================================== */
 
-.carpeta-section { margin-top: 1rem; }
+.carpeta-section {
+    margin-top: 1rem;
+}
 
 .carpeta-subtitle {
     font-size: 0.9rem;
@@ -1858,7 +2065,9 @@ select.form-input {
     margin-top: 0.25rem;
 }
 
-.carpeta-block { margin-top: 2rem; }
+.carpeta-block {
+    margin-top: 2rem;
+}
 
 .carpeta-block-title {
     display: flex;
@@ -1887,7 +2096,9 @@ select.form-input {
     margin-left: 0.25rem;
 }
 
-.carpeta-grid { min-height: 8rem; }
+.carpeta-grid {
+    min-height: 8rem;
+}
 
 .carpeta-empty {
     padding: 2rem;
@@ -1934,6 +2145,10 @@ select.form-input {
 
 /* ==========================================
    TOAST NOTIFICATIONS
+   Mensajes de feedback en esquina inferior-derecha.
+   El JS crea los elementos dinámicamente y añade
+   .toast-exit para la animación de salida antes
+   de eliminarlos del DOM.
    ========================================== */
 
 #toast-container {
@@ -1965,12 +2180,33 @@ select.form-input {
     animation: toast-slide-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-.toast-exit { animation: toast-slide-out 0.3s ease-in forwards; }
+.toast-exit {
+    animation: toast-slide-out 0.3s ease-in forwards;
+}
 
-.toast-success { background-color: #ECFDF5; color: #065F46; border-color: #6EE7B7; }
-.toast-error   { background-color: #FEF2F2; color: #991B1B; border-color: #FCA5A5; }
-.toast-warning { background-color: #FFFBEB; color: #92400E; border-color: #FCD34D; }
-.toast-info    { background-color: #EFF6FF; color: #1E40AF; border-color: #93C5FD; }
+.toast-success {
+    background-color: #ECFDF5;
+    color: #065F46;
+    border-color: #6EE7B7;
+}
+
+.toast-error {
+    background-color: #FEF2F2;
+    color: #991B1B;
+    border-color: #FCA5A5;
+}
+
+.toast-warning {
+    background-color: #FFFBEB;
+    color: #92400E;
+    border-color: #FCD34D;
+}
+
+.toast-info {
+    background-color: #EFF6FF;
+    color: #1E40AF;
+    border-color: #93C5FD;
+}
 
 .toast-icon {
     flex-shrink: 0;
@@ -1998,10 +2234,16 @@ select.form-input {
     margin-left: auto;
 }
 
-.toast-close:hover { opacity: 1; }
+.toast-close:hover {
+    opacity: 1;
+}
 
 /* ==========================================
    SPLASH SCREEN
+   Pantalla de carga inicial. El JS añade
+   .splash-hidden cuando la app está lista,
+   lo que dispara la transición de opacidad
+   y desactiva los eventos de ratón.
    ========================================== */
 
 #app-splash {
@@ -2066,7 +2308,9 @@ select.form-input {
     letter-spacing: -1px;
 }
 
-.splash-logo-text span { color: var(--color-red); }
+.splash-logo-text span {
+    color: var(--color-red);
+}
 
 .splash-tagline {
     font-size: 1.1rem;
@@ -2102,151 +2346,521 @@ select.form-input {
    UTILITIES
    ========================================== */
 
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
 
-.relative { position: relative; }
-.absolute { position: absolute; }
-.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-.z-10 { z-index: 10; }
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.text-center { text-align: center; }
-.gap-3 { gap: 0.75rem; }
-.w-full { width: 100%; }
-.max-w-xs { max-width: 20rem; }
-.rounded-lg { border-radius: 0.5rem; }
-.rounded-md { border-radius: 0.375rem; }
-.rounded-full { border-radius: 9999px; }
-.overflow-hidden { overflow: hidden; }
-.flex-wrap { flex-wrap: wrap; }
-.shrink-0 { flex-shrink: 0; }
-.object-cover { object-fit: cover; }
+.relative {
+    position: relative;
+}
 
-.bg-white { background-color: white; }
-.bg-blue-100 { background-color: #dbeafe; }
-.bg-blue-600 { background-color: #2563eb; }
-.bg-slate-700 { background-color: #334155; }
-.bg-gray-300 { background-color: #d1d5db; }
+.absolute {
+    position: absolute;
+}
 
-.text-white { color: white; }
-.text-blue-600 { color: #2563eb; }
-.text-blue-800 { color: #1e40af; }
-.text-gray-900 { color: #111827; }
-.text-gray-600 { color: #4b5563; }
-.text-slate-400 { color: #94a3b8; }
-.text-red-600 { color: #dc2626; }
-.text-lg { font-size: 1.125rem; }
-.text-sm { font-size: 0.875rem; }
-.text-xs { font-size: 0.75rem; }
+.inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
 
-.font-bold { font-weight: 700; }
-.font-semibold { font-weight: 600; }
-.font-medium { font-weight: 500; }
+.z-10 {
+    z-index: 10;
+}
 
-.shadow-md { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-.shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+.flex {
+    display: flex;
+}
 
-.space-x-3>*+* { margin-left: 0.75rem; }
-.p-2 { padding: 0.5rem; }
-.p-5 { padding: 1.25rem; }
-.px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
-.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mt-4 { margin-top: 1rem; }
-.mx-auto { margin-left: auto; margin-right: auto; }
-.h-12 { height: 3rem; }
-.h-20 { height: 5rem; }
-.h-48 { height: 12rem; }
+.flex-col {
+    flex-direction: column;
+}
 
-.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.gap-3 {
+    gap: 0.75rem;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.max-w-xs {
+    max-width: 20rem;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.rounded-md {
+    border-radius: 0.375rem;
+}
+
+.rounded-full {
+    border-radius: 9999px;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.shrink-0 {
+    flex-shrink: 0;
+}
+
+.object-cover {
+    object-fit: cover;
+}
+
+.bg-white {
+    background-color: white;
+}
+
+.bg-blue-100 {
+    background-color: #dbeafe;
+}
+
+.bg-blue-600 {
+    background-color: #2563eb;
+}
+
+.bg-slate-700 {
+    background-color: #334155;
+}
+
+.bg-gray-300 {
+    background-color: #d1d5db;
+}
+
+.text-white {
+    color: white;
+}
+
+.text-blue-600 {
+    color: #2563eb;
+}
+
+.text-blue-800 {
+    color: #1e40af;
+}
+
+.text-gray-900 {
+    color: #111827;
+}
+
+.text-gray-600 {
+    color: #4b5563;
+}
+
+.text-slate-400 {
+    color: #94a3b8;
+}
+
+.text-red-600 {
+    color: #dc2626;
+}
+
+.text-lg {
+    font-size: 1.125rem;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+.shadow-md {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.space-x-3>*+* {
+    margin-left: 0.75rem;
+}
+
+.p-2 {
+    padding: 0.5rem;
+}
+
+.p-5 {
+    padding: 1.25rem;
+}
+
+.px-2\.5 {
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
+}
+
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.py-0\.5 {
+    padding-top: 0.125rem;
+    padding-bottom: 0.125rem;
+}
+
+.py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.h-12 {
+    height: 3rem;
+}
+
+.h-20 {
+    height: 5rem;
+}
+
+.h-48 {
+    height: 12rem;
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
 
 /* ==========================================
    KEYFRAMES
+   Todas las animaciones centralizadas aquí.
+   fadeIn        → entrada suave de vistas y dropdowns
+   toast-slide-* → entrada/salida de toasts desde la derecha
+   modalSlideIn  → aparición del modal con escala
+   slideUp       → barra de selección flotante sube desde abajo
+   spinner-*     → rotación del loader circular
+   pulse-red     → latido del badge de notificaciones
+   spin / spin-reverse → anillos giratorios del splash
+   splashFadeIn  → aparición del contenido del splash
    ========================================== */
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes toast-slide-in {
-    from { opacity: 0; transform: translateX(100%) scale(0.95); }
-    to   { opacity: 1; transform: translateX(0) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateX(100%) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
 }
 
 @keyframes toast-slide-out {
-    from { opacity: 1; transform: translateX(0) scale(1); max-height: 100px; margin-bottom: 0; }
-    to   { opacity: 0; transform: translateX(110%) scale(0.95); max-height: 0; margin-bottom: -0.75rem; padding: 0; }
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        max-height: 100px;
+        margin-bottom: 0;
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(110%) scale(0.95);
+        max-height: 0;
+        margin-bottom: -0.75rem;
+        padding: 0;
+    }
 }
 
 @keyframes modalSlideIn {
-    from { opacity: 0; transform: scale(0.95) translateY(-10px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 @keyframes slideUp {
-    from { transform: translate(-50%, 100px); opacity: 0; }
-    to   { transform: translate(-50%, 0); opacity: 1; }
+    from {
+        transform: translate(-50%, 100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
 }
 
 @keyframes spinner-rotate {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: .5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .5;
+    }
 }
 
 @keyframes pulse-red {
-    0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-    70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
 }
 
 @keyframes spin {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes spin-reverse {
-    0%   { transform: rotate(360deg); }
-    100% { transform: rotate(0deg); }
+    0% {
+        transform: rotate(360deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
 }
 
 @keyframes splashFadeIn {
-    0%   { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ==========================================
    RESPONSIVE — 1024px
+   Desktop compacto / laptop pequeño.
+   El sidebar se estrecha a 240px. La navbar
+   reduce padding y tamaño de los links para
+   aprovechar mejor el espacio disponible.
    ========================================== */
 
 @media (max-width: 1024px) {
-    :root { --sidebar-width: 240px; }
+    :root {
+        --sidebar-width: 240px;
+    }
 
-    .sidebar { width: 240px; }
+    .sidebar {
+        width: 240px;
+    }
 
-    .tramite-detail { grid-template-columns: 1fr; }
+    .tramite-detail {
+        grid-template-columns: 1fr;
+    }
 
-    .form-grid { grid-template-columns: 1fr; }
+    /* [FIX] Navbar más compacta: con sidebar de 240px quedan ~760px para el contenido */
+    .navbar-container {
+        padding: 0.75rem 1.25rem;
+        gap: 1rem;
+    }
+
+    .search-box {
+        min-width: 160px;
+        /* [FIX] reducido de 250px para evitar overflow */
+    }
+
+    .nav-link {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.75rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE — 960px
+   Tablet y iPad. A partir de aquí el sidebar
+   en desktop mode comprimiría demasiado el
+   contenido (~516px útiles) y la navbar no
+   puede contener todos sus elementos en una
+   línea sin desbordarse.
+   Solución: sidebar pasa a off-canvas (mismo
+   comportamiento que en móvil), el main ocupa
+   el 100% del ancho y aparece la hamburguesa.
+   ========================================== */
+
+@media (max-width: 960px) {
+
+    /* Layout: el main ocupa todo el ancho */
+    .main-wrapper {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+
+    /* Sidebar off-canvas: se oculta fuera de la pantalla por defecto */
+    .sidebar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        height: 100dvh;
+        width: 280px;
+        z-index: var(--z-sidebar);
+        transform: translateX(-100%);
+        /* fuera de pantalla a la izquierda */
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* El JS añade .sidebar-open para deslizarlo a la vista */
+    .sidebar.sidebar-open {
+        transform: translateX(0);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+    }
+
+    /* Mostrar hamburguesa y botón de cierre del sidebar */
+    .hamburger-btn {
+        display: flex;
+        align-self: center;
+    }
+
+    .sidebar-close-btn {
+        display: block;
+    }
+
+    /* Navbar: permitir wrap y reducir espaciado */
+    .navbar-container {
+        flex-wrap: wrap;
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+    }
+
+    .search-box {
+        min-width: 0;
+        /* sin min-width fijo en tablet */
+        flex: 1 1 200px;
+        /* crece pero puede comprimirse */
+        max-width: 100%;
+    }
+
+    .nav-links {
+        gap: 0.35rem;
+        flex-wrap: wrap;
+        margin-left: 0;
+        /* ocupa la fila completa en segunda línea */
+        width: 100%;
+    }
+
+    .nav-link {
+        font-size: 0.82rem;
+        padding: 4px 10px !important;
+    }
+
+    /* Formularios a 1 columna antes de llegar a móvil */
+    .form-row,
+    .form-row-3 {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ==========================================
    RESPONSIVE — 768px
+   Móvil grande / phablet. La mayoría del layout
+   ya está resuelto desde 900px. Aquí se ajustan
+   los componentes de contenido: padding reducido,
+   grids a 1 columna, formularios apilados,
+   y el calendario más compacto.
    ========================================== */
 
 @media (max-width: 768px) {
 
-    /* Layout */
+    /* Layout — YA gestionado por el breakpoint 900px */
+    /* (Se mantiene el bloque por si alguna página no pasa por 900px) */
     .layout-wrapper {
-        grid-template-columns: 1fr !important;
         display: flex !important;
         flex-direction: column;
     }
@@ -2257,7 +2871,7 @@ select.form-input {
         min-width: 0;
     }
 
-    /* Sidebar móvil */
+    /* Sidebar móvil — idéntico al de 900px (por si acaso) */
     .sidebar {
         position: fixed !important;
         top: 0;
@@ -2280,17 +2894,22 @@ select.form-input {
         align-self: center;
     }
 
-    .sidebar-close-btn { display: block; }
+    .sidebar-close-btn {
+        display: block;
+    }
 
     /* Navbar */
     .navbar-container {
         flex-wrap: wrap;
         gap: 0.5rem;
+        padding: 0.6rem 0.75rem;
+        /* [FIX] padding más ajustado en móvil */
     }
 
     .nav-links {
-        gap: 0.5rem;
+        gap: 0.35rem;
         flex-wrap: wrap;
+        width: 100%;
     }
 
     .nav-link {
@@ -2299,31 +2918,44 @@ select.form-input {
     }
 
     /* Contenido */
-    .content-area { padding: 1rem; }
+    .content-area {
+        padding: 1rem;
+    }
 
-    .view-title { font-size: 1.5rem; }
+    .view-title {
+        font-size: 1.5rem;
+    }
 
     .search-box {
-        width: 100%;
+        flex: 1 1 150px;
+        min-width: 0;
         max-width: 100%;
     }
 
     /* Grids */
     .tramites-grid,
-    .carpeta-grid { grid-template-columns: 1fr !important; }
+    .carpeta-grid {
+        grid-template-columns: 1fr !important;
+    }
 
-    .faqs-list { grid-template-columns: 1fr; }
+    .faqs-list {
+        grid-template-columns: 1fr;
+    }
 
     /* Formularios */
     .profile-form,
-    .upload-form { padding: 1.5rem; }
+    .upload-form {
+        padding: 1.5rem;
+    }
 
     .form-actions-bottom {
         flex-direction: column-reverse;
         gap: 1rem;
     }
 
-    .btn { width: 100%; }
+    .btn {
+        width: 100%;
+    }
 
     .btn-admin-upload {
         width: 100%;
@@ -2332,10 +2964,14 @@ select.form-input {
         display: block;
     }
 
-    .btn-admin { width: 100%; }
+    .btn-admin {
+        width: 100%;
+    }
 
     .form-row,
-    .form-row-3 { grid-template-columns: 1fr; }
+    .form-row-3 {
+        grid-template-columns: 1fr;
+    }
 
     .form-remember {
         flex-direction: column;
@@ -2344,13 +2980,22 @@ select.form-input {
     }
 
     /* Auth */
-    .auth-card { padding: 2rem 1.5rem; }
-    .auth-logo { font-size: 2.5rem; }
+    .auth-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .auth-logo {
+        font-size: 2.5rem;
+    }
 
     /* Plantilla */
-    .plantilla-title { font-size: 1.8rem; }
+    .plantilla-title {
+        font-size: 1.8rem;
+    }
 
-    .content-section { padding: 1.5rem; }
+    .content-section {
+        padding: 1.5rem;
+    }
 
     .view-header {
         flex-direction: column;
@@ -2359,7 +3004,9 @@ select.form-input {
     }
 
     /* Calendario */
-    .calendar-container { padding: 1rem; }
+    .calendar-container {
+        padding: 1rem;
+    }
 
     .calendar-header {
         flex-direction: column;
@@ -2383,9 +3030,13 @@ select.form-input {
         min-width: 110px;
     }
 
-    .calendar-input { width: 68px; }
+    .calendar-input {
+        width: 68px;
+    }
 
-    .nav-divider { display: none; }
+    .nav-divider {
+        display: none;
+    }
 
     .calendar-day {
         min-height: 60px;
@@ -2403,19 +3054,115 @@ select.form-input {
         height: 22px;
     }
 
-    .calendar-current-date { font-size: 1.1rem; }
+    .calendar-current-date {
+        font-size: 1.1rem;
+    }
 }
 
 /* ==========================================
    RESPONSIVE — 480px
+   Móvil estándar. Ajustes finales de tamaños
+   y comportamiento de la barra de selección
+   flotante (que usa position:fixed).
    ========================================== */
 
 @media (max-width: 480px) {
+
+    /* Toast */
     #toast-container {
         bottom: 1rem;
         right: 0.75rem;
         left: 0.75rem;
         width: auto;
         max-width: 100%;
+    }
+
+    /* Barra de selección flotante más compacta.
+       Se reemplaza left:50%+translateX(-50%) por left/right explícitos
+       para evitar desbordamiento en pantallas < 380px */
+    .selection-bar {
+        padding: 0.75rem 1.25rem;
+        gap: 1rem;
+        border-radius: 24px;
+        left: 1rem;
+        right: 1rem;
+        width: auto;
+        transform: translateX(0);
+        bottom: 1rem;
+    }
+
+    /* [FIX] Navbar: links más pequeños */
+    .nav-link {
+        font-size: 0.75rem;
+        padding: 3px 7px !important;
+    }
+
+    /* [FIX] Welcome card en móvil */
+    .welcome-card {
+        padding: 2rem 1.25rem;
+    }
+
+    .welcome-title {
+        font-size: 1.8rem;
+    }
+
+    /* [FIX] Auth en pantallas muy pequeñas */
+    .auth-card {
+        padding: 1.5rem 1.25rem;
+    }
+
+    /* [FIX] Calendario: celdas mínimas viables */
+    .calendar-day {
+        min-height: 50px;
+    }
+
+    .calendar-day-header {
+        font-size: 0.62rem;
+        padding: 0.4rem 0.1rem;
+    }
+
+    .calendar-current-date {
+        font-size: 1rem;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE — 380px
+   iPhone SE y pantallas muy pequeñas.
+   El calendario necesita compresión extra:
+   headers reducidos al mínimo y celdas más bajas.
+   Los nav-links se apilan en columna para que
+   "Preguntas Frecuentes" no desborde.
+   ========================================== */
+
+@media (max-width: 380px) {
+
+    /* [FIX] Encabezados del calendario: solo inicial */
+    .calendar-day-header {
+        font-size: 0.58rem;
+        letter-spacing: 0;
+        padding: 0.3rem 0.05rem;
+    }
+
+    .calendar-day {
+        min-height: 42px;
+        padding: 0.15rem;
+    }
+
+    .calendar-day-number {
+        font-size: 0.65rem;
+        width: 18px;
+        height: 18px;
+    }
+
+    /* [FIX] Navbar: links en columna para que no desborden */
+    .nav-links {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.15rem;
+    }
+
+    .view-title {
+        font-size: 1.25rem;
     }
 }

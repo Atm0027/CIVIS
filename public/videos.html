@@ -14,7 +14,10 @@
     <div class="layout-wrapper">
 
         <!-- SIDEBAR IZQUIERDO -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
+
+            <!-- Botón cerrar sidebar (móvil) -->
+            <button id="close-sidebar-btn" class="sidebar-close-btn" aria-label="Cerrar menú">✕</button>
 
             <!-- Logo -->
             <div class="sidebar-logo">
@@ -55,6 +58,11 @@
             <!-- NAVBAR SUPERIOR -->
             <header class="navbar">
                 <div class="navbar-container">
+
+                    <!-- Botón hamburguesa (móvil) -->
+                    <button id="open-sidebar-btn" class="hamburger-btn" aria-label="Abrir menú">
+                        <span></span><span></span><span></span>
+                    </button>
 
                     <!-- Buscador -->
                     <div class="search-box">
@@ -273,6 +281,9 @@
             }
         });
     </script>
+
+    <!-- Overlay sidebar móvil -->
+    <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
 
 </body>
 
