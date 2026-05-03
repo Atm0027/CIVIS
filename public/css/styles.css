@@ -3057,6 +3057,20 @@ select.form-input {
     .calendar-current-date {
         font-size: 1.1rem;
     }
+
+    /* Dropdown de notificaciones — evita desborde horizontal en móvil.
+       Se cambia a position:fixed para anclarse al viewport en lugar de al
+       icono (position:absolute), garantizando que nunca salga por ningún lado. */
+    .notification-dropdown {
+        position: fixed;
+        top: 100px;
+        /* navbar 2 filas en móvil: ~40px fila1 + ~29px fila2 + padding + gap + border ≈ 100px */
+        right: 0.75rem;
+        left: auto;
+        width: 320px;
+        max-width: calc(100vw - 1.5rem);
+        margin-top: 0;
+    }
 }
 
 /* ==========================================
