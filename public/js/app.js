@@ -841,19 +841,6 @@ window.handleToggleFavorite = async (e, videoId) => {
     }
 };
 
-window.handleToggleRating = (e, videoId, value) => {
-    e.stopPropagation();
-    if (!window.UserLibrary) return;
-    const result = window.UserLibrary.toggleRating(videoId, value);
-
-    if (result.rating !== null) {
-        window.Toast && window.Toast.show({ message: '¡Gracias por tu valoración!', type: 'success', duration: 2500 });
-    } else {
-        window.Toast && window.Toast.show({ message: 'Valoración eliminada', type: 'info', duration: 2000 });
-    }
-    rerenderVideoCard(videoId);
-};
-
 /**
  * Re-renderiza una tarjeta de vídeo en el grid para reflejar cambios de estado.
  * Usa insertAdjacentHTML + remove() para reemplazar el elemento de forma fiable.

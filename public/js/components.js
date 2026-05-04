@@ -13,10 +13,7 @@ function VideoCard(video) {
     const isSelected = window.isVideoSelected ? window.isVideoSelected(video.id) : false;
 
     // Estado de la librería personal — usa el Set de favoritos cargado desde la API
-    const isFav = (typeof isFavoriteApi === 'function') ? isFavoriteApi(video.id)
-                 : (window.UserLibrary ? window.UserLibrary.isFavorite(video.id) : false);
-
-    const rating = window.UserLibrary ? window.UserLibrary.getRating(video.id) : null;
+    const isFav = (typeof isFavoriteApi === 'function') ? isFavoriteApi(video.id) : false;
 
     // Usamos handleVideoClick para decidir en tiempo de ejecución si seleccionar o navegar
     const clickAction = `window.handleVideoClick(event, ${video.id})`;
