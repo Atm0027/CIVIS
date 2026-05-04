@@ -19,6 +19,7 @@ async function fetchAPI(endpoint, options = {}) {
     };
 
     const config = {
+        cache: 'no-store', // Prevenir que el navegador cachee respuestas GET de la API (ej. /favorites)
         ...options,
         headers: {
             ...defaultHeaders,
