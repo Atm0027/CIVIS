@@ -491,21 +491,36 @@ async function loadUpcomingDeadlines() {
         return;
     }
 
-    try {
-        showLoader(upcomingDeadlinesEl);
+    const MAX_RETRIES = 3;
+    const RETRY_DELAYS = [0, 3000, 8000];
 
-        const upcoming = await fetchAPI(`${CONFIG.api.endpoints.favoritesUpcoming}?limit=3`);
+    showLoader(upcomingDeadlinesEl);
 
-        if (!upcoming || upcoming.length === 0) {
-            upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-slate-400">No tienes trámites favoritos con fechas próximas.</p>';
-            return;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        if (attempt > 0) {
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS[attempt]));
+            showLoader(upcomingDeadlinesEl);
         }
 
-        upcomingDeadlinesEl.innerHTML = upcoming.map(item => DeadlineItem(item)).join('');
+        try {
+            const upcoming = await fetchAPI(`${CONFIG.api.endpoints.favoritesUpcoming}?limit=3`);
 
-    } catch (error) {
-        console.error('[Upcoming] Error cargando fechas de favoritos:', error);
-        upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-red-400">Error al cargar fechas próximas.</p>';
+            if (!upcoming || upcoming.length === 0) {
+                upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-slate-400">No tienes trámites favoritos con fechas próximas.</p>';
+                return;
+            }
+
+            upcomingDeadlinesEl.innerHTML = upcoming.map(item => DeadlineItem(item)).join('');
+            return; // Éxito
+
+        } catch (error) {
+            console.warn(`[Upcoming] Intento ${attempt + 1}/${MAX_RETRIES} fallido:`, error.message);
+
+            if (attempt === MAX_RETRIES - 1) {
+                console.error('[Upcoming] Error tras todos los reintentos:', error);
+                upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-red-400">Error al cargar fechas próximas.</p>';
+            }
+        }
     }
 }
 
@@ -1038,8 +1053,8 @@ async function loadMiCarpeta() {
 
     if (!grid) return;
 
-    const MAX_RETRIES = 4;
-    const RETRY_DELAYS = [0, 3000, 8000, 15000]; // Inmediato, 3s, 8s, 15s (~26s total para cold start de Render)
+    const MAX_RETRIES = 5;
+    const RETRY_DELAYS = [0, 3000, 8000, 15000, 20000]; // Inmediato, 3s, 8s, 15s, 20s (~46s total para cold start de Render)
 
     // Mostrar spinner mientras carga
     grid.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
