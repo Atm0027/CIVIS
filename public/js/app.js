@@ -235,11 +235,11 @@ function initializeApp() {
     }
 
     // Cargar contenido específico de la página
-    if (isCalendar) {
+    if (path.includes('calendario')) {
         loadCalendarPage();
-    } else if (isFaq) {
+    } else if (path.includes('preguntasFrecuentes')) {
         loadFaqPage();
-    } else if (isProfile) {
+    } else if (path.includes('usuario')) {
         loadProfileData();
     } else {
         // index.html: el feed de vídeos y plazos ya cargan en paralelo (ver DOMContentLoaded).
