@@ -91,11 +91,11 @@ Splash.init();
 
 // Espera a que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', async () => {
-    const path = window.location.pathname;
-    const isIndex    = !path.includes('.html') || path.includes('index.html');
-    const isProfile  = path.includes('usuario.html');
-    const isCalendar = path.includes('calendario.html');
-    const isFaq      = path.includes('preguntasFrecuentes.html');
+    const path = window.location.pathname; // Identificar la página actual de forma robusta (Cloudflare Pages oculta el .html)
+    const isProfile  = path.includes('usuario');
+    const isCalendar = path.includes('calendario');
+    const isFaq      = path.includes('preguntasFrecuentes');
+    const isIndex    = !isProfile && !isCalendar && !isFaq;
 
     // PASO 1: Conectar con el servidor (wakeup ping en background)
     Splash.setProgress(3, 'Conectando con el servidor...');
@@ -139,7 +139,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const favPromise   = currentUser ? loadFavoritesCache() : Promise.resolve();
         const videoPromise = loadVideoFeed();
-        await Promise.all([favPromise, videoPromise]);
+        const deadlinesPromise = currentUser ? loadUpcomingDeadlines() : Promise.resolve();
+        await Promise.all([favPromise, videoPromise, deadlinesPromise]);
 
         // Cuando llegan los datos, saltar al valor real
         Splash.setProgress(88, 'Vídeos cargados ✓');
@@ -207,7 +208,7 @@ async function loadCurrentUser() {
 function initializeApp() {
     // Detectar página actual
     const path = window.location.pathname;
-    const isProtectedPage = path.includes('calendario.html') || path.includes('usuario.html');
+    const isProtectedPage = path.includes('calendario') || path.includes('usuario');
 
     // Si es página protegida y no hay usuario, redirigir a login
     if (isProtectedPage && !currentUser) {
@@ -234,18 +235,15 @@ function initializeApp() {
     }
 
     // Cargar contenido específico de la página
-    if (path.includes('calendario.html')) {
+    if (isCalendar) {
         loadCalendarPage();
-    } else if (path.includes('preguntasFrecuentes.html')) {
+    } else if (isFaq) {
         loadFaqPage();
-    } else if (path.includes('usuario.html')) {
+    } else if (isProfile) {
         loadProfileData();
     } else {
-        // index.html: el feed de vídeos ya está cargando en paralelo (ver DOMContentLoaded).
-        // Aquí solo añadimos lo que depende de saber si hay usuario logueado.
-        if (currentUser) {
-            loadUpcomingDeadlines();
-        } else {
+        // index.html: el feed de vídeos y plazos ya cargan en paralelo (ver DOMContentLoaded).
+        if (!currentUser) {
             const deadlinesEl = document.getElementById('deadlines-list');
             if (deadlinesEl) deadlinesEl.innerHTML = '<p class="text-sm text-slate-400">Inicia sesión para ver tus plazos.</p>';
         }
@@ -866,7 +864,7 @@ window.handleToggleFavorite = async (e, videoId) => {
     rerenderVideoCard(videoId);
 
     // Si estamos en perfil, recargar la sección Mi Carpeta
-    if (window.location.pathname.includes('usuario.html') && typeof loadMiCarpeta === 'function') {
+    if (window.location.pathname.includes('usuario') && typeof loadMiCarpeta === 'function') {
         loadMiCarpeta();
     }
 };
