@@ -118,6 +118,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Si el servidor tardó mucho, crawl lento 40→55% mientras esperamos
     Splash.crawlTo(55, 'Preparando contenido...', 400);
     await wakeupPromise;
+
+    // En la página de perfil, verificar que la BD esté lista (no solo el servidor)
+    // /ping es ultra-ligero y no toca BD; /status sí la verifica
+    if (isProfile && hasToken()) {
+        try {
+            await fetch(`${CONFIG.api.baseUrl}/status`, { method: 'GET' }).catch(() => null);
+        } catch (_) { /* silencioso */ }
+    }
+
     Splash.setProgress(55, 'Servidor listo ✓');
 
     // PASO 4: Cargar contenido específico de cada página
@@ -1029,8 +1038,8 @@ async function loadMiCarpeta() {
 
     if (!grid) return;
 
-    const MAX_RETRIES = 3;
-    const RETRY_DELAYS = [0, 2000, 5000]; // Inmediato, 2s, 5s (para cold start de Render)
+    const MAX_RETRIES = 4;
+    const RETRY_DELAYS = [0, 3000, 8000, 15000]; // Inmediato, 3s, 8s, 15s (~26s total para cold start de Render)
 
     // Mostrar spinner mientras carga
     grid.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
