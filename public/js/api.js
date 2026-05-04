@@ -197,24 +197,7 @@ async function getUpcomingDeadlines(limit = 2) {
     return await fetchAPI(`${CONFIG.api.endpoints.upcomingDeadlines}?limit=${limit}`);
 }
 
-// ===== FAQs =====
-
-/**
- * Obtiene todas las preguntas frecuentes
- * @returns {Promise<Array>} - Lista de FAQs
- */
-async function getFaqs() {
-    return await fetchAPI(CONFIG.api.endpoints.faqs);
-}
-
-/**
- * Busca en FAQs
- * @param {string} query - Término de búsqueda
- * @returns {Promise<Array>} - FAQs que coinciden
- */
-async function searchFaqs(query) {
-    return await fetchAPI(`${CONFIG.api.endpoints.searchFaqs}?q=${encodeURIComponent(query)}`);
-}
+// Los endpoints de FAQs han sido eliminados ya que la página usa contenido estático.
 
 // ===== USUARIO =====
 
@@ -308,17 +291,6 @@ function removeCurrentUser() {
     localStorage.removeItem('civis_current_user');
 }
 
-// ===== VERIFICACIÓN DE AUTENTICACIÓN =====
-
-/**
- * Verifica si el usuario está autenticado
- * Redirige a login si no lo está
- */
-function requireAuth() {
-    if (!hasToken()) {
-        window.location.href = 'login.html';
-    }
-}
 
 // ===== ESTADOS DE CARGA =====
 

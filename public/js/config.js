@@ -72,9 +72,6 @@ const CONFIG = {
             // Categorías
             categories: "/categories",
 
-            // Uploads
-            uploads: "/uploads",
-
             // Calendario general (público)
             calendar: "/calendar",
             upcomingDeadlines: "/calendar/upcoming",
@@ -87,10 +84,6 @@ const CONFIG = {
             // Calendario y próximas fechas PERSONALIZADAS (solo favoritos del usuario)
             favoritesCalendar: "/favorites/calendar",
             favoritesUpcoming: "/favorites/upcoming",
-
-            // FAQs
-            faqs: "/faqs",
-            searchFaqs: "/faqs/search",
 
             // Usuario
             userProfile: "/auth/user/profile",
