@@ -118,6 +118,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Si el servidor tardó mucho, crawl lento 40→55% mientras esperamos
     Splash.crawlTo(55, 'Preparando contenido...', 400);
     await wakeupPromise;
+
+    // En la página de perfil, verificar que la BD esté lista (no solo el servidor)
+    // /ping es ultra-ligero y no toca BD; /status sí la verifica
+    if (isProfile && hasToken()) {
+        try {
+            await fetch(`${CONFIG.api.baseUrl}/status`, { method: 'GET' }).catch(() => null);
+        } catch (_) { /* silencioso */ }
+    }
+
     Splash.setProgress(55, 'Servidor listo ✓');
 
     // PASO 4: Cargar contenido específico de cada página
@@ -1029,44 +1038,78 @@ async function loadMiCarpeta() {
 
     if (!grid) return;
 
+    const MAX_RETRIES = 4;
+    const RETRY_DELAYS = [0, 3000, 8000, 15000]; // Inmediato, 3s, 8s, 15s (~26s total para cold start de Render)
+
     // Mostrar spinner mientras carga
     grid.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
     if (empty) empty.classList.add('hidden');
 
-    try {
-        const favorites = await getFavoritesApi();
-
-        // Actualizar el Set en memoria para mantener consistencia con los botones
-        window._favoritesSet = new Set((favorites || []).map(v => String(v.id)));
-
-        if (count) count.textContent = favorites.length;
-
-        if (!favorites || favorites.length === 0) {
-            grid.innerHTML = '';
-            if (empty) empty.classList.remove('hidden');
-            return;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        if (attempt > 0) {
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS[attempt]));
+            // Mostrar spinner de reintento
+            grid.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
+            if (empty) empty.classList.add('hidden');
         }
 
-        if (empty) empty.classList.add('hidden');
+        try {
+            const favorites = await getFavoritesApi();
 
-        const cards = favorites.map(video => {
-            try {
-                if (!video.category) video.category = { name: 'Sin categoría' };
-                if (!video.url) video.url = '';
-                if (!video.description) video.description = '';
-                return VideoCard(video);
-            } catch (err) {
-                return `<div class="video-card" data-video-id="${video.id || ''}">
-                    <div class="p-5"><h3 class="text-base font-bold">${video.title || 'Vídeo guardado'}</h3></div>
-                </div>`;
+            // Actualizar el Set en memoria para mantener consistencia con los botones
+            window._favoritesSet = new Set((favorites || []).map(v => String(v.id)));
+
+            if (count) count.textContent = favorites.length;
+
+            if (!favorites || favorites.length === 0) {
+                grid.innerHTML = '';
+                if (empty) empty.classList.remove('hidden');
+                return;
             }
-        });
 
-        grid.innerHTML = cards.join('');
+            if (empty) empty.classList.add('hidden');
 
-    } catch (err) {
-        console.error('[loadMiCarpeta] Error:', err);
-        grid.innerHTML = '<p style="color:#ef4444;padding:1rem;">Error al cargar favoritos. Inténtalo de nuevo.</p>';
+            const cards = favorites.map(video => {
+                try {
+                    if (!video.category) video.category = { name: 'Sin categoría' };
+                    if (!video.url) video.url = '';
+                    if (!video.description) video.description = '';
+                    return VideoCard(video);
+                } catch (err) {
+                    return `<div class="video-card" data-video-id="${video.id || ''}">
+                        <div class="p-5"><h3 class="text-base font-bold">${video.title || 'Vídeo guardado'}</h3></div>
+                    </div>`;
+                }
+            });
+
+            grid.innerHTML = cards.join('');
+            return; // Éxito, salir del bucle de reintentos
+
+        } catch (err) {
+            console.warn(`[loadMiCarpeta] Intento ${attempt + 1}/${MAX_RETRIES} fallido:`, err.message);
+
+            if (attempt === MAX_RETRIES - 1) {
+                // Último intento fallido: mostrar error con botón de reintento
+                console.error('[loadMiCarpeta] Error tras todos los reintentos:', err);
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align:center; padding: 2rem 1rem;">
+                        <p style="color:#ef4444; font-size:1rem; margin-bottom:0.75rem;">
+                            ⚠️ No se pudieron cargar tus favoritos.
+                        </p>
+                        <p style="color:#6b7280; font-size:0.875rem; margin-bottom:1.25rem;">
+                            El servidor puede estar iniciando. Inténtalo de nuevo en unos segundos.
+                        </p>
+                        <button onclick="loadMiCarpeta()" style="
+                            background: #2563eb; color: white; border: none; border-radius: 8px;
+                            padding: 0.6rem 1.5rem; font-size:0.9rem; cursor:pointer;
+                            transition: background 0.2s;
+                        " onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                            🔄 Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+        }
     }
 }
 

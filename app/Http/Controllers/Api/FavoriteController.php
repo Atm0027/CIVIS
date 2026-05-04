@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class FavoriteController extends Controller
@@ -15,8 +16,19 @@ class FavoriteController extends Controller
      */
     public function index(Request $request)
     {
-        $favorites = $request->user()->favoriteVideos()->get();
-        return response()->json($favorites);
+        try {
+            $favorites = $request->user()->favoriteVideos()->get();
+            return response()->json($favorites);
+        } catch (\Exception $e) {
+            Log::error('[FavoriteController@index] Error: ' . $e->getMessage(), [
+                'user_id' => $request->user()?->id,
+                'trace'   => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'message' => 'Error al cargar favoritos.',
+                'error'   => config('app.debug') ? $e->getMessage() : 'Server error',
+            ], 500);
+        }
     }
 
     /**
@@ -25,18 +37,30 @@ class FavoriteController extends Controller
      */
     public function toggle(Request $request, $videoId)
     {
-        $user  = $request->user();
-        $video = Video::findOrFail($videoId);
+        try {
+            $user  = $request->user();
+            $video = Video::findOrFail($videoId);
 
-        $result = $user->favoriteVideos()->toggle($video->id);
+            $result = $user->favoriteVideos()->toggle($video->id);
 
-        $isNowFavorite = count($result['attached']) > 0;
+            $isNowFavorite = count($result['attached']) > 0;
 
-        return response()->json([
-            'action'      => $isNowFavorite ? 'added' : 'removed',
-            'video_id'    => $video->id,
-            'is_favorite' => $isNowFavorite,
-        ]);
+            return response()->json([
+                'action'      => $isNowFavorite ? 'added' : 'removed',
+                'video_id'    => $video->id,
+                'is_favorite' => $isNowFavorite,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('[FavoriteController@toggle] Error: ' . $e->getMessage(), [
+                'user_id'  => $request->user()?->id,
+                'video_id' => $videoId,
+                'trace'    => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'message' => 'Error al cambiar favorito.',
+                'error'   => config('app.debug') ? $e->getMessage() : 'Server error',
+            ], 500);
+        }
     }
 
     /**
@@ -44,12 +68,17 @@ class FavoriteController extends Controller
      */
     public function check(Request $request, $videoId)
     {
-        $isFavorite = $request->user()
-            ->favoriteVideos()
-            ->where('video_id', $videoId)
-            ->exists();
+        try {
+            $isFavorite = $request->user()
+                ->favoriteVideos()
+                ->where('video_id', $videoId)
+                ->exists();
 
-        return response()->json(['is_favorite' => $isFavorite]);
+            return response()->json(['is_favorite' => $isFavorite]);
+        } catch (\Exception $e) {
+            Log::error('[FavoriteController@check] Error: ' . $e->getMessage());
+            return response()->json(['is_favorite' => false]);
+        }
     }
 
     /**
