@@ -79,6 +79,11 @@ const CONFIG = {
             calendar: "/calendar",
             upcomingDeadlines: "/calendar/upcoming",
 
+            // Favoritos del usuario
+            favorites:         "/favorites",
+            toggleFavorite:    "/favorites/:id/toggle",
+            checkFavorite:     "/favorites/:id/check",
+
             // Calendario y próximas fechas PERSONALIZADAS (solo favoritos del usuario)
             favoritesCalendar: "/favorites/calendar",
             favoritesUpcoming: "/favorites/upcoming",

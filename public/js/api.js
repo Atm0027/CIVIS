@@ -351,7 +351,7 @@ function showError(container, message) {
  * @returns {Promise<Array>} - Lista de vídeos favoritos con sus datos completos
  */
 async function getFavoritesApi() {
-    return await fetchAPI('/favorites');
+    return await fetchAPI(CONFIG.api.endpoints.favorites);
 }
 
 /**
@@ -360,7 +360,7 @@ async function getFavoritesApi() {
  * @returns {Promise<Object>} - { action: 'added'|'removed', video_id, is_favorite }
  */
 async function toggleFavoriteApi(videoId) {
-    return await fetchAPI(`/favorites/${videoId}/toggle`, { method: 'POST' });
+    return await fetchAPI(CONFIG.api.endpoints.toggleFavorite.replace(':id', videoId), { method: 'POST' });
 }
 
 /**
@@ -369,5 +369,5 @@ async function toggleFavoriteApi(videoId) {
  * @returns {Promise<Object>} - { is_favorite: boolean }
  */
 async function checkFavoriteApi(videoId) {
-    return await fetchAPI(`/favorites/${videoId}/check`);
+    return await fetchAPI(CONFIG.api.endpoints.checkFavorite.replace(':id', videoId));
 }

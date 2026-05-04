@@ -624,6 +624,16 @@ function renderVideos(videos) {
     // Cachear el array para que rerenderVideoCard pueda reusar los datos del vídeo
     window._cachedVideos = videos;
 
+    // Poblar el Set de favoritos directamente desde is_favorite del backend
+    // (evita necesitar una llamada separada a GET /favorites)
+    videos.forEach(video => {
+        if (video.is_favorite === true) {
+            window._favoritesSet.add(String(video.id));
+        } else if (video.is_favorite === false) {
+            window._favoritesSet.delete(String(video.id));
+        }
+    });
+
     noResultsEl.classList.add('hidden');
     videoFeedGrid.innerHTML = videos.map(video => VideoCard(video)).join('');
 }
