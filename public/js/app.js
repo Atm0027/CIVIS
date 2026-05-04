@@ -235,13 +235,9 @@ function initializeApp() {
     }
 
     // Cargar contenido específico de la página
-    if (path.includes('calendario')) {
-        loadCalendarPage();
-    } else if (path.includes('preguntasFrecuentes')) {
-        loadFaqPage();
-    } else if (path.includes('usuario')) {
+    if (path.includes('usuario')) {
         loadProfileData();
-    } else {
+    } else if (!path.includes('calendario') && !path.includes('preguntasFrecuentes')) {
         // index.html: el feed de vídeos y plazos ya cargan en paralelo (ver DOMContentLoaded).
         if (!currentUser) {
             const deadlinesEl = document.getElementById('deadlines-list');
@@ -638,42 +634,7 @@ function renderVideos(videos) {
     videoFeedGrid.innerHTML = videos.map(video => VideoCard(video)).join('');
 }
 
-// Carga y renderiza el calendario completo desde API
-async function loadCalendarPage() {
-    const calendarFullList = document.querySelector('.calendar-wrapper');
-
-    try {
-        showLoader(calendarFullList);
-
-        const calendar = await getCalendar();
-
-        // Ordenar por fecha
-        const sortedCalendar = calendar.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        calendarFullList.innerHTML = sortedCalendar.map(item => CalendarListItem(item)).join('');
-
-    } catch (error) {
-        console.error('Error cargando calendario:', error);
-        calendarFullList.innerHTML = ErrorMessage('Error al cargar el calendario');
-    }
-}
-
-// Carga y renderiza las FAQs desde API
-async function loadFaqPage() {
-    const faqList = document.getElementById('faqs-list');
-
-    try {
-        showLoader(faqList);
-
-        const faqs = await getFaqs();
-
-        faqList.innerHTML = faqs.map(faq => FaqCard(faq)).join('');
-
-    } catch (error) {
-        console.error('Error cargando FAQs:', error);
-        faqList.innerHTML = ErrorMessage('Error al cargar las preguntas frecuentes');
-    }
-}
+// Eliminadas las funciones legacy loadCalendarPage y loadFaqPage que sobreescribían el DOM estático
 
 // ===== SISTEMA DE NOTIFICACIONES (UI) =====
 
@@ -794,7 +755,7 @@ async function logoutUser() {
         });
     }
 
-    window.location.href = 'login.html';
+    window.location.href = '/login';
 }
 
 // ===== LIBRERÍA PERSONAL: FAVORITOS =====
@@ -838,15 +799,26 @@ window.handleToggleFavorite = async (e, videoId) => {
     rerenderVideoCard(videoId);
 
     try {
-        const result = await toggleFavoriteApi(videoId);
+        const response = await toggleFavoriteApi(videoId);
+        const isNowFavorite = response.is_favorite;
+
+        // Mostrar notificación de éxito solo si fue exitoso
+        if (typeof window.Toast !== 'undefined') {
+            if (isNowFavorite) {
+                Toast.show({ message: 'Añadido a favoritos ❤️', type: 'success', duration: 2000 });
+            } else {
+                Toast.show({ message: 'Eliminado de favoritos', type: 'info', duration: 2000 });
+            }
+        }
+
+        // Emitir evento para el calendario
+        document.dispatchEvent(new CustomEvent('favoritesUpdated'));
 
         // Sincronizar Set con respuesta real del servidor
-        if (result.is_favorite) {
+        if (isNowFavorite) {
             window._favoritesSet.add(String(videoId));
-            window.Toast && window.Toast.show({ message: '❤️ Añadido a favoritos', type: 'success', duration: 2000 });
         } else {
             window._favoritesSet.delete(String(videoId));
-            window.Toast && window.Toast.show({ message: 'Eliminado de favoritos', type: 'info', duration: 2000 });
         }
 
     } catch (err) {

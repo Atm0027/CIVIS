@@ -220,7 +220,7 @@ async function logoutUser() {
         fetchAPI('/auth/logout', { method: 'POST' }).catch(() => {});
     }
 
-    window.location.href = 'login.html';
+    window.location.href = '/login';
 }
 
 // ===== AUTO-INICIALIZACIÓN SEGÚN EXISTENCIA DE ELEMENTOS =====
