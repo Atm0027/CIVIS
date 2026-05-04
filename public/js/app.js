@@ -124,6 +124,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isProfile && hasToken()) {
         try {
             await fetch(`${CONFIG.api.baseUrl}/status`, { method: 'GET' }).catch(() => null);
+            // Dar un breve respiro al backend tras el cold start para estabilizar conexiones
+            await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (_) { /* silencioso */ }
     }
 
