@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Toast } from '../../public/js/toast.js';
+import { Toast } from './shims/toast.shim.js';
 
 // ===== HELPERS =====
 function getContainer() {

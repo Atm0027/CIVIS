@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { Notifications } from '../../public/js/notifications.js';
+import { Notifications } from './shims/notifications.shim.js';
 
 describe('Notifications Module', () => {
     beforeEach(() => {
@@ -39,6 +39,14 @@ describe('Notifications Module', () => {
     it('should remove a notification', () => {
         const n = Notifications.add({ title: '1' });
         Notifications.remove(n.id);
+        expect(Notifications.getAll()).toHaveLength(0);
+    });
+
+    it('should clear all notifications', () => {
+        Notifications.add({ title: '1' });
+        Notifications.add({ title: '2' });
+        Notifications.add({ title: '3' });
+        Notifications.clear();
         expect(Notifications.getAll()).toHaveLength(0);
     });
 

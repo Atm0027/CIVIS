@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { UserLibrary } from '../../public/js/user-library.js';
+import { UserLibrary } from './shims/user-library.shim.js';
 
 // ===== TESTS: SISTEMA DE VALORACIONES =====
 

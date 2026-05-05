@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/Atm0027/CIVIS#readme",
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.5",
     "jsdom": "^28.1.0",
     "vitest": "^4.0.18"
   }

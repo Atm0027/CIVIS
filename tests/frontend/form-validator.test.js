@@ -53,6 +53,20 @@ describe('FormValidator._validators — reglas puras', () => {
         });
     });
 
+    // --- maxLength ---
+    describe('maxLength', () => {
+        it('devuelve error si el valor excede el máximo', () => {
+            expect(v.maxLength('abcdef', {}, 5)).toBeTruthy();
+        });
+        it('devuelve null si cumple la longitud máxima', () => {
+            expect(v.maxLength('abc', {}, 5)).toBeNull();
+            expect(v.maxLength('abcde', {}, 5)).toBeNull();
+        });
+        it('devuelve null si el valor está vacío', () => {
+            expect(v.maxLength('', {}, 5)).toBeNull();
+        });
+    });
+
     // --- isEmail ---
     describe('isEmail', () => {
         it('devuelve error para emails mal formados', () => {

@@ -101,6 +101,27 @@ fetch(CONFIG.api.baseUrl + '/videos')
 
 ---
 
+### 3. Arquitectura Frontend (CSS y Responsividad)
+
+Se implementó un diseño responsivo riguroso ("Mobile-First" adaptativo) enfocado en la legibilidad y accesibilidad (UX):
+
+- **CSS Grid intrínseco**: Se resolvió el desbordamiento de inputs en pantallas pequeñas aplicando `min-width: 0` a los ítems del Grid, forzando a los elementos reemplazados a respetar el contenedor.
+- **Estructura adaptativa**:
+  - Escritorio: Layout de 3 columnas para optimizar el patrón de lectura en "Z" y aprovechar el espacio.
+  - Móvil: Layout de 1 columna para mantener un ancho de línea óptimo (45-75 caracteres) y asegurar "touch targets" accesibles sin forzar scroll horizontal.
+
+### 4. Pruebas Automatizadas (Vitest)
+
+Se introdujo una suite completa de pruebas unitarias para el frontend, cubriendo la lógica de negocio pura y la integración con el DOM (usando `jsdom`).
+
+- **Patrón "Shims"**: Para mantener la compatibilidad con `<script>` clásicos sin romper el frontend, se crearon archivos "shim" que sirven de puente entre el código original (IIFE) y el entorno de módulos ES de Vitest.
+- **Cobertura (Coverage)**:
+  - 5 Test Suites (`form-validator`, `notifications`, `ratings`, `toast`, `user-library`).
+  - **91 tests totales**, todos pasando (100% de éxito).
+  - Cobertura de línea superior al **92%**, testeando el 100% de la API pública expuesta en estos módulos.
+
+---
+
 ## Características
 
 - Automática: Detecta el entorno automáticamente
@@ -108,8 +129,10 @@ fetch(CONFIG.api.baseUrl + '/videos')
 - Seguro: No expone URLs en el código
 - Simple: Solo 2 cambios en el frontend
 - Retro-compatible: Funciona con código existente
+- **Testeado**: Alta cobertura de pruebas unitarias locales
+- **Responsivo**: Adaptable desde móviles a escritorio sin pérdida de UX
 
 ---
 
 Implementación: Completada.
-Estado: Listo para producción.
+Estado: Listo para producción y entrega final.

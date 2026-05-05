@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { UserLibrary } from '../../public/js/user-library.js';
+import { UserLibrary } from './shims/user-library.shim.js';
 
 // ===== HELPERS =====
 const VIDEO_1 = { id: 1, title: 'Obtener DNI', description: 'Tutorial sobre el DNI', url: 'https://youtu.be/abc123', category: { name: 'Identidad' } };

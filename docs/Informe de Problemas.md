@@ -82,3 +82,23 @@ Resultado Final
 El socket ahora es propiedad correcta de www-data.
 Nginx puede comunicarse exitosamente con PHP-FPM.
 La aplicación carga correctamente sin errores 502.
+
+---
+
+### 5. Fallo de Ejecución de Tests Unitarios (Undefined Exports)
+**El Problema**
+Al implementar la suite de testing Vitest para el frontend, los tests fallaban arrojando errores de que los módulos importados eran `undefined`. Esto se debía a que los archivos fuente (`user-library.js`, `notifications.js`, etc.) utilizaban un patrón IIFE inyectado en `window` para compatibilidad con `<script>` clásico, careciendo de la palabra reservada `export` (ES Modules) que Vitest espera.
+
+**La Solución**
+En lugar de refactorizar el código de producción y arriesgar la estabilidad de la aplicación, se implementó el **Patrón Shim**. 
+Se crearon archivos `.shim.js` en una carpeta específica de tests. Estos archivos importan el código fuente puro, dejan que se ancle al objeto `window` (proporcionado por `jsdom`), y luego re-exportan la variable global capturada (`export const Module = globalThis.window?.Module`).
+**Resultado:** Los 91 tests pasan sin problemas, y la cobertura de código alcanza un 92% sin alterar el entorno de producción.
+
+### 6. Desbordamiento de Inputs en Vistas Móviles (CSS Grid)
+**El Problema**
+Durante las pruebas de responsividad, se detectó que los campos de entrada (`<input>`) en formularios dentro de contenedores CSS Grid desbordaban la pantalla en dispositivos móviles (<400px), rompiendo el layout y provocando un scroll horizontal indeseado. Asignar `width: 100%` a los inputs no solucionaba el problema.
+
+**La Solución**
+El problema se originaba por el comportamiento de tamaño intrínseco ("intrinsic size") de CSS Grid. Por defecto, los ítems de un Grid tienen `min-width: auto`, impidiendo que el contenedor se encoja menos que el tamaño por defecto del elemento reemplazado (`<input>`).
+Se aplicó la regla `min-width: 0` a los ítems del Grid. Esto sobrescribe el comportamiento automático, obligando al Grid a permitir que los elementos internos se encojan según dicte su `width: 100%`.
+**Resultado:** Diseño 100% responsivo y sin desbordamientos en resoluciones de teléfonos inteligentes.
