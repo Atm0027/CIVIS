@@ -19,6 +19,7 @@ async function fetchAPI(endpoint, options = {}) {
     };
 
     const config = {
+        cache: 'no-store', // Prevenir que el navegador cachee respuestas GET de la API (ej. /favorites)
         ...options,
         headers: {
             ...defaultHeaders,
@@ -196,24 +197,7 @@ async function getUpcomingDeadlines(limit = 2) {
     return await fetchAPI(`${CONFIG.api.endpoints.upcomingDeadlines}?limit=${limit}`);
 }
 
-// ===== FAQs =====
-
-/**
- * Obtiene todas las preguntas frecuentes
- * @returns {Promise<Array>} - Lista de FAQs
- */
-async function getFaqs() {
-    return await fetchAPI(CONFIG.api.endpoints.faqs);
-}
-
-/**
- * Busca en FAQs
- * @param {string} query - Término de búsqueda
- * @returns {Promise<Array>} - FAQs que coinciden
- */
-async function searchFaqs(query) {
-    return await fetchAPI(`${CONFIG.api.endpoints.searchFaqs}?q=${encodeURIComponent(query)}`);
-}
+// Los endpoints de FAQs han sido eliminados ya que la página usa contenido estático.
 
 // ===== USUARIO =====
 
@@ -307,17 +291,6 @@ function removeCurrentUser() {
     localStorage.removeItem('civis_current_user');
 }
 
-// ===== VERIFICACIÓN DE AUTENTICACIÓN =====
-
-/**
- * Verifica si el usuario está autenticado
- * Redirige a login si no lo está
- */
-function requireAuth() {
-    if (!hasToken()) {
-        window.location.href = 'login.html';
-    }
-}
 
 // ===== ESTADOS DE CARGA =====
 
@@ -351,7 +324,7 @@ function showError(container, message) {
  * @returns {Promise<Array>} - Lista de vídeos favoritos con sus datos completos
  */
 async function getFavoritesApi() {
-    return await fetchAPI('/favorites');
+    return await fetchAPI(CONFIG.api.endpoints.favorites);
 }
 
 /**
@@ -360,7 +333,7 @@ async function getFavoritesApi() {
  * @returns {Promise<Object>} - { action: 'added'|'removed', video_id, is_favorite }
  */
 async function toggleFavoriteApi(videoId) {
-    return await fetchAPI(`/favorites/${videoId}/toggle`, { method: 'POST' });
+    return await fetchAPI(CONFIG.api.endpoints.toggleFavorite.replace(':id', videoId), { method: 'POST' });
 }
 
 /**
@@ -369,5 +342,5 @@ async function toggleFavoriteApi(videoId) {
  * @returns {Promise<Object>} - { is_favorite: boolean }
  */
 async function checkFavoriteApi(videoId) {
-    return await fetchAPI(`/favorites/${videoId}/check`);
+    return await fetchAPI(CONFIG.api.endpoints.checkFavorite.replace(':id', videoId));
 }

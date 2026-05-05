@@ -209,19 +209,6 @@ function initRegisterPage() {
     });
 }
 
-// ===== LOGOUT DEL USUARIO =====
-async function logoutUser() {
-    // Limpiar sesión local de forma INMEDIATA
-    if (typeof removeToken === 'function') removeToken();
-    if (typeof removeCurrentUser === 'function') removeCurrentUser();
-
-    // Notificar al backend en background (fire-and-forget)
-    if (typeof fetchAPI === 'function') {
-        fetchAPI('/auth/logout', { method: 'POST' }).catch(() => {});
-    }
-
-    window.location.href = 'login.html';
-}
 
 // ===== AUTO-INICIALIZACIÓN SEGÚN EXISTENCIA DE ELEMENTOS =====
 document.addEventListener('DOMContentLoaded', () => {

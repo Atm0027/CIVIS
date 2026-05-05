@@ -91,11 +91,11 @@ Splash.init();
 
 // Espera a que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', async () => {
-    const path = window.location.pathname;
-    const isIndex    = !path.includes('.html') || path.includes('index.html');
-    const isProfile  = path.includes('usuario.html');
-    const isCalendar = path.includes('calendario.html');
-    const isFaq      = path.includes('preguntasFrecuentes.html');
+    const path = window.location.pathname; // Identificar la página actual de forma robusta (Cloudflare Pages oculta el .html)
+    const isProfile  = path.includes('usuario');
+    const isCalendar = path.includes('calendario');
+    const isFaq      = path.includes('preguntasFrecuentes');
+    const isIndex    = !isProfile && !isCalendar && !isFaq;
 
     // PASO 1: Conectar con el servidor (wakeup ping en background)
     Splash.setProgress(3, 'Conectando con el servidor...');
@@ -124,47 +124,59 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isProfile && hasToken()) {
         try {
             await fetch(`${CONFIG.api.baseUrl}/status`, { method: 'GET' }).catch(() => null);
+            // Dar un breve respiro al backend tras el cold start para estabilizar conexiones
+            await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (_) { /* silencioso */ }
     }
 
     Splash.setProgress(55, 'Servidor listo ✓');
 
-    // PASO 4: Cargar contenido específico de cada página
+    // PASO 4: Cargar datos comunes (Favoritos y Sidebar) si hay sesión
+    // Estos se cargan en paralelo con el contenido específico de cada página
+    const commonPromises = [];
+    if (currentUser) {
+        commonPromises.push(loadFavoritesCache());
+        commonPromises.push(loadUpcomingDeadlines());
+    }
+
+    // PASO 5: Cargar contenido específico de cada página
     if (isIndex) {
         // Crawl 55→82% mientras esperamos vídeos + favoritos del servidor
-        // Cold start de Render: puede tardar 30-50s → ~600ms/% cubre bien ese rango
         Splash.crawlTo(82, 'Cargando vídeos...', 500);
 
-        const favPromise   = currentUser ? loadFavoritesCache() : Promise.resolve();
         const videoPromise = loadVideoFeed();
-        await Promise.all([favPromise, videoPromise]);
+        await Promise.all([...commonPromises, videoPromise]);
 
         // Cuando llegan los datos, saltar al valor real
         Splash.setProgress(88, 'Vídeos cargados ✓');
 
         // Rerenderizar para que los corazones muestren el estado correcto
         if (currentUser && window._cachedVideos) renderVideos(window._cachedVideos);
-    }
-
-    if (isProfile) {
+    } 
+    else if (isProfile) {
         Splash.crawlTo(82, 'Cargando tu carpeta...', 500);
-        await loadMiCarpeta();
+        await Promise.all([...commonPromises, loadMiCarpeta()]);
         Splash.setProgress(88, 'Carpeta cargada ✓');
-    }
-
-    if (isCalendar) {
+    } 
+    else if (isCalendar) {
         Splash.crawlTo(82, 'Cargando calendario...', 500);
-        // Inicializar UI del calendario (síncrono) y luego cargar eventos (async)
+        
+        // Inicializar UI del calendario (síncrono)
         if (typeof setupCalendarEventListeners === 'function') setupCalendarEventListeners();
         if (typeof renderCalendar === 'function') renderCalendar();
+        
+        // Cargar eventos del calendario
         if (typeof loadCalendarEvents === 'function') {
-            await loadCalendarEvents();
+            await Promise.all([...commonPromises, loadCalendarEvents()]);
+        } else {
+            await Promise.all(commonPromises);
         }
         Splash.setProgress(88, 'Calendario listo ✓');
-    }
-
-    if (isFaq) {
-        Splash.crawlTo(82, 'Cargando preguntas...', 500);
+    } 
+    else {
+        // Otras páginas (FAQ, Detalle de vídeo, etc.)
+        // Solo cargamos los datos comunes del sidebar/favs
+        await Promise.all(commonPromises);
         Splash.setProgress(88, 'Contenido listo ✓');
     }
 
@@ -205,7 +217,7 @@ async function loadCurrentUser() {
 function initializeApp() {
     // Detectar página actual
     const path = window.location.pathname;
-    const isProtectedPage = path.includes('calendario.html') || path.includes('usuario.html');
+    const isProtectedPage = path.includes('calendario') || path.includes('usuario');
 
     // Si es página protegida y no hay usuario, redirigir a login
     if (isProtectedPage && !currentUser) {
@@ -232,18 +244,11 @@ function initializeApp() {
     }
 
     // Cargar contenido específico de la página
-    if (path.includes('calendario.html')) {
-        loadCalendarPage();
-    } else if (path.includes('preguntasFrecuentes.html')) {
-        loadFaqPage();
-    } else if (path.includes('usuario.html')) {
+    if (path.includes('usuario')) {
         loadProfileData();
-    } else {
-        // index.html: el feed de vídeos ya está cargando en paralelo (ver DOMContentLoaded).
-        // Aquí solo añadimos lo que depende de saber si hay usuario logueado.
-        if (currentUser) {
-            loadUpcomingDeadlines();
-        } else {
+    } else if (!path.includes('calendario') && !path.includes('preguntasFrecuentes')) {
+        // index.html: el feed de vídeos y plazos ya cargan en paralelo (ver DOMContentLoaded).
+        if (!currentUser) {
             const deadlinesEl = document.getElementById('deadlines-list');
             if (deadlinesEl) deadlinesEl.innerHTML = '<p class="text-sm text-slate-400">Inicia sesión para ver tus plazos.</p>';
         }
@@ -491,21 +496,36 @@ async function loadUpcomingDeadlines() {
         return;
     }
 
-    try {
-        showLoader(upcomingDeadlinesEl);
+    const MAX_RETRIES = 3;
+    const RETRY_DELAYS = [0, 3000, 8000];
 
-        const upcoming = await fetchAPI(`${CONFIG.api.endpoints.favoritesUpcoming}?limit=3`);
+    showLoader(upcomingDeadlinesEl);
 
-        if (!upcoming || upcoming.length === 0) {
-            upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-slate-400">No tienes trámites favoritos con fechas próximas.</p>';
-            return;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        if (attempt > 0) {
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS[attempt]));
+            showLoader(upcomingDeadlinesEl);
         }
 
-        upcomingDeadlinesEl.innerHTML = upcoming.map(item => DeadlineItem(item)).join('');
+        try {
+            const upcoming = await fetchAPI(`${CONFIG.api.endpoints.favoritesUpcoming}?limit=3`);
 
-    } catch (error) {
-        console.error('[Upcoming] Error cargando fechas de favoritos:', error);
-        upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-red-400">Error al cargar fechas próximas.</p>';
+            if (!upcoming || upcoming.length === 0) {
+                upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-slate-400">No tienes trámites favoritos con fechas próximas.</p>';
+                return;
+            }
+
+            upcomingDeadlinesEl.innerHTML = upcoming.map(item => DeadlineItem(item)).join('');
+            return; // Éxito
+
+        } catch (error) {
+            console.warn(`[Upcoming] Intento ${attempt + 1}/${MAX_RETRIES} fallido:`, error.message);
+
+            if (attempt === MAX_RETRIES - 1) {
+                console.error('[Upcoming] Error tras todos los reintentos:', error);
+                upcomingDeadlinesEl.innerHTML = '<p class="text-sm text-red-400">Error al cargar fechas próximas.</p>';
+            }
+        }
     }
 }
 
@@ -609,46 +629,21 @@ function renderVideos(videos) {
     // Cachear el array para que rerenderVideoCard pueda reusar los datos del vídeo
     window._cachedVideos = videos;
 
+    // Poblar el Set de favoritos directamente desde is_favorite del backend
+    // (evita necesitar una llamada separada a GET /favorites)
+    videos.forEach(video => {
+        if (video.is_favorite === true) {
+            window._favoritesSet.add(String(video.id));
+        } else if (video.is_favorite === false) {
+            window._favoritesSet.delete(String(video.id));
+        }
+    });
+
     noResultsEl.classList.add('hidden');
     videoFeedGrid.innerHTML = videos.map(video => VideoCard(video)).join('');
 }
 
-// Carga y renderiza el calendario completo desde API
-async function loadCalendarPage() {
-    const calendarFullList = document.querySelector('.calendar-wrapper');
-
-    try {
-        showLoader(calendarFullList);
-
-        const calendar = await getCalendar();
-
-        // Ordenar por fecha
-        const sortedCalendar = calendar.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        calendarFullList.innerHTML = sortedCalendar.map(item => CalendarListItem(item)).join('');
-
-    } catch (error) {
-        console.error('Error cargando calendario:', error);
-        calendarFullList.innerHTML = ErrorMessage('Error al cargar el calendario');
-    }
-}
-
-// Carga y renderiza las FAQs desde API
-async function loadFaqPage() {
-    const faqList = document.getElementById('faqs-list');
-
-    try {
-        showLoader(faqList);
-
-        const faqs = await getFaqs();
-
-        faqList.innerHTML = faqs.map(faq => FaqCard(faq)).join('');
-
-    } catch (error) {
-        console.error('Error cargando FAQs:', error);
-        faqList.innerHTML = ErrorMessage('Error al cargar las preguntas frecuentes');
-    }
-}
+// Eliminadas las funciones legacy loadCalendarPage y loadFaqPage que sobreescribían el DOM estático
 
 // ===== SISTEMA DE NOTIFICACIONES (UI) =====
 
@@ -769,7 +764,7 @@ async function logoutUser() {
         });
     }
 
-    window.location.href = 'login.html';
+    window.location.href = '/login';
 }
 
 // ===== LIBRERÍA PERSONAL: FAVORITOS =====
@@ -813,15 +808,26 @@ window.handleToggleFavorite = async (e, videoId) => {
     rerenderVideoCard(videoId);
 
     try {
-        const result = await toggleFavoriteApi(videoId);
+        const response = await toggleFavoriteApi(videoId);
+        const isNowFavorite = response.is_favorite;
+
+        // Mostrar notificación de éxito solo si fue exitoso
+        if (typeof window.Toast !== 'undefined') {
+            if (isNowFavorite) {
+                Toast.show({ message: 'Añadido a favoritos ❤️', type: 'success', duration: 2000 });
+            } else {
+                Toast.show({ message: 'Eliminado de favoritos', type: 'info', duration: 2000 });
+            }
+        }
+
+        // Emitir evento para el calendario
+        document.dispatchEvent(new CustomEvent('favoritesUpdated'));
 
         // Sincronizar Set con respuesta real del servidor
-        if (result.is_favorite) {
+        if (isNowFavorite) {
             window._favoritesSet.add(String(videoId));
-            window.Toast && window.Toast.show({ message: '❤️ Añadido a favoritos', type: 'success', duration: 2000 });
         } else {
             window._favoritesSet.delete(String(videoId));
-            window.Toast && window.Toast.show({ message: 'Eliminado de favoritos', type: 'info', duration: 2000 });
         }
 
     } catch (err) {
@@ -839,22 +845,9 @@ window.handleToggleFavorite = async (e, videoId) => {
     rerenderVideoCard(videoId);
 
     // Si estamos en perfil, recargar la sección Mi Carpeta
-    if (window.location.pathname.includes('usuario.html') && typeof loadMiCarpeta === 'function') {
+    if (window.location.pathname.includes('usuario') && typeof loadMiCarpeta === 'function') {
         loadMiCarpeta();
     }
-};
-
-window.handleToggleRating = (e, videoId, value) => {
-    e.stopPropagation();
-    if (!window.UserLibrary) return;
-    const result = window.UserLibrary.toggleRating(videoId, value);
-
-    if (result.rating !== null) {
-        window.Toast && window.Toast.show({ message: '¡Gracias por tu valoración!', type: 'success', duration: 2500 });
-    } else {
-        window.Toast && window.Toast.show({ message: 'Valoración eliminada', type: 'info', duration: 2000 });
-    }
-    rerenderVideoCard(videoId);
 };
 
 /**
@@ -1038,8 +1031,8 @@ async function loadMiCarpeta() {
 
     if (!grid) return;
 
-    const MAX_RETRIES = 4;
-    const RETRY_DELAYS = [0, 3000, 8000, 15000]; // Inmediato, 3s, 8s, 15s (~26s total para cold start de Render)
+    const MAX_RETRIES = 5;
+    const RETRY_DELAYS = [0, 3000, 8000, 15000, 20000]; // Inmediato, 3s, 8s, 15s, 20s (~46s total para cold start de Render)
 
     // Mostrar spinner mientras carga
     grid.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';

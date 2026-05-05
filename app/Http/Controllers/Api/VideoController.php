@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class VideoController extends Controller
 {
@@ -25,7 +26,20 @@ class VideoController extends Controller
             });
         }
 
-        return response()->json($query->paginate(10));
+        $paginated = $query->paginate(10);
+
+        // Inyectar is_favorite si el usuario está autenticado (vía Sanctum Bearer token)
+        $user = Auth::guard('sanctum')->user();
+        $favoriteIds = $user
+            ? $user->favoriteVideos()->pluck('videos.id')->map(fn($id) => (int) $id)->toArray()
+            : [];
+
+        $paginated->getCollection()->transform(function ($video) use ($favoriteIds) {
+            $video->is_favorite = in_array((int) $video->id, $favoriteIds);
+            return $video;
+        });
+
+        return response()->json($paginated);
     }
 
     public function show($id)
