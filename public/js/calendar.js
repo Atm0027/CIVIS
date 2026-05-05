@@ -205,11 +205,14 @@ function createDayElement(dayNumber, isOtherMonth, isToday = false, dateStr = nu
 // ===== MODAL =====
 
 function openModal(dateStr, events) {
-    const overlay = document.querySelector('.modal-overlay');
+    const overlay = document.getElementById('calendar-modal');
     const title   = document.getElementById('modal-date');
     const list    = document.getElementById('modal-tasks');
 
-    if (!overlay || !title || !list) return;
+    if (!overlay || !title || !list) {
+        console.error('[Calendar] No se encontraron elementos del modal');
+        return;
+    }
 
     // Formatear fecha
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -247,10 +250,19 @@ function openModal(dateStr, events) {
         list.innerHTML = '<div class="no-tasks">No tienes trámites favoritos programados para este día.</div>';
     }
 
+    overlay.classList.remove('hidden');
     overlay.classList.add('active');
 }
 
 function closeModal() {
-    const overlay = document.querySelector('.modal-overlay');
-    if (overlay) overlay.classList.remove('active');
+    const overlay = document.getElementById('calendar-modal');
+    if (overlay) {
+        overlay.classList.remove('active');
+        // Esperar a la transición de opacidad antes de ocultar con display:none
+        setTimeout(() => {
+            if (!overlay.classList.contains('active')) {
+                overlay.classList.add('hidden');
+            }
+        }, 300);
+    }
 }

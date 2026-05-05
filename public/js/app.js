@@ -131,43 +131,52 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     Splash.setProgress(55, 'Servidor listo ✓');
 
-    // PASO 4: Cargar contenido específico de cada página
+    // PASO 4: Cargar datos comunes (Favoritos y Sidebar) si hay sesión
+    // Estos se cargan en paralelo con el contenido específico de cada página
+    const commonPromises = [];
+    if (currentUser) {
+        commonPromises.push(loadFavoritesCache());
+        commonPromises.push(loadUpcomingDeadlines());
+    }
+
+    // PASO 5: Cargar contenido específico de cada página
     if (isIndex) {
         // Crawl 55→82% mientras esperamos vídeos + favoritos del servidor
-        // Cold start de Render: puede tardar 30-50s → ~600ms/% cubre bien ese rango
         Splash.crawlTo(82, 'Cargando vídeos...', 500);
 
-        const favPromise   = currentUser ? loadFavoritesCache() : Promise.resolve();
         const videoPromise = loadVideoFeed();
-        const deadlinesPromise = currentUser ? loadUpcomingDeadlines() : Promise.resolve();
-        await Promise.all([favPromise, videoPromise, deadlinesPromise]);
+        await Promise.all([...commonPromises, videoPromise]);
 
         // Cuando llegan los datos, saltar al valor real
         Splash.setProgress(88, 'Vídeos cargados ✓');
 
         // Rerenderizar para que los corazones muestren el estado correcto
         if (currentUser && window._cachedVideos) renderVideos(window._cachedVideos);
-    }
-
-    if (isProfile) {
+    } 
+    else if (isProfile) {
         Splash.crawlTo(82, 'Cargando tu carpeta...', 500);
-        await loadMiCarpeta();
+        await Promise.all([...commonPromises, loadMiCarpeta()]);
         Splash.setProgress(88, 'Carpeta cargada ✓');
-    }
-
-    if (isCalendar) {
+    } 
+    else if (isCalendar) {
         Splash.crawlTo(82, 'Cargando calendario...', 500);
-        // Inicializar UI del calendario (síncrono) y luego cargar eventos (async)
+        
+        // Inicializar UI del calendario (síncrono)
         if (typeof setupCalendarEventListeners === 'function') setupCalendarEventListeners();
         if (typeof renderCalendar === 'function') renderCalendar();
+        
+        // Cargar eventos del calendario
         if (typeof loadCalendarEvents === 'function') {
-            await loadCalendarEvents();
+            await Promise.all([...commonPromises, loadCalendarEvents()]);
+        } else {
+            await Promise.all(commonPromises);
         }
         Splash.setProgress(88, 'Calendario listo ✓');
-    }
-
-    if (isFaq) {
-        Splash.crawlTo(82, 'Cargando preguntas...', 500);
+    } 
+    else {
+        // Otras páginas (FAQ, Detalle de vídeo, etc.)
+        // Solo cargamos los datos comunes del sidebar/favs
+        await Promise.all(commonPromises);
         Splash.setProgress(88, 'Contenido listo ✓');
     }
 
