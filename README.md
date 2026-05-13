@@ -193,10 +193,10 @@ CIVIS/
 │   └── logs/                        # Archivos de registro
 │
 ├── 📂 deploy/                       # Configuración de despliegue
-│   ├── app/
-│   │   └── docker-php-entrypoint.sh
-│   └── nginx/
-│       └── conf.d/
+│   ├── nginx/
+│   │   └── conf.d/
+│   │       └── civis.conf           # Config de Nginx (template con ${PORT})
+│   └── supervisord.conf             # Config de Supervisor (Nginx + PHP-FPM)
 │
 ├── .env                             # Variables de entorno (no subir a Git)
 ├── composer.json                    # Dependencias PHP
