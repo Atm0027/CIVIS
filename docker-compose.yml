@@ -27,16 +27,16 @@ services:
       - DB_CONNECTION=pgsql
       - DB_HOST=db
       - DB_PORT=5432
-      - DB_DATABASE=civis
-      - DB_USERNAME=civis
-      - DB_PASSWORD=civis_password_example
-      - DATABASE_URL=postgres://civis:civis_password_example@db:5432/civis
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DATABASE_URL=postgres://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}
 
       # =========================================
       # LARAVEL CORE
       # =========================================
       - PORT=8080
-      - APP_KEY=${APP_KEY:-base64:nSviGSC8VQeAsA13TSIjUQ9DszFz0IRtHGuFrDLyhVk=}
+      - APP_KEY=${APP_KEY}
       - APP_NAME=CIVIS
       - APP_ENV=local
       - APP_DEBUG=true
@@ -72,9 +72,9 @@ services:
     restart: unless-stopped
 
     environment:
-      POSTGRES_DB: civis
-      POSTGRES_USER: civis
-      POSTGRES_PASSWORD: civis_password_example
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
 
     volumes:
       - db_data:/var/lib/postgresql/data
