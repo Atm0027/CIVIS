@@ -3,7 +3,6 @@
 
 // Variable global para el usuario actual (null si no está logueado)
 let currentUser = null;
-window.allVideos = [];
 
 
 // ===== SPLASH SCREEN =====
@@ -583,7 +582,7 @@ async function loadVideoFeed() {
                 return;
             }
 
-            window.allVideos = videos;
+            window.allVideos = videos; // cache para búsqueda en cliente
             renderVideos(videos);
             return; // Éxito, salir del bucle de reintentos
 
@@ -883,46 +882,45 @@ async function handleSearch(e) {
     // Asegurarse de que estamos en la página de feed (videoteca)
     showPage('videoteca');
 
-    if (searchTerm === '' || searchTerm.length < CONFIG.search.minCharacters) {
+    if (searchTerm === '') {
         feedTitle.textContent = 'Videoteca de Trámites';
         feedTitle.classList.remove('text-blue-600', 'text-red-600');
+        renderVideos(window.allVideos || []);
+        return;
+    }
 
-        const videos = Array.isArray(window.allVideos) ? window.allVideos : [];
-        if (videos.length > 0) {
-            renderVideos(videos);
-        }
+    // Validar longitud mínima
+    if (searchTerm.length < CONFIG.search.minCharacters) {
         return;
     }
 
     try {
-        showLoader(videoFeedGrid);
-
-        const normalizedTerm = searchTerm.toLowerCase();
-        const videos = (Array.isArray(window.allVideos) ? window.allVideos : []).filter(video => {
-            const title = (video.title || '').toString().toLowerCase();
-            const description = (video.description || '').toString().toLowerCase();
-            const category = (video.category && video.category.name ? video.category.name : '').toString().toLowerCase();
-
-            return title.includes(normalizedTerm)
-                || description.includes(normalizedTerm)
-                || category.includes(normalizedTerm);
+        // Filtrado en cliente — no depende del backend ni de config.env.js
+        const source = window.allVideos || [];
+        const videos = source.filter(v => {
+            const title    = (v.title       || '').toLowerCase();
+            const desc     = (v.description || '').toLowerCase();
+            const cat      = (v.category?.name || v.category || '').toLowerCase();
+            return title.includes(searchTerm) || desc.includes(searchTerm) || cat.includes(searchTerm);
         });
 
-        const resultCount = videos.length;
+        // Actualizar título con contador de resultados
         feedTitle.classList.remove('text-blue-600', 'text-red-600');
 
-        if (resultCount === 0) {
+        if (videos.length === 0) {
             feedTitle.textContent = `No se encontraron resultados para "${searchTerm}"`;
             feedTitle.classList.add('text-red-600');
-        } else if (resultCount === 1) {
+        } else if (videos.length === 1) {
             feedTitle.textContent = `1 resultado para "${searchTerm}"`;
             feedTitle.classList.add('text-blue-600');
         } else {
-            feedTitle.textContent = `${resultCount} resultados para "${searchTerm}"`;
+            feedTitle.textContent = `${videos.length} resultados para "${searchTerm}"`;
             feedTitle.classList.add('text-blue-600');
         }
 
         renderVideos(videos);
+
+        // Hacer scroll al inicio
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (error) {
@@ -1105,4 +1103,3 @@ async function loadMiCarpeta() {
         }
     }
 }
-
