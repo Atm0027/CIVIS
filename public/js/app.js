@@ -339,7 +339,7 @@ function setupEventListeners(elements) {
                     }
 
                     e.preventDefault();
-                    showPage('videoteca'); // Default to videoteca for now as invalid 'feed' was used
+                    if (typeof showPage === 'function') showPage('videoteca'); // Default to videoteca for now as invalid 'feed' was used
 
                     // En móvil, cerrar la sidebar
                     if (window.innerWidth < 768 && elements.sidebar && elements.sidebarOverlay) {
@@ -401,7 +401,7 @@ function setupEventListeners(elements) {
     const btnBack = document.getElementById('btn-back');
     if (btnBack) {
         btnBack.addEventListener('click', () => {
-            showPage('videoteca');
+            if (typeof showPage === 'function') showPage('videoteca');
         });
     }
 
@@ -880,7 +880,7 @@ async function handleSearch(e) {
     const searchTerm = e.target.value.toLowerCase().trim();
 
     // Asegurarse de que estamos en la página de feed (videoteca)
-    showPage('videoteca');
+    if (typeof showPage === 'function') showPage('videoteca');
 
     if (searchTerm === '') {
         feedTitle.textContent = 'Videoteca de Trámites';
