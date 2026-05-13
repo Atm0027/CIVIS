@@ -277,7 +277,7 @@ function getElements() {
         calendarFullList: document.querySelector('.calendar-wrapper'),
         faqList: document.getElementById('faqs-list'),
 
-        searchBar: document.getElementById('search-bar'),
+        searchBar: document.getElementById('search-input'),
         searchBtn: document.getElementById('search-btn'),
         clearSearchBtn: document.getElementById('clear-search'),
 
