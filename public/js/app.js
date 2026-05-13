@@ -153,19 +153,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Rerenderizar para que los corazones muestren el estado correcto
         if (currentUser && window._cachedVideos) renderVideos(window._cachedVideos);
-    } 
+    }
     else if (isProfile) {
         Splash.crawlTo(82, 'Cargando tu carpeta...', 500);
         await Promise.all([...commonPromises, loadMiCarpeta()]);
         Splash.setProgress(88, 'Carpeta cargada ✓');
-    } 
+    }
     else if (isCalendar) {
         Splash.crawlTo(82, 'Cargando calendario...', 500);
-        
+
         // Inicializar UI del calendario (síncrono)
         if (typeof setupCalendarEventListeners === 'function') setupCalendarEventListeners();
         if (typeof renderCalendar === 'function') renderCalendar();
-        
+
         // Cargar eventos del calendario
         if (typeof loadCalendarEvents === 'function') {
             await Promise.all([...commonPromises, loadCalendarEvents()]);
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             await Promise.all(commonPromises);
         }
         Splash.setProgress(88, 'Calendario listo ✓');
-    } 
+    }
     else {
         // Otras páginas (FAQ, Detalle de vídeo, etc.)
         // Solo cargamos los datos comunes del sidebar/favs
@@ -560,7 +560,7 @@ async function loadVideoFeed() {
 
             // Laravel paginate() devuelve: { current_page, data: [...], total, ... }
             // pero fetchAPI lo recibe envuelto en otro nivel si el controller usa response()->json()
-            // Estructura real: response = { current_page, data: [...], total, ... } 
+            // Estructura real: response = { current_page, data: [...], total, ... }
             // o response = { data: { current_page, data: [...] } } según versión
             let videos;
             if (Array.isArray(response)) {
@@ -865,7 +865,7 @@ function rerenderVideoCard(videoId) {
         video = window._cachedVideos.find(v => String(v.id) === String(videoId));
     }
     // No intentamos buscarlo en UserLibrary.getFavorites si ya se eliminó
-    
+
     if (!video) return;
 
     // Insertar la nueva card justo antes de la actual, luego eliminar la antigua
