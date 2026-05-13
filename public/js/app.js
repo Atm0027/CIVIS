@@ -3,6 +3,7 @@
 
 // Variable global para el usuario actual (null si no está logueado)
 let currentUser = null;
+window.allVideos = [];
 
 
 // ===== SPLASH SCREEN =====
@@ -582,6 +583,7 @@ async function loadVideoFeed() {
                 return;
             }
 
+            window.allVideos = videos;
             renderVideos(videos);
             return; // Éxito, salir del bucle de reintentos
 
@@ -881,31 +883,31 @@ async function handleSearch(e) {
     // Asegurarse de que estamos en la página de feed (videoteca)
     showPage('videoteca');
 
-    if (searchTerm === '') {
+    if (searchTerm === '' || searchTerm.length < CONFIG.search.minCharacters) {
         feedTitle.textContent = 'Videoteca de Trámites';
         feedTitle.classList.remove('text-blue-600', 'text-red-600');
-        await loadVideoFeed();
-        return;
-    }
 
-    // Validar longitud mínima
-    if (searchTerm.length < CONFIG.search.minCharacters) {
+        const videos = Array.isArray(window.allVideos) ? window.allVideos : [];
+        if (videos.length > 0) {
+            renderVideos(videos);
+        }
         return;
     }
 
     try {
         showLoader(videoFeedGrid);
 
-        // Buscar en la API
-        const response = await searchVideos(searchTerm);
-        // Mismo parsing multi-nivel que loadVideoFeed
-        let videos;
-        if (Array.isArray(response))                           videos = response;
-        else if (Array.isArray(response.data))                 videos = response.data;
-        else if (response.data && Array.isArray(response.data.data)) videos = response.data.data;
-        else videos = Object.values(response).find(v => Array.isArray(v)) || [];
+        const normalizedTerm = searchTerm.toLowerCase();
+        const videos = (Array.isArray(window.allVideos) ? window.allVideos : []).filter(video => {
+            const title = (video.title || '').toString().toLowerCase();
+            const description = (video.description || '').toString().toLowerCase();
+            const category = (video.category && video.category.name ? video.category.name : '').toString().toLowerCase();
 
-        // Actualizar título con contador de resultados
+            return title.includes(normalizedTerm)
+                || description.includes(normalizedTerm)
+                || category.includes(normalizedTerm);
+        });
+
         const resultCount = videos.length;
         feedTitle.classList.remove('text-blue-600', 'text-red-600');
 
@@ -921,8 +923,6 @@ async function handleSearch(e) {
         }
 
         renderVideos(videos);
-
-        // Hacer scroll al inicio
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (error) {
